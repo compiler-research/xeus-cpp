@@ -1,0 +1,18 @@
+name: xeus-cpp
+channels:
+  - conda-forge
+dependencies:
+  # Build dependencies
+  - make
+  - cmake
+  - cxx-compiler
+  # Host dependencies
+  - xeus-zmq >=1.0.2,<2.0
+  - nlohmann_json
+  - cppzmq
+  - xtl
+  # Test dependencies
+  - pytest
+  - jupyter_kernel_test>=0.4.3
+  - nbval
+  - pytest-rerunfailures

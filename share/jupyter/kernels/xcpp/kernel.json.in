@@ -1,0 +1,11 @@
+{
+  "display_name": "cpp 14 (xcpp)",
+  "argv": [
+      "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
+      "-f",
+      "{connection_file}"
+  ],
+  "language": "cpp",
+  "metadata": {"debugger": false
+  }
+}
