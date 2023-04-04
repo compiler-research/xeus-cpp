@@ -11,6 +11,10 @@ dependencies:
   - nlohmann_json
   - cppzmq
   - xtl
+  - clangdev >=16
+  - pugixml
+  - cpp-argparse
+  - zlib
   # Test dependencies
   - pytest
   - jupyter_kernel_test>=0.4.3

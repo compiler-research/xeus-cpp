@@ -52,7 +52,6 @@ OPTION(XEUS_CPP_USE_SHARED_XEUS_CPP "Link xcpp  with the xeus shared library (in
 
 OPTION(XEUS_CPP_EMSCRIPTEN_WASM_BUILD "Build for wasm with emscripten" OFF)
 
-
 if(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
     add_compile_definitions(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
     message("Build with emscripten")
@@ -106,6 +105,9 @@ if(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
     set(EMSCRIPTEN_FEATURES "${EMSCRIPTEN_FEATURES} -s \"EXTRA_EXPORTED_RUNTIME_METHODS=[ENV']\"")
 endif()
 
+find_package(Clang REQUIRED)
+find_package(argparse REQUIRED)
+find_package(pugixml REQUIRED)
 
 # Source files
 # ============
@@ -116,13 +118,16 @@ set(XEUS_CPP_HEADERS
 )
 
 set(XEUS_CPP_SRC
+    src/xholder.cpp
+    src/xinput.cpp
     src/xinterpreter.cpp
+    src/xoptions.cpp
+    src/xparser.cpp
 )
 
 set(XEUS_CPP_MAIN_SRC
     src/main.cpp
 )
-
 
 # Targets and link - Macros
 # =========================
@@ -170,7 +175,7 @@ macro(xeus_cpp_set_common_options target_name)
     )
 endmacro()
 
-# Common macro kernels (xcpp )
+# Common macro kernels (xcpp)
 macro(xeus_cpp_set_kernel_options target_name)
     if (XEUS_CPP_USE_SHARED_XEUS_CPP)
         target_link_libraries(${target_name} PRIVATE xeus-cpp)
@@ -221,7 +226,7 @@ macro(xeus_cpp_create_target target_name linkage output_name)
         set(XEUS_CPP_XEUS_TARGET xeus-static)
     endif ()
 
-    target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} xtl)
+    target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangInterpreter pugixml argparse::argparse xtl)
     if (WIN32 OR CYGWIN)
         #
     elseif (APPLE)
@@ -234,8 +239,20 @@ macro(xeus_cpp_create_target target_name linkage output_name)
     
 endmacro()
 
+# xeus-cpp-headers
+# ================
+
+set(XCPP_HEADERS
+    include/xcpp/xmime.hpp
+    include/xcpp/xdisplay.hpp
+)
+add_library(xeus-cpp-headers INTERFACE)
+set_target_properties(xeus-cpp-headers PROPERTIES PUBLIC_HEADER "${XCPP_HEADERS}")
+
+install(TARGETS xeus-cpp-headers PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xcpp)
+
 # xeus-cpp
-# ===========
+# ========
 
 set(XEUS_CPP_TARGETS "")
 
@@ -257,7 +274,8 @@ if (XEUS_CPP_BUILD_STATIC)
 endif ()
 
 # xcpp
-# =======
+# ====
+
 if (XEUS_CPP_BUILD_EXECUTABLE)
     find_package(xeus-zmq 1.0.2 REQUIRED)
     add_executable(xcpp ${XEUS_CPP_MAIN_SRC})
@@ -276,7 +294,6 @@ if(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
     xeus_wasm_compile_options(xcpp_wasm)
     xeus_wasm_link_options(xcpp_wasm "web,worker")
 endif()
-
 
 # Installation
 # ============

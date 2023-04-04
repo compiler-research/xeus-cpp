@@ -11,8 +11,9 @@
 
 #include <emscripten/bind.h>
 
+#include <xeus/xembind.hpp>
+
 #include "xeus-cpp/xinterpreter.hpp"
-#include "xeus/xembind.hpp"
 
 EMSCRIPTEN_BINDINGS(my_module)
 {
