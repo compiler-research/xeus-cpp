@@ -63,7 +63,6 @@ To get started with using `xeus-cpp`, check out the full documentation
 
 http://xeus-cpp.readthedocs.io
 
-
 ## Dependencies
 
 `xeus-cpp` depends on
@@ -74,6 +73,11 @@ http://xeus-cpp.readthedocs.io
 - [cppzmq](https://github.com/zeromq/cppzmq)
 - [clang](https://github.com/llvm/llvm-project/)
 - [argparse](https://github.com/p-ranav/argparse)
+
+| `xeus-cpp` | `xeus-zmq`      | `xtl`           | `clang`   | `pugixml` | `cppzmq` | `cpp-argparse`| `nlohmann_json` | `dirent` (windows only) |
+|------------|-----------------|-----------------|-----------|-----------|----------|---------------|-----------------|-------------------------|
+|  main      |  >=1.0.0,<2.0.0 |  >=0.7.0,<0.8.0 | >=16,<17  | ~1.8.1    | ~4.3.0   | ~2.9          | >=3.6.1,<4.0    | >=2.3.2,<3              |
+|  0.0.1     |  >=1.0.0,<2.0.0 |  >=0.7.0,<0.8.0 | >=16,<17  | ~1.8.1    | ~4.3.0   | ~2.9          | >=3.6.1,<4.0    | >=2.3.2,<3              |
 
 ## Contributing
 
