@@ -7,14 +7,26 @@
  * The full license is in the file LICENSE, distributed with this software.         *
  ************************************************************************************/
 
-#include <algorithm>
-#include <cinttypes>  // required before including llvm/ExecutionEngine/Orc/LLJIT.h because missing llvm/Object/SymbolicFile.h
-#include <cstdarg>
-#include <cstdio>
-#include <memory>
-#include <sstream>
-#include <string>
-#include <vector>
+#include "xeus-cpp/xinterpreter.hpp"
+
+#include "xinput.hpp"
+#include "xinspect.hpp"
+// #include "xmagics/executable.hpp"
+// #include "xmagics/execution.hpp"
+#include "xmagics/os.hpp"
+#include "xparser.hpp"
+#include "xsystem.hpp"
+
+#include <xeus/xhelper.hpp>
+
+#include "xeus-cpp/xbuffer.hpp"
+#include "xeus-cpp/xeus_cpp_config.hpp"
+
+#include "xeus-cpp/xmagics.hpp"
+
+#include <xtl/xsystem.hpp>
+
+#include <pugixml.hpp>
 
 #include <llvm/ExecutionEngine/Orc/LLJIT.h>
 #include <llvm/Support/Casting.h>
@@ -26,24 +38,21 @@
 #include <clang/Frontend/TextDiagnosticPrinter.h>
 #include <clang/Lex/HeaderSearchOptions.h>
 #include <clang/Lex/Preprocessor.h>
+//#include <clang/Interpreter/Value.h>
 
-#include <xtl/xsystem.hpp>
 
-#include <xeus/xhelper.hpp>
 
-#include "xeus-cpp/xbuffer.hpp"
-#include "xeus-cpp/xeus_cpp_config.hpp"
-#include "xeus-cpp/xinterpreter.hpp"
-#include "xeus-cpp/xmagics.hpp"
+#include <algorithm>
+#include <cinttypes>  // required before including llvm/ExecutionEngine/Orc/LLJIT.h because missing llvm/Object/SymbolicFile.h
+#include <cstdarg>
+#include <cstdio>
+#include <memory>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
 
-#include "xinput.hpp"
-// #include "xinspect.hpp"
-// #include "xmagics/executable.hpp"
-// #include "xmagics/execution.hpp"
-#include "xmagics/os.hpp"
-#include "xparser.hpp"
-#include "xsystem.hpp"
-
+#include <dirent.h>
 
 std::string DiagnosticOutput;
 llvm::raw_string_ostream DiagnosticsOS(DiagnosticOutput);
@@ -53,54 +62,62 @@ auto DiagPrinter = std::make_unique<clang::TextDiagnosticPrinter>(DiagnosticsOS,
 static bool
 process_code(clang::Interpreter& Interp, const std::string& code, llvm::raw_string_ostream& error_stream)
 {
-    auto PTU = Interp.Parse(code);
-    if (!PTU)
-    {
-        auto Err = PTU.takeError();
-        error_stream << DiagnosticsOS.str();
-        // avoid printing the "Parsing failed error"
-        // llvm::logAllUnhandledErrors(std::move(Err), error_stream, "error: ");
+    
+    if (code.substr(0, 1) == "?")
+    {   
+        error_stream << "  ";
         return true;
     }
-    if (PTU->TheModule)
-    {
-        llvm::Error ex = Interp.Execute(*PTU);
-        error_stream << DiagnosticsOS.str();
-        if (code.substr(0, 3) == "int")
+    else {
+        auto PTU = Interp.Parse(code);
+        if (!PTU)
         {
-            for (clang::Decl* D : PTU->TUPart->decls())
+            auto Err = PTU.takeError();
+            error_stream << DiagnosticsOS.str();
+            // avoid printing the "Parsing failed error"
+            // llvm::logAllUnhandledErrors(std::move(Err), error_stream, "error: ");
+            return true;
+        }
+        if (PTU->TheModule)
+        {
+            llvm::Error ex = Interp.Execute(*PTU);
+            error_stream << DiagnosticsOS.str();
+            if (code.substr(0, 3) == "int")
             {
-                if (clang::VarDecl* VD = llvm::dyn_cast<clang::VarDecl>(D))
+                for (clang::Decl* D : PTU->TUPart->decls())
                 {
-                    auto Name = VD->getNameAsString();
-                    auto Addr = Interp.getSymbolAddress(clang::GlobalDecl(VD));
-                    if (!Addr)
+                    if (clang::VarDecl* VD = llvm::dyn_cast<clang::VarDecl>(D))
                     {
-                        llvm::logAllUnhandledErrors(std::move(Addr.takeError()), error_stream, "error: ");
-                        return true;
+                        auto Name = VD->getNameAsString();
+                        auto Addr = Interp.getSymbolAddress(clang::GlobalDecl(VD));
+                        if (!Addr)
+                        {
+                            llvm::logAllUnhandledErrors(std::move(Addr.takeError()), error_stream, "error: ");
+                            return true;
+                        }
                     }
                 }
             }
-        }
-        else if (code.substr(0, 16) == "std::vector<int>")
-        {
-            for (clang::Decl* D : PTU->TUPart->decls())
+            else if (code.substr(0, 16) == "std::vector<int>")
             {
-                if (clang::VarDecl* VD = llvm::dyn_cast<clang::VarDecl>(D))
+                for (clang::Decl* D : PTU->TUPart->decls())
                 {
-                    auto Name = VD->getNameAsString();
-                    auto Addr = Interp.getSymbolAddress(clang::GlobalDecl(VD));
-                    if (!Addr)
+                    if (clang::VarDecl* VD = llvm::dyn_cast<clang::VarDecl>(D))
                     {
-                        llvm::logAllUnhandledErrors(std::move(Addr.takeError()), error_stream, "error: ");
-                        return true;
+                        auto Name = VD->getNameAsString();
+                        auto Addr = Interp.getSymbolAddress(clang::GlobalDecl(VD));
+                        if (!Addr)
+                        {
+                            llvm::logAllUnhandledErrors(std::move(Addr.takeError()), error_stream, "error: ");
+                            return true;
+                        }
                     }
                 }
             }
-        }
 
-        llvm::logAllUnhandledErrors(std::move(ex), error_stream, "error: ");
-        return false;
+            llvm::logAllUnhandledErrors(std::move(ex), error_stream, "error: ");
+            return false;
+        }
     }
     return false;
 }
@@ -307,30 +324,38 @@ namespace xcpp
 
         // Scope guard performing the temporary redirection of input requests.
         auto input_guard = input_redirection(allow_stdin);
-
         std::string error_message;
         llvm::raw_string_ostream error_stream(error_message);
         // Attempt normal evaluation
+        
         try
-        {
+        {   std::string exp = R"(\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)";
+            std::regex re(R"((\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)(\.?)*$)");
+            auto inspect_request = is_inspect_request(code, re);
+            if (inspect_request.first)
+            {
+                inspect(inspect_request.second[0], kernel_res, *m_interpreter);
+            }
+            
             compilation_result = process_code(*m_interpreter, code, error_stream);
+        
         }
         catch (std::exception& e)
         {
             errorlevel = 1;
-            ename = "Standard Exception";
+            ename = "Standard Exception :";
             evalue = e.what();
         }
         catch (...)
         {
             errorlevel = 1;
-            ename = "Error";
+            ename = "Error :";
         }
-
+    
         if (compilation_result)
         {
             errorlevel = 1;
-            ename = "Error";
+            ename = "Error :";
             evalue = error_stream.str();
         }
 
@@ -357,7 +382,10 @@ namespace xcpp
             //
             // JupyterLab displays the "{ename}: {evalue}" if the traceback is
             // empty.
-            std::vector<std::string> traceback({ename + ": " + evalue});
+            if (evalue.size() < 4) {
+                ename = " ";
+            }
+            std::vector<std::string> traceback({ename  + evalue});
             if (!silent)
             {
                 publish_execution_error(ename, evalue, traceback);
@@ -400,15 +428,12 @@ namespace xcpp
     nl::json interpreter::inspect_request_impl(const std::string& code, int cursor_pos, int /*detail_level*/)
     {
         nl::json kernel_res;
-
-        auto dummy = code.substr(0, cursor_pos);
-        // TODO: same pattern as in inspect function (keep only one)
         std::string exp = R"(\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)";
-        std::regex re_method{"(" + exp + R"(\.?)*$)"};
-        std::smatch magic;
-        if (std::regex_search(dummy, magic, re_method))
+        std::regex re(R"((\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)(\.?)*$)");
+        auto inspect_request = is_inspect_request(code.substr(0, cursor_pos), re);
+        if (inspect_request.first)
         {
-            // inspect(magic[0], kernel_res, m_interpreter);
+            inspect(inspect_request.second[0], kernel_res, *m_interpreter);
         }
         return kernel_res;
     }
@@ -566,7 +591,6 @@ namespace xcpp
 
     void interpreter::init_preamble()
     {
-        //        preamble_manager.register_preamble("introspection", new xintrospection(m_interpreter));
         preamble_manager.register_preamble("magics", new xmagics_manager());
         preamble_manager.register_preamble("shell", new xsystem());
     }
@@ -595,4 +619,6 @@ namespace xcpp
         }
         return res;
     }
+
+
 }

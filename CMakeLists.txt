@@ -136,7 +136,7 @@ include(CheckCXXCompilerFlag)
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" U_CMAKE_BUILD_TYPE)
 
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib; ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+#set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib; ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
 
 macro(xeus_cpp_set_common_options target_name)
     if (MSVC)
@@ -161,7 +161,7 @@ macro(xeus_cpp_set_common_options target_name)
 
     if (APPLE)
         set_target_properties(${target_name} PROPERTIES
-            MACOSX_RPATH ON
+            MACOSX_RPATH OFF
         )
     else ()
         set_target_properties(${target_name} PROPERTIES
@@ -171,7 +171,7 @@ macro(xeus_cpp_set_common_options target_name)
     endif ()
 
     set_target_properties(${target_name} PROPERTIES
-        INSTALL_RPATH_USE_LINK_PATH TRUE
+        INSTALL_RPATH_USE_LINK_PATH FALSE
     )
 endmacro()
 
@@ -345,6 +345,26 @@ set(XEUS_CPP_CONFIG_CODE "${XEUS_CPP_CONFIG_CODE}###############################
 configure_package_config_file(${PROJECT_NAME}Config.cmake.in
                               "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
                               INSTALL_DESTINATION ${PROJECT_BINARY_DIR})
+
+# Install xeus-cpp tag files
+set(XEUS_CPP_DATA_DIR "share/xeus-cpp" CACHE STRING "xeus-cpp data directory")
+set(XCPP_TAGFILES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/share/xeus-cpp/tagfiles)
+install(DIRECTORY ${XCPP_TAGFILES_DIR}
+        DESTINATION ${XEUS_CPP_DATA_DIR})
+
+set(XEUS_CPP_CONF_DIR "etc/xeus-cpp"   CACHE STRING "xeus-cpp configuration directory")
+set(XCPP_TAGCONFS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/etc/xeus-cpp/tags.d)
+install(DIRECTORY ${XCPP_TAGCONFS_DIR}
+        DESTINATION ${XEUS_CPP_CONF_DIR})
+
+# Add definitions for the kernel to find tagfiles.
+add_definitions(-DXCPP_TAGFILES_DIR="${CMAKE_INSTALL_PREFIX}/${XEUS_CPP_DATA_DIR}/tagfiles")
+if(CMAKE_INSTALL_PREFIX STREQUAL "/usr")
+    # install into /etc instead of /usr/etc
+    add_definitions(-DXCPP_TAGCONFS_DIR="/${XEUS_CPP_CONF_DIR}/tags.d")
+else()
+    add_definitions(-DXCPP_TAGCONFS_DIR="${CMAKE_INSTALL_PREFIX}/${XEUS_CPP_CONF_DIR}/tags.d")
+endif()
 
 # Configure 'xeus-cppConfig.cmake.in for an install tree
 set(XEUS_CPP_CONFIG_CODE "")
