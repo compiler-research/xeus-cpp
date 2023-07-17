@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_d44c64559bbebec7f509842c48db8b23" kind="dir">
+    <compoundname>/home/krishna/xeus-cpp/include</compoundname>
+    <innerdir refid="dir_5de380a1c9ca76b6822298a37276cbfa">/home/krishna/xeus-cpp/include/xcpp</innerdir>
+    <innerdir refid="dir_0838147fd98f457a12154e4203982009">/home/krishna/xeus-cpp/include/xeus-cpp</innerdir>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/krishna/xeus-cpp/include/"/>
+  </compounddef>
+</doxygen>

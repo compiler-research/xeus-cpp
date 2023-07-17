@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_5de380a1c9ca76b6822298a37276cbfa" kind="dir">
+    <compoundname>/home/krishna/xeus-cpp/include/xcpp</compoundname>
+    <innerfile refid="xdisplay_8hpp">xdisplay.hpp</innerfile>
+    <innerfile refid="xmime_8hpp">xmime.hpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/krishna/xeus-cpp/include/xcpp/"/>
+  </compounddef>
+</doxygen>

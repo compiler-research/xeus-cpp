@@ -1,0 +1,94 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structxcpp_1_1xpreamble__manager" kind="struct" language="C++" prot="public">
+    <compoundname>xcpp::xpreamble_manager</compoundname>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structxcpp_1_1xpreamble__manager_1a1f35aaef9a204ec68c3c3e1b16c28ff4" prot="public" static="no" mutable="no">
+        <type>std::map&lt; std::string, <ref refid="classxcpp_1_1xholder__preamble" kindref="compound">xholder_preamble</ref> &gt;</type>
+        <definition>std::map&lt;std::string, xholder_preamble&gt; xcpp::xpreamble_manager::preamble</definition>
+        <argsstring></argsstring>
+        <name>preamble</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xmanager.hpp" line="31" column="18" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xmanager.hpp" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structxcpp_1_1xpreamble__manager_1a71781f38d0421e274e274c01fc026816" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <templateparamlist>
+          <param>
+            <type>typename preamble_type</type>
+          </param>
+        </templateparamlist>
+        <type>void</type>
+        <definition>void xcpp::xpreamble_manager::register_preamble</definition>
+        <argsstring>(const std::string &amp;name, preamble_type *pre)</argsstring>
+        <name>register_preamble</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>preamble_type *</type>
+          <declname>pre</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xmanager.hpp" line="34" column="14" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xmanager.hpp" bodystart="34" bodyend="37"/>
+      </memberdef>
+      <memberdef kind="function" id="structxcpp_1_1xpreamble__manager_1a54e98c7a09ef8de6ff6533a6b7994efa" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void xcpp::xpreamble_manager::unregister_preamble</definition>
+        <argsstring>(const std::string &amp;name)</argsstring>
+        <name>unregister_preamble</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xmanager.hpp" line="39" column="14" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xmanager.hpp" bodystart="39" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="structxcpp_1_1xpreamble__manager_1a0013d6c692dc0306f782e3e79e2aec3f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="classxcpp_1_1xholder__preamble" kindref="compound">xholder_preamble</ref> &amp;</type>
+        <definition>xholder_preamble&amp; xcpp::xpreamble_manager::operator[]</definition>
+        <argsstring>(const std::string &amp;name)</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xmanager.hpp" line="44" column="26" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xmanager.hpp" bodystart="44" bodyend="47"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xmanager.hpp" line="29" column="5" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xmanager.hpp" bodystart="30" bodyend="48"/>
+    <listofallmembers>
+      <member refid="structxcpp_1_1xpreamble__manager_1a0013d6c692dc0306f782e3e79e2aec3f" prot="public" virt="non-virtual"><scope>xcpp::xpreamble_manager</scope><name>operator[]</name></member>
+      <member refid="structxcpp_1_1xpreamble__manager_1a1f35aaef9a204ec68c3c3e1b16c28ff4" prot="public" virt="non-virtual"><scope>xcpp::xpreamble_manager</scope><name>preamble</name></member>
+      <member refid="structxcpp_1_1xpreamble__manager_1a71781f38d0421e274e274c01fc026816" prot="public" virt="non-virtual"><scope>xcpp::xpreamble_manager</scope><name>register_preamble</name></member>
+      <member refid="structxcpp_1_1xpreamble__manager_1a54e98c7a09ef8de6ff6533a6b7994efa" prot="public" virt="non-virtual"><scope>xcpp::xpreamble_manager</scope><name>unregister_preamble</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

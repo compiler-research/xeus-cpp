@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="structxcpp_1_1xmagic__line" kind="struct" language="C++" prot="public" abstract="yes">
+    <compoundname>xcpp::xmagic_line</compoundname>
+    <derivedcompoundref refid="structxcpp_1_1xmagic__line__cell" prot="public" virt="non-virtual">xcpp::xmagic_line_cell</derivedcompoundref>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="structxcpp_1_1xmagic__line_1a8f534886132abee8297783458dba85c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void xcpp::xmagic_line::operator()</definition>
+        <argsstring>(const std::string &amp;line)=0</argsstring>
+        <name>operator()</name>
+        <param>
+          <type>const std::string &amp;</type>
+          <declname>line</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xmagics.hpp" line="29" column="22"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>xcpp::xmagic_line</label>
+        <link refid="structxcpp_1_1xmagic__line"/>
+      </node>
+      <node id="2">
+        <label>xcpp::xmagic_line_cell</label>
+        <link refid="structxcpp_1_1xmagic__line__cell"/>
+        <childnode refid="1" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xmagics.hpp" line="27" column="5" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xmagics.hpp" bodystart="28" bodyend="30"/>
+    <listofallmembers>
+      <member refid="structxcpp_1_1xmagic__line_1a8f534886132abee8297783458dba85c0" prot="public" virt="pure-virtual"><scope>xcpp::xmagic_line</scope><name>operator()</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

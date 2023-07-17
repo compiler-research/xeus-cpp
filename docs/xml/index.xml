@@ -1,0 +1,166 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygenindex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="index.xsd" version="1.9.1" xml:lang="en-US">
+  <compound refid="structxcpp_1_1argparser" kind="struct"><name>xcpp::argparser</name>
+    <member refid="structxcpp_1_1argparser_1af92a1a650eeb00587e0fd2887fbcfc40" kind="typedef"><name>base_type</name></member>
+    <member refid="structxcpp_1_1argparser_1ad5e57ae45143bcb3e6973e20c7d99c86" kind="function"><name>parse</name></member>
+  </compound>
+  <compound refid="classxcpp_1_1dummy__display" kind="class"><name>xcpp::dummy_display</name>
+  </compound>
+  <compound refid="classxcpp_1_1interpreter" kind="class"><name>xcpp::interpreter</name>
+    <member refid="classxcpp_1_1interpreter_1a153bd5513b88884d645b54654f29940c" kind="variable"><name>m_interpreter</name></member>
+    <member refid="classxcpp_1_1interpreter_1a1dc141ccf9b60f301d96513b737e93cd" kind="variable"><name>m_version</name></member>
+    <member refid="classxcpp_1_1interpreter_1aaa2237bf0e49fc8e4b0563e373ac081c" kind="variable"><name>xmagics</name></member>
+    <member refid="classxcpp_1_1interpreter_1a0f8a8b67379a943c804cfb9e2b36f4a5" kind="variable"><name>preamble_manager</name></member>
+    <member refid="classxcpp_1_1interpreter_1a102aa02823dbcc169bb193c4b6a72ee5" kind="variable"><name>p_cout_strbuf</name></member>
+    <member refid="classxcpp_1_1interpreter_1ab14c78446191c1d42da2e8513698e9fc" kind="variable"><name>p_cerr_strbuf</name></member>
+    <member refid="classxcpp_1_1interpreter_1a5eba2818f3fa0bb3459a6356f53f5808" kind="variable"><name>m_cout_buffer</name></member>
+    <member refid="classxcpp_1_1interpreter_1a8c59ba2e6204cecfade5d0929ef7734a" kind="variable"><name>m_cerr_buffer</name></member>
+    <member refid="classxcpp_1_1interpreter_1ae1d4b1b461b62e234e5539949ab0493f" kind="function"><name>interpreter</name></member>
+    <member refid="classxcpp_1_1interpreter_1a257d383193600b872b04e13456dfa897" kind="function"><name>~interpreter</name></member>
+    <member refid="classxcpp_1_1interpreter_1a48307646df874d97fc054cebc1e8f68a" kind="function"><name>publish_stdout</name></member>
+    <member refid="classxcpp_1_1interpreter_1a3ef4305965c5b91dce3193fd8f0c82eb" kind="function"><name>publish_stderr</name></member>
+    <member refid="classxcpp_1_1interpreter_1a71bf2c8a28d4860af796b4f7b02ecdb8" kind="function"><name>configure_impl</name></member>
+    <member refid="classxcpp_1_1interpreter_1aea77e88d18453007361139d6994b15e9" kind="function"><name>execute_request_impl</name></member>
+    <member refid="classxcpp_1_1interpreter_1a04e57f3e69e2bb189ab414767dcd3f1d" kind="function"><name>complete_request_impl</name></member>
+    <member refid="classxcpp_1_1interpreter_1a480649c53f2a31a864623e5107a39a18" kind="function"><name>inspect_request_impl</name></member>
+    <member refid="classxcpp_1_1interpreter_1a1a7db58e196ce7a385a772957073b879" kind="function"><name>is_complete_request_impl</name></member>
+    <member refid="classxcpp_1_1interpreter_1a6a5c2931ab5dafd4474c6cc132bb6c83" kind="function"><name>kernel_info_request_impl</name></member>
+    <member refid="classxcpp_1_1interpreter_1a867378691f77b55cc64be2d60d54a31b" kind="function"><name>shutdown_request_impl</name></member>
+    <member refid="classxcpp_1_1interpreter_1a53d77ff6b50601820efa50f7c08624a7" kind="function"><name>get_error_reply</name></member>
+    <member refid="classxcpp_1_1interpreter_1a75769a03c887571ad503347b14b67367" kind="function"><name>redirect_output</name></member>
+    <member refid="classxcpp_1_1interpreter_1a418feab424cfa3f9c85d6f3a2d732e97" kind="function"><name>restore_output</name></member>
+    <member refid="classxcpp_1_1interpreter_1a5fb0bb1417895846f8adfe3d6648abb4" kind="function"><name>init_includes</name></member>
+    <member refid="classxcpp_1_1interpreter_1acc606bf0ed3bdb4ae0c48ac66deafc6f" kind="function"><name>init_preamble</name></member>
+    <member refid="classxcpp_1_1interpreter_1a2c83401839e18c113d11b81ce8f4faff" kind="function"><name>init_magic</name></member>
+    <member refid="classxcpp_1_1interpreter_1a17d351d7609e8e3c6e7007f0e500488e" kind="function"><name>get_stdopt</name></member>
+  </compound>
+  <compound refid="classxcpp_1_1xholder__preamble" kind="class"><name>xcpp::xholder_preamble</name>
+    <member refid="classxcpp_1_1xholder__preamble_1ac9e40bee5fb64b6cf4c7efd9fd3910e9" kind="variable"><name>p_holder</name></member>
+    <member refid="classxcpp_1_1xholder__preamble_1afee44086158367b4087e7cfeab513dd5" kind="function"><name>xholder_preamble</name></member>
+    <member refid="classxcpp_1_1xholder__preamble_1a0c90c9c1e3a177bb8ce4de5ee35c0763" kind="function"><name>~xholder_preamble</name></member>
+    <member refid="classxcpp_1_1xholder__preamble_1aadd821fac9b70fe219ff191ed61f56af" kind="function"><name>xholder_preamble</name></member>
+    <member refid="classxcpp_1_1xholder__preamble_1ac92418825fce603d3aeb3577622d4ac4" kind="function"><name>xholder_preamble</name></member>
+    <member refid="classxcpp_1_1xholder__preamble_1abcbfb399708c6ab4e58728a726137690" kind="function"><name>xholder_preamble</name></member>
+    <member refid="classxcpp_1_1xholder__preamble_1a6a1dd933e4388c0dd29cdb6072679940" kind="function"><name>operator=</name></member>
+    <member refid="classxcpp_1_1xholder__preamble_1a7f9dbcdfd18316018225beb025af61e0" kind="function"><name>operator=</name></member>
+    <member refid="classxcpp_1_1xholder__preamble_1a4ee0f98a97820a2ea105ace6f8fea056" kind="function"><name>operator=</name></member>
+    <member refid="classxcpp_1_1xholder__preamble_1a97b060232d3df1a8cf36dc4e1d7e11b2" kind="function"><name>swap</name></member>
+    <member refid="classxcpp_1_1xholder__preamble_1aac63866e5e465093ab5758713faaab16" kind="function"><name>apply</name></member>
+    <member refid="classxcpp_1_1xholder__preamble_1ac29579637ff9436c7d23a22da76585b8" kind="function"><name>is_match</name></member>
+    <member refid="classxcpp_1_1xholder__preamble_1aca42cb664f139401d80462cf527f6a3f" kind="function"><name>get_cast</name></member>
+  </compound>
+  <compound refid="classxcpp_1_1xinput__buffer" kind="class"><name>xcpp::xinput_buffer</name>
+    <member refid="classxcpp_1_1xinput__buffer_1a2b3b45a9b8d4c6bb28525fe307af852f" kind="typedef"><name>base_type</name></member>
+    <member refid="classxcpp_1_1xinput__buffer_1ab9755d34b1a14a16b7b06d8100bfe03a" kind="typedef"><name>callback_type</name></member>
+    <member refid="classxcpp_1_1xinput__buffer_1a935d938c8a80483c9fc4b728d79f62f5" kind="typedef"><name>traits_type</name></member>
+    <member refid="classxcpp_1_1xinput__buffer_1a58eee3b976b404ed9e5e245c50cb072c" kind="variable"><name>m_callback</name></member>
+    <member refid="classxcpp_1_1xinput__buffer_1a64e1f515c6a2d38a9652f2a4d6fa3452" kind="variable"><name>m_value</name></member>
+    <member refid="classxcpp_1_1xinput__buffer_1a7a118885a7bdb2d14eed50b359d7f946" kind="function"><name>xinput_buffer</name></member>
+    <member refid="classxcpp_1_1xinput__buffer_1a90d44bb131e663709339579fe077a91b" kind="function"><name>underflow</name></member>
+  </compound>
+  <compound refid="structxcpp_1_1xmagic__cell" kind="struct"><name>xcpp::xmagic_cell</name>
+    <member refid="structxcpp_1_1xmagic__cell_1aae96efda24298d01d1e30c7983575c19" kind="function"><name>operator()</name></member>
+  </compound>
+  <compound refid="structxcpp_1_1xmagic__line" kind="struct"><name>xcpp::xmagic_line</name>
+    <member refid="structxcpp_1_1xmagic__line_1a8f534886132abee8297783458dba85c0" kind="function"><name>operator()</name></member>
+  </compound>
+  <compound refid="structxcpp_1_1xmagic__line__cell" kind="struct"><name>xcpp::xmagic_line_cell</name>
+  </compound>
+  <compound refid="classxcpp_1_1xmagics__manager" kind="class"><name>xcpp::xmagics_manager</name>
+    <member refid="classxcpp_1_1xmagics__manager_1a8ff8ed76f037c238e930be10bbe116bb" kind="variable"><name>m_magic_cell</name></member>
+    <member refid="classxcpp_1_1xmagics__manager_1ae5e477ff783aca9561d259119d34a93f" kind="variable"><name>m_magic_line</name></member>
+    <member refid="classxcpp_1_1xmagics__manager_1a5666c76d021936624c5bad3f55a302a1" kind="function"><name>xmagics_manager</name></member>
+    <member refid="classxcpp_1_1xmagics__manager_1a87ba830cff2d02f1910bbdb8b9858085" kind="function"><name>register_magic</name></member>
+    <member refid="classxcpp_1_1xmagics__manager_1a3a74308004805aaebf2972f7197f2579" kind="function"><name>unregister_magic</name></member>
+    <member refid="classxcpp_1_1xmagics__manager_1a96936c8dcb0b1f117d9cd8ab9db3f5e3" kind="function"><name>contains</name></member>
+    <member refid="classxcpp_1_1xmagics__manager_1a70c3bfb01eabea6bd47e46ee89c1544c" kind="function"><name>apply</name></member>
+    <member refid="classxcpp_1_1xmagics__manager_1aae92022076da7b95bfd171a27f0a8947" kind="function"><name>apply</name></member>
+    <member refid="classxcpp_1_1xmagics__manager_1a6e5733bee4a74b1fb2a3dbc0a60662d9" kind="function"><name>apply</name></member>
+    <member refid="classxcpp_1_1xmagics__manager_1ae87657c9f989355758ddac9f53d8f0b0" kind="function"><name>clone</name></member>
+    <member refid="classxcpp_1_1xmagics__manager_1a12f0ecbf03377cca4e044acb0bab50dc" kind="variable"><name>pattern</name></member>
+  </compound>
+  <compound refid="classxcpp_1_1xnull" kind="class"><name>xcpp::xnull</name>
+    <member refid="classxcpp_1_1xnull_1a8d1f25fba30636eda986c04ed3ce6d1e" kind="typedef"><name>base_type</name></member>
+    <member refid="classxcpp_1_1xnull_1a575f806ee0a3bf312ee4f5f532e7c43c" kind="typedef"><name>traits_type</name></member>
+    <member refid="classxcpp_1_1xnull_1adbec2009707f75928ce7dee8a664faa4" kind="function"><name>overflow</name></member>
+  </compound>
+  <compound refid="classxcpp_1_1xoutput__buffer" kind="class"><name>xcpp::xoutput_buffer</name>
+    <member refid="classxcpp_1_1xoutput__buffer_1abbb8807d12befa0ae5a6e0e472fd83a9" kind="typedef"><name>base_type</name></member>
+    <member refid="classxcpp_1_1xoutput__buffer_1a44745fe6207559a947c11ef327a3acb1" kind="typedef"><name>callback_type</name></member>
+    <member refid="classxcpp_1_1xoutput__buffer_1a603be2be1e6b1ae69c515a5fdfb3b69f" kind="typedef"><name>traits_type</name></member>
+    <member refid="classxcpp_1_1xoutput__buffer_1ad5928e490ff3e4c416c0c763cfefdd07" kind="variable"><name>m_callback</name></member>
+    <member refid="classxcpp_1_1xoutput__buffer_1aee6e61a9b8c85e11226f1b71d1ee604b" kind="variable"><name>m_output</name></member>
+    <member refid="classxcpp_1_1xoutput__buffer_1a037c336a193b3ebc5c2aa67f29d26fd4" kind="variable"><name>m_mutex</name></member>
+    <member refid="classxcpp_1_1xoutput__buffer_1a5433df96483a008a7ed9ff58fcc3390e" kind="function"><name>xoutput_buffer</name></member>
+    <member refid="classxcpp_1_1xoutput__buffer_1a70a8ae42a63cec2f0d7e16700770b69f" kind="function"><name>overflow</name></member>
+    <member refid="classxcpp_1_1xoutput__buffer_1ab878b98dbca91051135b3ce504a6b6bf" kind="function"><name>xsputn</name></member>
+    <member refid="classxcpp_1_1xoutput__buffer_1af174807416424868ba96d530f58e375e" kind="function"><name>sync</name></member>
+  </compound>
+  <compound refid="structxcpp_1_1xpreamble" kind="struct"><name>xcpp::xpreamble</name>
+    <member refid="structxcpp_1_1xpreamble_1a12f0ecbf03377cca4e044acb0bab50dc" kind="variable"><name>pattern</name></member>
+    <member refid="structxcpp_1_1xpreamble_1a2be8d2345f47092deb5e59aaf972b97f" kind="function"><name>is_match</name></member>
+    <member refid="structxcpp_1_1xpreamble_1a54b4d84f4ac72b44537c8e7d8ce8a3e0" kind="function"><name>apply</name></member>
+    <member refid="structxcpp_1_1xpreamble_1a27ebb98327ee1fbc535e378007a5787b" kind="function"><name>clone</name></member>
+    <member refid="structxcpp_1_1xpreamble_1a8c5d781e8c7a473e68b7ef86526d5505" kind="function"><name>~xpreamble</name></member>
+  </compound>
+  <compound refid="structxcpp_1_1xpreamble__manager" kind="struct"><name>xcpp::xpreamble_manager</name>
+    <member refid="structxcpp_1_1xpreamble__manager_1a1f35aaef9a204ec68c3c3e1b16c28ff4" kind="variable"><name>preamble</name></member>
+    <member refid="structxcpp_1_1xpreamble__manager_1a71781f38d0421e274e274c01fc026816" kind="function"><name>register_preamble</name></member>
+    <member refid="structxcpp_1_1xpreamble__manager_1a54e98c7a09ef8de6ff6533a6b7994efa" kind="function"><name>unregister_preamble</name></member>
+    <member refid="structxcpp_1_1xpreamble__manager_1a0013d6c692dc0306f782e3e79e2aec3f" kind="function"><name>operator[]</name></member>
+  </compound>
+  <compound refid="namespaceargparse" kind="namespace"><name>argparse</name>
+  </compound>
+  <compound refid="namespacestd" kind="namespace"><name>std</name>
+  </compound>
+  <compound refid="namespacexcpp" kind="namespace"><name>xcpp</name>
+    <member refid="xmagics_8hpp_1a98364df151a3e72cb1c7108167e8aadb" kind="enum"><name>xmagic_type</name></member>
+    <member refid="xmagics_8hpp_1a98364df151a3e72cb1c7108167e8aadba8d27600b0cae5308441ddf6d9bb3c74c" kind="enumvalue"><name>cell</name></member>
+    <member refid="xmagics_8hpp_1a98364df151a3e72cb1c7108167e8aadba6438c669e0d0de98e6929c2cc0fac474" kind="enumvalue"><name>line</name></member>
+    <member refid="xdisplay_8hpp_1a487a04b360f66a3444e60bb84e744eb9" kind="function"><name>display</name></member>
+    <member refid="xdisplay_8hpp_1abc0a661c455fd26550a4c3a793bfe0a3" kind="function"><name>display</name></member>
+    <member refid="xdisplay_8hpp_1a0ee9d4df1f1f2846a6f3b3c9ca749bb7" kind="function"><name>display</name></member>
+    <member refid="xdisplay_8hpp_1ab3ed6da61f92efb83ce3523cbe938454" kind="function"><name>clear_output</name></member>
+    <member refid="xmime_8hpp_1a65239d1200255e88563cc11468ec80b6" kind="function"><name>mime_bundle_repr</name></member>
+  </compound>
+  <compound refid="namespacexcpp_1_1detail" kind="namespace"><name>xcpp::detail</name>
+    <member refid="xmime_8hpp_1aff1e60e2878c58d1df518cbd79c9a7ef" kind="function"><name>mime_bundle_repr_via_sstream</name></member>
+  </compound>
+  <compound refid="namespacexeus" kind="namespace"><name>xeus</name>
+  </compound>
+  <compound refid="xdisplay_8hpp" kind="file"><name>xdisplay.hpp</name>
+  </compound>
+  <compound refid="xmime_8hpp" kind="file"><name>xmime.hpp</name>
+  </compound>
+  <compound refid="xbuffer_8hpp" kind="file"><name>xbuffer.hpp</name>
+  </compound>
+  <compound refid="xeus__cpp__config_8hpp" kind="file"><name>xeus_cpp_config.hpp</name>
+    <member refid="xeus__cpp__config_8hpp_1a68ed1793345b9adff1a8199b392c32e2" kind="define"><name>XEUS_CPP_VERSION_MAJOR</name></member>
+    <member refid="xeus__cpp__config_8hpp_1a41fe3e746f28ef11c82b4ab15471242f" kind="define"><name>XEUS_CPP_VERSION_MINOR</name></member>
+    <member refid="xeus__cpp__config_8hpp_1a661d7c5b985eee79690997f623125c34" kind="define"><name>XEUS_CPP_VERSION_PATCH</name></member>
+    <member refid="xeus__cpp__config_8hpp_1a5ba973983dde2cc135401303efc98632" kind="define"><name>XEUS_CPP_CONCATENATE</name></member>
+    <member refid="xeus__cpp__config_8hpp_1aa147b6b852de795106b7a3b985366378" kind="define"><name>XEUS_CPP_CONCATENATE_IMPL</name></member>
+    <member refid="xeus__cpp__config_8hpp_1a2ab2095a57d7e234f5349d7bdbeb5b10" kind="define"><name>XEUS_CPP_STRINGIFY</name></member>
+    <member refid="xeus__cpp__config_8hpp_1ad0dc6cf533b4b6296e14e69d14ac4114" kind="define"><name>XEUS_CPP_STRINGIFY_IMPL</name></member>
+    <member refid="xeus__cpp__config_8hpp_1af2bfc7dd47ae550975c9e2b25882cac0" kind="define"><name>XEUS_CPP_VERSION</name></member>
+    <member refid="xeus__cpp__config_8hpp_1a7ca288c0af6d60d57d6a640f30183d45" kind="define"><name>XEUS_CPP_API</name></member>
+  </compound>
+  <compound refid="xholder_8hpp" kind="file"><name>xholder.hpp</name>
+  </compound>
+  <compound refid="xinterpreter_8hpp" kind="file"><name>xinterpreter.hpp</name>
+  </compound>
+  <compound refid="xmagics_8hpp" kind="file"><name>xmagics.hpp</name>
+  </compound>
+  <compound refid="xmanager_8hpp" kind="file"><name>xmanager.hpp</name>
+  </compound>
+  <compound refid="xoptions_8hpp" kind="file"><name>xoptions.hpp</name>
+  </compound>
+  <compound refid="xpreamble_8hpp" kind="file"><name>xpreamble.hpp</name>
+  </compound>
+  <compound refid="dir_d44c64559bbebec7f509842c48db8b23" kind="dir"><name>/home/krishna/xeus-cpp/include</name>
+  </compound>
+  <compound refid="dir_5de380a1c9ca76b6822298a37276cbfa" kind="dir"><name>/home/krishna/xeus-cpp/include/xcpp</name>
+  </compound>
+  <compound refid="dir_0838147fd98f457a12154e4203982009" kind="dir"><name>/home/krishna/xeus-cpp/include/xeus-cpp</name>
+  </compound>
+</doxygenindex>

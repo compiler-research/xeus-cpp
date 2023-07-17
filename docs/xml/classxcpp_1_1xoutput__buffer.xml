@@ -1,0 +1,200 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classxcpp_1_1xoutput__buffer" kind="class" language="C++" prot="public">
+    <compoundname>xcpp::xoutput_buffer</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">std::streambuf</basecompoundref>
+      <sectiondef kind="public-type">
+      <memberdef kind="typedef" id="classxcpp_1_1xoutput__buffer_1abbb8807d12befa0ae5a6e0e472fd83a9" prot="public" static="no">
+        <type>std::streambuf</type>
+        <definition>using xcpp::xoutput_buffer::base_type =  std::streambuf</definition>
+        <argsstring></argsstring>
+        <name>base_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" line="29" column="9" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" bodystart="29" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classxcpp_1_1xoutput__buffer_1a44745fe6207559a947c11ef327a3acb1" prot="public" static="no">
+        <type>std::function&lt; void(const std::string &amp;)&gt;</type>
+        <definition>using xcpp::xoutput_buffer::callback_type =  std::function&lt;void(const std::string&amp;)&gt;</definition>
+        <argsstring></argsstring>
+        <name>callback_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" line="30" column="9" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" bodystart="30" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classxcpp_1_1xoutput__buffer_1a603be2be1e6b1ae69c515a5fdfb3b69f" prot="public" static="no">
+        <type>base_type::traits_type</type>
+        <definition>using xcpp::xoutput_buffer::traits_type =  base_type::traits_type</definition>
+        <argsstring></argsstring>
+        <name>traits_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" line="31" column="9" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="classxcpp_1_1xoutput__buffer_1ad5928e490ff3e4c416c0c763cfefdd07" prot="protected" static="no" mutable="no">
+        <type>callback_type</type>
+        <definition>callback_type xcpp::xoutput_buffer::m_callback</definition>
+        <argsstring></argsstring>
+        <name>m_callback</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" line="71" column="23" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classxcpp_1_1xoutput__buffer_1aee6e61a9b8c85e11226f1b71d1ee604b" prot="protected" static="no" mutable="no">
+        <type>std::string</type>
+        <definition>std::string xcpp::xoutput_buffer::m_output</definition>
+        <argsstring></argsstring>
+        <name>m_output</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" line="72" column="21" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" bodystart="72" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classxcpp_1_1xoutput__buffer_1a037c336a193b3ebc5c2aa67f29d26fd4" prot="protected" static="no" mutable="no">
+        <type>std::mutex</type>
+        <definition>std::mutex xcpp::xoutput_buffer::m_mutex</definition>
+        <argsstring></argsstring>
+        <name>m_mutex</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" line="73" column="20" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" bodystart="73" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classxcpp_1_1xoutput__buffer_1a5433df96483a008a7ed9ff58fcc3390e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>xcpp::xoutput_buffer::xoutput_buffer</definition>
+        <argsstring>(callback_type callback)</argsstring>
+        <name>xoutput_buffer</name>
+        <param>
+          <type>callback_type</type>
+          <declname>callback</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" line="33" column="9" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" bodystart="33" bodyend="36"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="classxcpp_1_1xoutput__buffer_1a70a8ae42a63cec2f0d7e16700770b69f" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>traits_type::int_type</type>
+        <definition>traits_type::int_type xcpp::xoutput_buffer::overflow</definition>
+        <argsstring>(traits_type::int_type c) override</argsstring>
+        <name>overflow</name>
+        <param>
+          <type>traits_type::int_type</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" line="40" column="31" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" bodystart="40" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="classxcpp_1_1xoutput__buffer_1ab878b98dbca91051135b3ce504a6b6bf" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::streamsize</type>
+        <definition>std::streamsize xcpp::xoutput_buffer::xsputn</definition>
+        <argsstring>(const char *s, std::streamsize count) override</argsstring>
+        <name>xsputn</name>
+        <param>
+          <type>const char *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>std::streamsize</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" line="51" column="25" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" bodystart="51" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="classxcpp_1_1xoutput__buffer_1af174807416424868ba96d530f58e375e" prot="protected" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>traits_type::int_type</type>
+        <definition>traits_type::int_type xcpp::xoutput_buffer::sync</definition>
+        <argsstring>() override</argsstring>
+        <name>sync</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" line="59" column="31" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" bodystart="59" bodyend="69"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>xcpp::xoutput_buffer</label>
+        <link refid="classxcpp_1_1xoutput__buffer"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>std::streambuf</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>xcpp::xoutput_buffer</label>
+        <link refid="classxcpp_1_1xoutput__buffer"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>std::streambuf</label>
+      </node>
+    </collaborationgraph>
+    <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" line="25" column="5" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" bodystart="26" bodyend="74"/>
+    <listofallmembers>
+      <member refid="classxcpp_1_1xoutput__buffer_1abbb8807d12befa0ae5a6e0e472fd83a9" prot="public" virt="non-virtual"><scope>xcpp::xoutput_buffer</scope><name>base_type</name></member>
+      <member refid="classxcpp_1_1xoutput__buffer_1a44745fe6207559a947c11ef327a3acb1" prot="public" virt="non-virtual"><scope>xcpp::xoutput_buffer</scope><name>callback_type</name></member>
+      <member refid="classxcpp_1_1xoutput__buffer_1ad5928e490ff3e4c416c0c763cfefdd07" prot="protected" virt="non-virtual"><scope>xcpp::xoutput_buffer</scope><name>m_callback</name></member>
+      <member refid="classxcpp_1_1xoutput__buffer_1a037c336a193b3ebc5c2aa67f29d26fd4" prot="protected" virt="non-virtual"><scope>xcpp::xoutput_buffer</scope><name>m_mutex</name></member>
+      <member refid="classxcpp_1_1xoutput__buffer_1aee6e61a9b8c85e11226f1b71d1ee604b" prot="protected" virt="non-virtual"><scope>xcpp::xoutput_buffer</scope><name>m_output</name></member>
+      <member refid="classxcpp_1_1xoutput__buffer_1a70a8ae42a63cec2f0d7e16700770b69f" prot="protected" virt="non-virtual"><scope>xcpp::xoutput_buffer</scope><name>overflow</name></member>
+      <member refid="classxcpp_1_1xoutput__buffer_1af174807416424868ba96d530f58e375e" prot="protected" virt="non-virtual"><scope>xcpp::xoutput_buffer</scope><name>sync</name></member>
+      <member refid="classxcpp_1_1xoutput__buffer_1a603be2be1e6b1ae69c515a5fdfb3b69f" prot="public" virt="non-virtual"><scope>xcpp::xoutput_buffer</scope><name>traits_type</name></member>
+      <member refid="classxcpp_1_1xoutput__buffer_1a5433df96483a008a7ed9ff58fcc3390e" prot="public" virt="non-virtual"><scope>xcpp::xoutput_buffer</scope><name>xoutput_buffer</name></member>
+      <member refid="classxcpp_1_1xoutput__buffer_1ab878b98dbca91051135b3ce504a6b6bf" prot="protected" virt="non-virtual"><scope>xcpp::xoutput_buffer</scope><name>xsputn</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

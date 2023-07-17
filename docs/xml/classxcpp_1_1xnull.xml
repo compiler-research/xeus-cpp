@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="classxcpp_1_1xnull" kind="class" language="C++" prot="public">
+    <compoundname>xcpp::xnull</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">std::streambuf</basecompoundref>
+      <sectiondef kind="private-type">
+      <memberdef kind="typedef" id="classxcpp_1_1xnull_1a8d1f25fba30636eda986c04ed3ce6d1e" prot="private" static="no">
+        <type>std::streambuf</type>
+        <definition>using xcpp::xnull::base_type =  std::streambuf</definition>
+        <argsstring></argsstring>
+        <name>base_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" line="118" column="9" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" bodystart="118" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="classxcpp_1_1xnull_1a575f806ee0a3bf312ee4f5f532e7c43c" prot="private" static="no">
+        <type>base_type::traits_type</type>
+        <definition>using xcpp::xnull::traits_type =  base_type::traits_type</definition>
+        <argsstring></argsstring>
+        <name>traits_type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" line="119" column="9" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="classxcpp_1_1xnull_1adbec2009707f75928ce7dee8a664faa4" prot="private" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>traits_type::int_type</type>
+        <definition>traits_type::int_type xcpp::xnull::overflow</definition>
+        <argsstring>(traits_type::int_type c) override</argsstring>
+        <name>overflow</name>
+        <param>
+          <type>traits_type::int_type</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" line="121" column="31" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" bodystart="121" bodyend="124"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>xcpp::xnull</label>
+        <link refid="classxcpp_1_1xnull"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>std::streambuf</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>xcpp::xnull</label>
+        <link refid="classxcpp_1_1xnull"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>std::streambuf</label>
+      </node>
+    </collaborationgraph>
+    <location file="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" line="116" column="5" bodyfile="/home/krishna/xeus-cpp/include/xeus-cpp/xbuffer.hpp" bodystart="117" bodyend="125"/>
+    <listofallmembers>
+      <member refid="classxcpp_1_1xnull_1a8d1f25fba30636eda986c04ed3ce6d1e" prot="private" virt="non-virtual"><scope>xcpp::xnull</scope><name>base_type</name></member>
+      <member refid="classxcpp_1_1xnull_1adbec2009707f75928ce7dee8a664faa4" prot="private" virt="non-virtual"><scope>xcpp::xnull</scope><name>overflow</name></member>
+      <member refid="classxcpp_1_1xnull_1a575f806ee0a3bf312ee4f5f532e7c43c" prot="private" virt="non-virtual"><scope>xcpp::xnull</scope><name>traits_type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>
