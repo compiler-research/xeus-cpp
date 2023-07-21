@@ -4,3 +4,5 @@ sphinx:
   configuration: docs/source/conf.py
   builder: html
 
+conda:
+  environment: docs/environment.yml
