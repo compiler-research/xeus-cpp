@@ -52,8 +52,6 @@
 #include <string>
 #include <vector>
 
-#include <dirent.h>
-
 std::string DiagnosticOutput;
 llvm::raw_string_ostream DiagnosticsOS(DiagnosticOutput);
 auto DiagPrinter = std::make_unique<clang::TextDiagnosticPrinter>(DiagnosticsOS, new clang::DiagnosticOptions());

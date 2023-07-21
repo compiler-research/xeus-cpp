@@ -12,7 +12,6 @@
 #include <fstream>
 #include <string>
 
-#include <dirent.h>
 
 #include <pugixml.hpp>
 
@@ -23,6 +22,9 @@
 
 #include "xdemangle.hpp"
 #include "xparser.hpp"
+
+#include "llvm/Support/FileSystem.h"
+#include "llvm/Support/Path.h"
 
 namespace xcpp
 {
@@ -100,30 +102,18 @@ namespace xcpp
     static nl::json read_tagconfs(const char* path)
     {
         nl::json result = nl::json::array();
-        DIR* directory = opendir(path);
-        if (directory == nullptr)
-        {
-            return result;
+        std::error_code EC;
+        for (llvm::sys::fs::directory_iterator File(path, EC), FileEnd;
+             File != FileEnd && !EC; File.increment(EC)) {
+          llvm::StringRef FilePath = File->path();
+          llvm::StringRef FileName = llvm::sys::path::filename(FilePath);
+          if (!FileName.endswith("json"))
+            continue;
+          std::ifstream i(FilePath.str());
+          nl::json entry;
+          i >> entry;
+          result.emplace_back(std::move(entry));
         }
-        dirent* item = readdir(directory);
-        while (item != nullptr)
-        {
-            std::string extension = "json";
-            if (item->d_type == DT_REG)
-            {
-                std::string fname = item->d_name;
-
-                if (fname.find(extension, (fname.length() - extension.length())) != std::string::npos)
-                {
-                    std::ifstream i(path + ('/' + fname));
-                    nl::json entry;
-                    i >> entry;
-                    result.emplace_back(std::move(entry));
-                }
-            }
-            item = readdir(directory);
-        }
-        closedir(directory);
         return result;
     }
 
