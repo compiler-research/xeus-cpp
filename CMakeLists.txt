@@ -106,6 +106,9 @@ if(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
 endif()
 
 find_package(Clang REQUIRED)
+include(AddLLVM)
+include(HandleLLVMOptions)
+add_definitions(${LLVM_DEFINITIONS})
 find_package(argparse REQUIRED)
 find_package(pugixml REQUIRED)
 
