@@ -617,6 +617,4 @@ namespace xcpp
         }
         return res;
     }
-
-
 }
