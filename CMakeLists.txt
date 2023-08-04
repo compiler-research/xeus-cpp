@@ -177,7 +177,7 @@ macro(xeus_cpp_set_common_options target_name)
     endif ()
 
     set_target_properties(${target_name} PROPERTIES
-        INSTALL_RPATH_USE_LINK_PATH FALSE
+        INSTALL_RPATH_USE_LINK_PATH TRUE
     )
 endmacro()
 
