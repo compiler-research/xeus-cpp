@@ -1,6 +1,6 @@
 /************************************************************************************
  * Copyright (c) 2023, xeus-cpp contributors                                        *
- * Copyright (c) 2023, Johan Mabille, Loic Gouarin, Sylvain Corlay, Wolf Vollprecht *
+ * Copyright (c) 2023, Martin Vassilev                                              *
  *                                                                                  *
  * Distributed under the terms of the BSD 3-Clause License.                         *
  *                                                                                  *
