@@ -1,8 +1,18 @@
 version: 2
 
 sphinx:
-  configuration: docs/source/conf.py
+  configuration: docs/conf.py
   builder: html
+
+build:
+  os: "ubuntu-22.04"
+  tools:
+    python: "mambaforge-22.9"
+  apt_packages:
+    - clang-15
+    - libclang-15-dev
+    - llvm-15-dev
+    - llvm-15-tools
 
 conda:
   environment: docs/environment.yml
