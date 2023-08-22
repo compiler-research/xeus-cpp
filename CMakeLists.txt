@@ -375,3 +375,6 @@ if(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
             DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
 
+if(XEUS_CPP_INCLUDE_DOCS)
+    add_subdirectory(docs)
+endif()

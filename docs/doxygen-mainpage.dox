@@ -1,0 +1,18 @@
+/// @mainpage Xeus-cpp
+///
+/// @section main_intro Introduction
+/// 
+/// xeus-cpp is a Jupyter kernel for C++ based on the C++ interpreter cpp and 
+/// the native implementation of the Jupyter protocol xeus.
+///
+///
+/// This documentation describes the @b internal software that makes 
+/// up Xeus-cpp, not the @b external use of Xeus-cpp. There are no complete instructions
+/// here on how to use Xeus-cpp, only the APIs that make up the software. For 
+/// usage instructions, please see the programmer's guide or reference 
+/// manual.
+///
+/// @section main_caveat Caveat 
+/// This documentation is generated directly from the source code with doxygen. 
+/// Since Xeus-cpp is constantly under active development, what you're about to
+/// read is out of date!
