@@ -1,5 +1,5 @@
 {
-  "display_name": "C++17 (xcpp)",
+  "display_name": "C++17",
   "env": {
       "CPLUS_INCLUDE_PATH":"@CMAKE_CPLUS_INCLUDE_PATH@",
       "PATH":"@CMAKE_PATH@",
@@ -12,6 +12,6 @@
       "{connection_file}",
       "-std=c++17"@CMAKE_OMP@
   ],
-  "language": "cpp",
+  "language": "C++17",
   "metadata": {"debugger": false}
 }

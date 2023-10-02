@@ -1,5 +1,5 @@
 {
-  "display_name": "C++17 (xcpp)",
+  "display_name": "C++14",
   "env": {
       "CPLUS_INCLUDE_PATH":"@CMAKE_CPLUS_INCLUDE_PATH@",
       "PATH":"@CMAKE_PATH@",
@@ -10,8 +10,11 @@
       "@CMAKE_VENV_PATH@/bin/xcpp",
       "-f",
       "{connection_file}",
-      "-std=c++17"@CMAKE_OMP@
+      "-std=c++14",
+      "-fno-exceptions",
+      "-O2",
+      "-v"@CMAKE_OMP@
   ],
-  "language": "cpp",
+  "language": "C++14",
   "metadata": {"debugger": false}
 }

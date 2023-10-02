@@ -42,10 +42,50 @@ if (NOT DEFINED XEUS_CPP_KERNELSPEC_PATH)
     set(XEUS_CPP_KERNELSPEC_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/")
 endif ()
 
-configure_file (
-    "${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter/kernels/xcpp/kernel.json.in"
-    "${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter/kernels/xcpp/kernel.json"
-)
+set(CMAKE_CPLUS_INCLUDE_PATH "$ENV{CPLUS_INCLUDE_PATH}")
+set(CMAKE_PATH "$ENV{PATH}")
+set(CMAKE_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
+set(CMAKE_PYTHONPATH "$ENV{PYTHONPATH}")
+set(CMAKE_VENV_PATH "$ENV{VENV}")
+
+message(STATUS "Debug: Replace in kernels")
+message(STATUS "Debug: CMAKE_CPLUS_INCLUDE_PATH=${CMAKE_CPLUS_INCLUDE_PATH}")
+message(STATUS "Debug: CMAKE_PATH=${CMAKE_PATH}")
+message(STATUS "Debug: CMAKE_LD_LIBRARY_PATH=${CMAKE_LD_LIBRARY_PATH}")
+message(STATUS "Debug: CMAKE_PYTHONPATH=${CMAKE_PYTHONPATH}")
+message(STATUS "Debug: CMAKE_VENV_PATH=${CMAKE_VENV_PATH}")
+message(STATUS "Debug: CMAKE_CURRENT_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}")
+message(STATUS "Debug: CMAKE_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}")
+
+
+function(configure_kernel kernel)
+    configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/kernel.json.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/kernel.json"
+    )
+    file(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/*.png")
+    foreach(file ${files})
+        configure_file(
+            "${file}"
+            "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
+            COPYONLY
+       )
+    endforeach()
+    file(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/*.svg")
+    foreach(file ${files})
+        configure_file(
+            "${file}"
+            "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
+            COPYONLY
+       )
+    endforeach()
+endfunction()
+
+file(GLOB _kernels LIST_DIRECTORIES true RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "share/jupyter/kernels/*")
+foreach(_kernel IN LISTS _kernels)
+  message("Configure kernel: ${_kernel}")
+  configure_kernel("${_kernel}")
+endforeach()
 
 # Build options
 # =============
@@ -121,12 +161,12 @@ if(EMSCRIPTEN)
     set(EMSCRIPTEN_FEATURES "${EMSCRIPTEN_FEATURES} -s \"EXTRA_EXPORTED_RUNTIME_METHODS=[ENV']\"")
 endif()
 
-find_package(Clang REQUIRED)
-include(AddLLVM)
-include(HandleLLVMOptions)
-add_definitions(${LLVM_DEFINITIONS})
+#find_package(Clang REQUIRED)
+find_package(CppInterOp REQUIRED CONFIG PATHS "${CPPINTEROP_DIR}" "${CPPINTEROP_DIR}/lib")
 find_package(argparse REQUIRED)
 find_package(pugixml REQUIRED)
+##set(Python_FIND_VIRTUALENV ONLY)
+##find_package(Python COMPONENTS Interpreter Development)
 
 # Source files
 # ============
@@ -226,7 +266,6 @@ macro(xeus_cpp_set_kernel_options target_name)
         find_package(Threads)
         target_link_libraries(${target_name} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
     endif()
-    
 endmacro()
 
 # Common macro for shared and static library
@@ -262,7 +301,8 @@ macro(xeus_cpp_create_target target_name linkage output_name)
         set(XEUS_CPP_XEUS_TARGET xeus-static)
     endif ()
 
-    target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangInterpreter pugixml argparse::argparse xtl)
+##  target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangInterpreter pugixml argparse::argparse xtl)
+    target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse xtl)
     if (WIN32 OR CYGWIN)
         #
     elseif (APPLE)
@@ -272,7 +312,7 @@ macro(xeus_cpp_create_target target_name linkage output_name)
         find_package(Threads) # TODO: add Threads as a dependence of xeus-static?
         target_link_libraries(${target_name} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
     endif()
-    
+
 endmacro()
 
 # xeus-cpp-headers
@@ -319,6 +359,23 @@ if (XEUS_CPP_BUILD_EXECUTABLE)
     xeus_cpp_set_common_options(xcpp)
     xeus_cpp_set_kernel_options(xcpp)
     target_link_libraries(xcpp PRIVATE xeus-zmq)
+
+##set_target_properties(xcpp PROPERTIES
+##  ENABLE_EXPORTS 1
+##  CXX_STANDARD ${CMAKE_CXX_STANDARD}
+##)
+##target_link_libraries(xcpp PUBLIC xeus-cpp pthread Python::Python)
+##
+###TODO: We may be need sse RPATH
+###set_target_properties(xcpp clangCppInterOp PROPERTIES
+###    INSTALL_RPATH_USE_LINK_PATH TRUE
+###)
+##if(APPLE)
+##    target_link_libraries(xcpp PUBLIC -Wl,-w -Wl,-bind_at_load -Wl,-undefined,dynamic_lookup)
+##elseif(NOT MSVC)
+##    target_link_libraries(xcpp PUBLIC -Wl,--unresolved-symbols=ignore-in-object-files)
+##endif()
+
 endif()
 
 if(EMSCRIPTEN)
@@ -361,19 +418,19 @@ endif ()
 # Install xcpp
 if (XEUS_CPP_BUILD_EXECUTABLE)
     install(TARGETS xcpp
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif()
+#            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+            RUNTIME DESTINATION ${CMAKE_VENV_PATH}/bin)
+endif(XEUS_CPP_BUILD_EXECUTABLE)
 
 if(XEUS_CPP_BUILD_EXECUTABLE OR EMSCRIPTEN)
     # Configuration and data directories for jupyter and xeus-cpp
     set(XJUPYTER_DATA_DIR "share/jupyter"    CACHE STRING "Jupyter data directory")
-
     # Install xcpp Jupyter kernelspec
-    set(KERNELSPEC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter/kernels)
+    set(KERNELSPEC_DIR ${CMAKE_CURRENT_BINARY_DIR}/share/jupyter/kernels)
     install(DIRECTORY ${KERNELSPEC_DIR}
             DESTINATION ${XJUPYTER_DATA_DIR}
+#           DESTINATION ${CMAKE_INSTALL_PREFIX}/${XJUPYTER_DATA_DIR}
             PATTERN "*.in" EXCLUDE)
-
 
     # Extra path for installing Jupyter kernelspec
     if (XEXTRA_JUPYTER_DATA_DIR)
@@ -439,3 +496,7 @@ if(EMSCRIPTEN)
             "$<TARGET_FILE_DIR:xcpp>/xcpp.wasm"
             DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
+
+if(XEUS_CPP_INCLUDE_DOCS)
+    add_subdirectory(docs)
+endif()

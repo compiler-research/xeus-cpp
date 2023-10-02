@@ -16,7 +16,8 @@
 #include <string>
 #include <vector>
 
-#include <clang/Interpreter/Interpreter.h>
+//#include <clang/Interpreter/Interpreter.h>
+#include "clang/Interpreter/CppInterOp.h"
 
 #include <nlohmann/json.hpp>
 
@@ -78,7 +79,7 @@ namespace xcpp
 
         std::string get_stdopt(int argc, const char* const* argv);
 
-        std::unique_ptr<clang::Interpreter> m_interpreter;
+//        std::unique_ptr<clang::Interpreter> m_interpreter;
 
         std::string m_version;
 

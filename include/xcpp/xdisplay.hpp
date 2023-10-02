@@ -14,6 +14,8 @@
 
 #include "xcpp/xmime.hpp"
 
+#include "xeus/xinterpreter.hpp"
+
 namespace nl = nlohmann;
 
 namespace xcpp

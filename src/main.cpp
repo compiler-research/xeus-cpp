@@ -29,6 +29,73 @@
 #include "xeus-cpp/xinterpreter.hpp"
 #include "xeus-cpp/xutils.hpp"
 
+#ifdef __GNUC__
+void handler(int sig)
+{
+    void* array[10];
+
+    // get void*'s for all entries on the stack
+    std::size_t size = backtrace(array, 10);
+
+    // print out all the frames to stderr
+    fprintf(stderr, "Error: signal %d:\n", sig);
+    backtrace_symbols_fd(array, size, STDERR_FILENO);
+    exit(1);
+}
+#endif
+
+void stop_handler(int /*sig*/)
+{
+    exit(0);
+}
+
+bool should_print_version(int argc, char* argv[])
+{
+    for (int i = 0; i < argc; ++i)
+    {
+        if (std::string(argv[i]) == "--version")
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+std::string extract_filename(int& argc, char* argv[])
+{
+    std::string res = "";
+    for (int i = 0; i < argc; ++i)
+    {
+        if ((std::string(argv[i]) == "-f") && (i + 1 < argc))
+        {
+            res = argv[i + 1];
+            for (int j = i; j < argc - 2; ++j)
+            {
+                argv[j] = argv[j + 2];
+            }
+            argc -= 2;
+            break;
+        }
+    }
+    return res;
+}
+
+using interpreter_ptr = std::unique_ptr<xcpp::interpreter>;
+
+interpreter_ptr build_interpreter(int argc, char** argv)
+{
+  std::vector<const char*> interpreter_args;
+  for (int i = 1; i < argc; i++) {
+    if (argv[i] == "-f") {
+      i++; // skip the value of -f which is a json file.
+      continue;
+    }
+    interpreter_args.push_back(argv[i]);
+  }
+  interpreter_ptr interp_ptr = interpreter_ptr(new xcpp::interpreter(interpreter_args.size(), interpreter_args.data()));
+  return interp_ptr;
+}
+
 int main(int argc, char* argv[])
 {
     if (xcpp::should_print_version(argc, argv))
@@ -97,8 +164,8 @@ int main(int argc, char* argv[])
             xeus::make_xserver_zmq,
             xeus::make_in_memory_history_manager(),
             xeus::make_console_logger(
-                xeus::xlogger::msg_type,
-                xeus::make_file_logger(xeus::xlogger::content, "xeus.log")
+                    xeus::xlogger::msg_type,
+                    xeus::make_file_logger(xeus::xlogger::content, "xeus.log")
             )
         );
 
