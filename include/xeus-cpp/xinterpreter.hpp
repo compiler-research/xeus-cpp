@@ -79,8 +79,6 @@ namespace xcpp
 
         std::string get_stdopt(int argc, const char* const* argv);
 
-//        std::unique_ptr<clang::Interpreter> m_interpreter;
-
         std::string m_version;
 
         xmagics_manager xmagics;

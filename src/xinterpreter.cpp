@@ -7,262 +7,41 @@
  * The full license is in the file LICENSE, distributed with this software.         *
  ************************************************************************************/
 
-#include "xeus-cpp/xinterpreter.hpp"
+#include <algorithm>
+#include <cinttypes>  // required before including llvm/ExecutionEngine/Orc/LLJIT.h because missing llvm/Object/SymbolicFile.h
+#include <cstdarg>
+#include <cstdio>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <vector>
 
-#include "xinput.hpp"
-#include "xinspect.hpp"
-// #include "xmagics/executable.hpp"
-// #include "xmagics/execution.hpp"
-#include "xmagics/os.hpp"
-#include "xparser.hpp"
-#include "xsystem.hpp"
+#include <xtl/xsystem.hpp>
 
 #include <xeus/xhelper.hpp>
 
 #include "xeus-cpp/xbuffer.hpp"
 #include "xeus-cpp/xeus_cpp_config.hpp"
 
-#include "xeus-cpp/xmagics.hpp"
-
-#include <xtl/xsystem.hpp>
-
-#include <pugixml.hpp>
-
-#include <algorithm>
-#include <cinttypes>  // required before including llvm/ExecutionEngine/Orc/LLJIT.h because missing llvm/Object/SymbolicFile.h
-#include <cstdarg>
-#include <cstdio>
-#include <memory>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <vector>
-
-/*
-std::string DiagnosticOutput;
-llvm::raw_string_ostream DiagnosticsOS(DiagnosticOutput);
-auto DiagPrinter = std::make_unique<clang::TextDiagnosticPrinter>(DiagnosticsOS, new clang::DiagnosticOptions());
-
-///\returns true on error.
-static bool
-process_code(clang::Interpreter& Interp, const std::string& code, llvm::raw_string_ostream& error_stream)
-{
-    
-    if (code.substr(0, 1) == "?")
-    {   
-        error_stream << "  ";
-        return true;
-    }
-    else {
-        auto PTU = Interp.Parse(code);
-        if (!PTU)
-        {
-            auto Err = PTU.takeError();
-            error_stream << DiagnosticsOS.str();
-            // avoid printing the "Parsing failed error"
-            // llvm::logAllUnhandledErrors(std::move(Err), error_stream, "error: ");
-            return true;
-        }
-        if (PTU->TheModule)
-        {
-            llvm::Error ex = Interp.Execute(*PTU);
-            error_stream << DiagnosticsOS.str();
-            if (code.substr(0, 3) == "int")
-            {
-                for (clang::Decl* D : PTU->TUPart->decls())
-                {
-                    if (clang::VarDecl* VD = llvm::dyn_cast<clang::VarDecl>(D))
-                    {
-                        auto Name = VD->getNameAsString();
-                        auto Addr = Interp.getSymbolAddress(clang::GlobalDecl(VD));
-                        if (!Addr)
-                        {
-                            llvm::logAllUnhandledErrors(Addr.takeError(), error_stream, "error: ");
-                            return true;
-                        }
-                    }
-                }
-            }
-            else if (code.substr(0, 16) == "std::vector<int>")
-            {
-                for (clang::Decl* D : PTU->TUPart->decls())
-                {
-                    if (clang::VarDecl* VD = llvm::dyn_cast<clang::VarDecl>(D))
-                    {
-                        auto Name = VD->getNameAsString();
-                        auto Addr = Interp.getSymbolAddress(clang::GlobalDecl(VD));
-                        if (!Addr)
-                        {
-                            llvm::logAllUnhandledErrors(Addr.takeError(), error_stream, "error: ");
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            llvm::logAllUnhandledErrors(std::move(ex), error_stream, "error: ");
-            return false;
-        }
-    }
-    return false;
-}
-*/
-
 using Args = std::vector<const char*>;
 
-/*
-static std::unique_ptr<clang::Interpreter>
-create_interpreter(const Args& ExtraArgs = {}, clang::DiagnosticConsumer* Client = nullptr)
-{
-    llvm::InitializeNativeTarget();
-    llvm::InitializeNativeTargetAsmPrinter();
-
-    Args ClangArgs = {"-Xclang", "-emit-llvm-only", "-Xclang", "-diagnostic-log-file", "-Xclang", "-", "-xc++"};
-    ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
-    auto CI = llvm::cantFail(clang::IncrementalCompilerBuilder::create(ClangArgs));
-    if (Client)
-    {
-        CI->getDiagnostics().setClient(Client, / *ShouldOwnClient=* /false);
-    }
-    return llvm::cantFail(clang::Interpreter::create(std::move(CI)));
-}
-*/
 void* createInterpreter(const Args &ExtraArgs = {}) {
-  Args ClangArgs = {/*"-xc++"*/};
+  Args ClangArgs = {/*"-xc++"*/}; // ? {"-Xclang", "-emit-llvm-only", "-Xclang", "-diagnostic-log-file", "-Xclang", "-", "-xc++"};
   ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
   // FIXME: We should process the kernel input options and conditionally pass
   // the gpu args here.
   return Cpp::CreateInterpreter(ClangArgs, {"-cuda"});
 }
 
-/*
-static void
-inject_symbol(llvm::StringRef LinkerMangledName, llvm::JITTargetAddress KnownAddr, clang::Interpreter& Interp)
-{
-    using namespace llvm;
-    using namespace llvm::orc;
-
-    auto Symbol = Interp.getSymbolAddress(LinkerMangledName);  //, / *IncludeFromHost=* /true);
-
-    if (Error Err = Symbol.takeError())
-    {
-        logAllUnhandledErrors(std::move(Err), errs(), "[IncrementalJIT] define() failed1: ");
-        return;
-    }
-
-    // Nothing to define, we are redefining the same function. FIXME: Diagnose.
-    if (*Symbol && (JITTargetAddress) *Symbol == KnownAddr)
-    {
-        return;
-    }
-
-    // Let's inject it
-    bool Inserted;
-    SymbolMap::iterator It;
-    static llvm::orc::SymbolMap m_InjectedSymbols;
-
-    llvm::orc::LLJIT* Jit = const_cast<llvm::orc::LLJIT*>(Interp.getExecutionEngine());
-    JITDylib& DyLib = Jit->getMainJITDylib();
-
-    std::tie(It, Inserted) = m_InjectedSymbols.try_emplace(
-        Jit->getExecutionSession().intern(LinkerMangledName),
-        JITEvaluatedSymbol(KnownAddr, JITSymbolFlags::Exported)
-    );
-    assert(Inserted && "Why wasn't this found in the initial Jit lookup?");
-
-    // We want to replace a symbol with a custom provided one.
-    if (Symbol && KnownAddr)
-    {
-        // The symbol be in the DyLib or in-process.
-        if (auto Err = DyLib.remove({It->first}))
-        {
-            logAllUnhandledErrors(std::move(Err), errs(), "[IncrementalJIT] define() failed2: ");
-            return;
-        }
-    }
-
-    if (Error Err = DyLib.define(absoluteSymbols({*It})))
-    {
-        logAllUnhandledErrors(std::move(Err), errs(), "[IncrementalJIT] define() failed3: ");
-    }
-}
-*/
-/*
-namespace utils
-{
-    void AddIncludePath(llvm::StringRef Path, clang::HeaderSearchOptions& HOpts)
-    {
-        bool Exists = false;
-        for (const clang::HeaderSearchOptions::Entry& E : HOpts.UserEntries)
-        {
-            if ((Exists = E.Path == Path))
-            {
-                break;
-            }
-        }
-        if (Exists)
-        {
-            return;
-        }
-
-        HOpts.AddPath(Path, clang::frontend::Angled, false / * IsFramework * /, true / * IsSysRootRelative * /);
-
-        if (HOpts.Verbose)
-        {
-            //    std::clog << "Added include paths " << Path << std::endl;
-        }
-    }
-}
-
-void AddIncludePath(clang::Interpreter& Interp, llvm::StringRef Path)
-{
-    clang::CompilerInstance* CI = const_cast<clang::CompilerInstance*>(Interp.getCompilerInstance());
-    clang::HeaderSearchOptions& HOpts = CI->getHeaderSearchOpts();
-
-    // Save the current number of entries
-    std::size_t Idx = HOpts.UserEntries.size();
-    utils::AddIncludePath(Path, HOpts);
-
-    clang::Preprocessor& PP = CI->getPreprocessor();
-    clang::SourceManager& SM = CI->getSourceManager();
-    clang::FileManager& FM = SM.getFileManager();
-    clang::HeaderSearch& HSearch = PP.getHeaderSearchInfo();
-    const bool isFramework = false;
-
-    // Add all the new entries into Preprocessor
-    for (; Idx < HOpts.UserEntries.size(); ++Idx)
-    {
-        const clang::HeaderSearchOptions::Entry& E = HOpts.UserEntries[Idx];
-        if (auto DE = FM.getOptionalDirectoryRef(E.Path))
-        {
-            HSearch.AddSearchPath(
-                clang::DirectoryLookup(*DE, clang::SrcMgr::C_User, isFramework),
-                E.Group == clang::frontend::Angled
-            );
-        }
-    }
-}
-*/
 using namespace std::placeholders;
 
 namespace xcpp
 {
     void interpreter::configure_impl()
     {
-/*
-        // todo: why is error_stream necessary
-        std::string error_message;
-        llvm::raw_string_ostream error_stream(error_message);
-        // Expose xinterpreter instance to interpreted C++
-        process_code(*m_interpreter, "#include \"xeus/xinterpreter.hpp\"", error_stream);
-        std::string code = "xeus::register_interpreter(static_cast<xeus::xinterpreter*>((void*)"
-                           + std::to_string(intptr_t(this)) + "));";
-        process_code(*m_interpreter, code.c_str(), error_stream);
-*/
     }
 
     interpreter::interpreter(int argc, const char* const* argv)
-//        : m_interpreter(std::move(create_interpreter(Args() /*argv + 1, argv + argc)*/, DiagPrinter.get())))
         : m_version(get_stdopt(argc, argv))
         ,  // Extract C++ language standard version from command-line option
         xmagics()
@@ -325,6 +104,7 @@ namespace xcpp
 
         // Scope guard performing the temporary redirection of input requests.
         auto input_guard = input_redirection(allow_stdin);
+
         std::string err;
         std::string out;
 
@@ -339,7 +119,6 @@ namespace xcpp
             
             Cpp::BeginStdStreamCapture(Cpp::kStdErr);
             Cpp::BeginStdStreamCapture(Cpp::kStdOut);
-            //compilation_result = Cpp::Process(block.c_str());
             compilation_result = Cpp::Process(code.c_str());
             out = Cpp::EndStdStreamCapture();
             err = Cpp::EndStdStreamCapture();
@@ -361,12 +140,8 @@ namespace xcpp
         {
             errorlevel = 1;
             ename = "Error";
-//            evalue = error_stream.str();
             std::cerr << err;
         }
-
-//        error_stream.str().clear();
-//        DiagnosticsOS.str().clear();
 
         // Flush streams
         std::cout << std::flush;
@@ -514,49 +289,6 @@ namespace xcpp
         return s;
     }
 
-    static int printf_jit(const char* format, ...)
-    {
-        std::va_list args;
-        va_start(args, format);
-
-        std::string buf = c_format(format, args);
-        std::cout << buf;
-
-        va_end(args);
-
-        return buf.size();
-    }
-
-    static int fprintf_jit(std::FILE* stream, const char* format, ...)
-    {
-        std::va_list args;
-        va_start(args, format);
-
-        int ret;
-        if (stream == stdout || stream == stderr)
-        {
-            std::string buf = c_format(format, args);
-            if (stream == stdout)
-            {
-                std::cout << buf;
-            }
-            else if (stream == stderr)
-            {
-                std::cerr << buf;
-            }
-            ret = buf.size();
-        }
-        else
-        {
-            // Just forward to vfprintf.
-            ret = vfprintf(stream, format, args);
-        }
-
-        va_end(args);
-
-        return ret;
-    }
-
     void interpreter::redirect_output()
     {
         p_cout_strbuf = std::cout.rdbuf();
@@ -564,20 +296,12 @@ namespace xcpp
 
         std::cout.rdbuf(&m_cout_buffer);
         std::cerr.rdbuf(&m_cerr_buffer);
-
-        // Inject versions of printf and fprintf that output to std::cout
-        // and std::cerr (see implementation above).
-//        inject_symbol("printf", llvm::pointerToJITTargetAddress(printf_jit), *m_interpreter);
-//        inject_symbol("fprintf", llvm::pointerToJITTargetAddress(fprintf_jit), *m_interpreter);
     }
 
     void interpreter::restore_output()
     {
         std::cout.rdbuf(p_cout_strbuf);
         std::cerr.rdbuf(p_cerr_strbuf);
-
-        // No need to remove the injected versions of [f]printf: As they forward
-        // to std::cout and std::cerr, these are handled implicitly.
     }
 
     void interpreter::publish_stdout(const std::string& s)
@@ -592,7 +316,6 @@ namespace xcpp
 
     void interpreter::init_includes()
     {
-//        AddIncludePath(*m_interpreter, xtl::prefix_path() + "/include/");
     }
 
     void interpreter::init_preamble()
@@ -604,11 +327,9 @@ namespace xcpp
 
     void interpreter::init_magic()
     {
-        //        preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("executable",
-        //        executable(m_interpreter));
-        //        preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("file", writefile());
-        //        preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("timeit",
-        //        timeit(&m_interpreter));
+        // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("executable", executable(m_interpreter));
+        // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("file", writefile());
+        // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("timeit", timeit(&m_interpreter));
     }
 
     std::string interpreter::get_stdopt(int argc, const char* const* argv)

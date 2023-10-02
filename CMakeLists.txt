@@ -161,7 +161,6 @@ if(EMSCRIPTEN)
     set(EMSCRIPTEN_FEATURES "${EMSCRIPTEN_FEATURES} -s \"EXTRA_EXPORTED_RUNTIME_METHODS=[ENV']\"")
 endif()
 
-#find_package(Clang REQUIRED)
 find_package(CppInterOp REQUIRED CONFIG PATHS "${CPPINTEROP_DIR}" "${CPPINTEROP_DIR}/lib")
 find_package(argparse REQUIRED)
 find_package(pugixml REQUIRED)
@@ -301,7 +300,6 @@ macro(xeus_cpp_create_target target_name linkage output_name)
         set(XEUS_CPP_XEUS_TARGET xeus-static)
     endif ()
 
-##  target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangInterpreter pugixml argparse::argparse xtl)
     target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse xtl)
     if (WIN32 OR CYGWIN)
         #
@@ -418,7 +416,6 @@ endif ()
 # Install xcpp
 if (XEUS_CPP_BUILD_EXECUTABLE)
     install(TARGETS xcpp
-#            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
             RUNTIME DESTINATION ${CMAKE_VENV_PATH}/bin)
 endif(XEUS_CPP_BUILD_EXECUTABLE)
 
@@ -429,7 +426,6 @@ if(XEUS_CPP_BUILD_EXECUTABLE OR EMSCRIPTEN)
     set(KERNELSPEC_DIR ${CMAKE_CURRENT_BINARY_DIR}/share/jupyter/kernels)
     install(DIRECTORY ${KERNELSPEC_DIR}
             DESTINATION ${XJUPYTER_DATA_DIR}
-#           DESTINATION ${CMAKE_INSTALL_PREFIX}/${XJUPYTER_DATA_DIR}
             PATTERN "*.in" EXCLUDE)
 
     # Extra path for installing Jupyter kernelspec
