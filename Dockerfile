@@ -4,7 +4,7 @@
 # https://hub.docker.com/r/jupyter/base-notebook/tags
 ARG BASE_CONTAINER=jupyter/base-notebook
 ARG BASE_TAG=latest
-ARG BUILD_TYPE=Release
+ARG BUILD_TYPE=Debug
 
 FROM $BASE_CONTAINER:$BASE_TAG
 
@@ -80,7 +80,7 @@ USER ${NB_UID}
 ENV NB_PYTHON_PREFIX=${CONDA_DIR} \
     KERNEL_PYTHON_PREFIX=${CONDA_DIR} \
 #    CPLUS_INCLUDE_PATH="${CONDA_DIR}/include:/home/${NB_USER}/include:/home/runner/work/xeus-clang-repl/xeus-clang-repl/clang-dev/clang/include:/home/jovyan/clad/include:/home/jovyan/CppInterOp/include"
-    CPLUS_INCLUDE_PATH="${CONDA_DIR}/include:/home/${NB_USER}/include:/home/jovyan/clad/include:/home/jovyan/CppInterOp/include"
+    CPLUS_INCLUDE_PATH="${CONDA_DIR}/include:/home/jovyan/clad/include:/home/jovyan/CppInterOp/include"
 
 WORKDIR "${HOME}"
 
@@ -131,6 +131,7 @@ RUN \
       cppzmq \
       xtl \
       'clangdev>=17' \
+      'llvm-openmp' \
       pugixml \
       cpp-argparse \
       zlib \
@@ -173,7 +174,8 @@ RUN \
     # Build CppInterOp
     #
     sys_incs=$(LC_ALL=C c++ -xc++ -E -v /dev/null 2>&1 | LC_ALL=C sed -ne '/starts here/,/End of/p' | LC_ALL=C sed '/^ /!d' | cut -c2- | tr '\n' ':') && \
-    export CPLUS_INCLUDE_PATH="${PATH_TO_LLVM_BUILD}/include/llvm:${PATH_TO_LLVM_BUILD}/include/clange:$CPLUS_INCLUDE_PATH:${sys_incs%:}" && \
+    #/usr/include/x86_64-linux-gnu:/usr/include:
+    export CPLUS_INCLUDE_PATH="${PATH_TO_LLVM_BUILD}/include/llvm:${PATH_TO_LLVM_BUILD}/include/clang:$CPLUS_INCLUDE_PATH:${sys_incs%:}" && \
     git clone https://github.com/compiler-research/CppInterOp.git && \
     export CB_PYTHON_DIR="$PWD/cppyy-backend/python" && \
     export CPPINTEROP_DIR="$CB_PYTHON_DIR/cppyy_backend" && \

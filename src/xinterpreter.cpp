@@ -23,6 +23,18 @@
 #include "xeus-cpp/xbuffer.hpp"
 #include "xeus-cpp/xeus_cpp_config.hpp"
 
+#include "xeus-cpp/xinterpreter.hpp"
+#include "xeus-cpp/xmagics.hpp"
+
+#include "xinput.hpp"
+// #include "xinspect.hpp"
+// #include "xmagics/executable.hpp"
+// #include "xmagics/execution.hpp"
+#include "xmagics/os.hpp"
+#include "xmagics/pythonexec.hpp"
+#include "xparser.hpp"
+#include "xsystem.hpp"
+
 using Args = std::vector<const char*>;
 
 void* createInterpreter(const Args &ExtraArgs = {}) {
@@ -330,6 +342,7 @@ namespace xcpp
         // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("executable", executable(m_interpreter));
         // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("file", writefile());
         // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("timeit", timeit(&m_interpreter));
+        preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("python", pythonexec());
     }
 
     std::string interpreter::get_stdopt(int argc, const char* const* argv)

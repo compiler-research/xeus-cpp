@@ -94,8 +94,8 @@ option(XEUS_CPP_BUILD_STATIC "Build xeus-cpp static library" ON)
 OPTION(XEUS_CPP_BUILD_SHARED "Split xcpp build into executable and library" ON)
 OPTION(XEUS_CPP_BUILD_EXECUTABLE "Build the xcpp executable" ON)
 
-OPTION(XEUS_CPP_USE_SHARED_XEUS "Link xcpp  with the xeus shared library (instead of the static library)" ON)
-OPTION(XEUS_CPP_USE_SHARED_XEUS_CPP "Link xcpp  with the xeus shared library (instead of the static library)" ON)
+OPTION(XEUS_CPP_USE_SHARED_XEUS "Link xcpp with the xeus shared library (instead of the static library)" ON)
+OPTION(XEUS_CPP_USE_SHARED_XEUS_CPP "Link xcpp with the xeus shared library (instead of the static library)" ON)
 
 # Test options
 OPTION(XEUS_CPP_BUILD_TESTS "xeus-cpp test suite" ON)
@@ -150,8 +150,11 @@ else()
   add_compile_options(-fexceptions)
 endif ()
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Intel")
-    if(NOT EMSCRIPTEN)
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
+    CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR
+    CMAKE_CXX_COMPILER_ID MATCHES "Intel")
+
+    if(NOT XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
         add_compile_options(-Wunused-parameter -Wextra -Wreorder)
     endif()
 endif ()
@@ -164,8 +167,8 @@ endif()
 find_package(CppInterOp REQUIRED CONFIG PATHS "${CPPINTEROP_DIR}" "${CPPINTEROP_DIR}/lib")
 find_package(argparse REQUIRED)
 find_package(pugixml REQUIRED)
-##set(Python_FIND_VIRTUALENV ONLY)
-##find_package(Python COMPONENTS Interpreter Development)
+set(Python_FIND_VIRTUALENV ONLY)
+find_package(Python COMPONENTS Interpreter Development)
 
 # Source files
 # ============
@@ -194,6 +197,7 @@ set(XEUS_CPP_SRC
     src/xoptions.cpp
     src/xparser.cpp
     src/xutils.cpp
+    src/xmagics/pythonexec.cpp
 )
 
 if(EMSCRIPTEN)
@@ -357,23 +361,30 @@ if (XEUS_CPP_BUILD_EXECUTABLE)
     xeus_cpp_set_common_options(xcpp)
     xeus_cpp_set_kernel_options(xcpp)
     target_link_libraries(xcpp PRIVATE xeus-zmq)
+    set_target_properties(xcpp PROPERTIES
+      ENABLE_EXPORTS 1
+      CXX_STANDARD ${CMAKE_CXX_STANDARD})
+    target_link_libraries(xcpp PUBLIC xeus-cpp pthread Python::Python)
 
-##set_target_properties(xcpp PROPERTIES
-##  ENABLE_EXPORTS 1
-##  CXX_STANDARD ${CMAKE_CXX_STANDARD}
-##)
-##target_link_libraries(xcpp PUBLIC xeus-cpp pthread Python::Python)
-##
-###TODO: We may be need sse RPATH
-###set_target_properties(xcpp clangCppInterOp PROPERTIES
-###    INSTALL_RPATH_USE_LINK_PATH TRUE
-###)
-##if(APPLE)
-##    target_link_libraries(xcpp PUBLIC -Wl,-w -Wl,-bind_at_load -Wl,-undefined,dynamic_lookup)
-##elseif(NOT MSVC)
-##    target_link_libraries(xcpp PUBLIC -Wl,--unresolved-symbols=ignore-in-object-files)
-##endif()
+    ##TODO: We may be need sse RPATH
+    set_target_properties(xcpp clangCppInterOp PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
+    if(APPLE)
+      target_link_libraries(xcpp PUBLIC -Wl,-w -Wl,-bind_at_load -Wl,-undefined,dynamic_lookup)
+    elseif(NOT MSVC)
+      target_link_libraries(xcpp PUBLIC -Wl,--unresolved-symbols=ignore-in-object-files)
+    endif()
 
+    target_include_directories(xeus-cpp PUBLIC ${Python_INCLUDE_DIRS})
+    target_link_libraries(xeus-cpp PUBLIC ${PYTHON_LIBRARIES})
+    target_link_libraries(xeus-cpp ${PYTHON_LIBRARIES_Development_Main})
+    set_target_properties(xeus-cpp PROPERTIES
+                      PUBLIC_HEADER "${XEUS_CPP_HEADERS}"
+                      COMPILE_DEFINITIONS "XEUS_CPP_EXPORTS"
+                      PREFIX ""
+                      VERSION ${${PROJECT_NAME}_VERSION}
+                      SOVERSION ${XEUS_CPP_VERSION_MAJOR}
+                      OUTPUT_NAME "libxeus-cpp"
+                      CXX_STANDARD ${CMAKE_CXX_STANDARD})
 endif()
 
 if(EMSCRIPTEN)
