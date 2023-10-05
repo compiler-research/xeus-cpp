@@ -77,17 +77,39 @@ RUN sed -i '2 i source /home/jovyan/.conda.init && conda activate .venv' /usr/lo
 # Switch back to jovyan to avoid accidental container runs as root
 USER ${NB_UID}
 
-ENV NB_PYTHON_PREFIX=${CONDA_DIR} \
-    KERNEL_PYTHON_PREFIX=${CONDA_DIR} \
-#    CPLUS_INCLUDE_PATH="${CONDA_DIR}/include:/home/${NB_USER}/include:/home/runner/work/xeus-clang-repl/xeus-clang-repl/clang-dev/clang/include:/home/jovyan/clad/include:/home/jovyan/CppInterOp/include"
-    CPLUS_INCLUDE_PATH="${CONDA_DIR}/include:/home/jovyan/clad/include:/home/jovyan/CppInterOp/include"
-
 WORKDIR "${HOME}"
 
-# CUDA
-ENV NVIDIA_VISIBLE_DEVICES=all
-ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
-ENV NVIDIA_REQUIRE_CUDA "cuda>=12.1.1 driver>=530"
+ENV NB_PYTHON_PREFIX=${CONDA_DIR} \
+    KERNEL_PYTHON_PREFIX=${CONDA_DIR} \
+    VENV=${CONDA_DIR}/envs/.venv \
+    # CUDA
+    NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    NVIDIA_REQUIRE_CUDA="cuda>=12.1.1 driver>=530" \
+    #
+    PATH=/opt/conda/envs/.venv/bin:/opt/conda/bin:/opt/conda/envs/.venv/bin:/opt/conda/condabin:/opt/conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+    LD_LIBRARY_PATH=/home/jovyan/cppyy-backend/python/cppyy_backend/lib:/opt/conda/envs/.venv/lib:/opt/conda/lib:/home/jovyan/cppyy-backend/python/cppyy_backend/lib:/opt/conda/envs/.venv/lib \
+    PYTHONPATH=/home/jovyan/CPyCppyy/build:/home/jovyan/cppyy-backend/python:/home/jovyan \
+    CPLUS_INCLUDE_PATH=/opt/conda/envs/.venv/include:\
+/opt/conda/envs/.venv/include/python3.10:\
+/home/jovyan/clad/include:\
+/home/jovyan/CPyCppyy/include:\
+/home/jovyan/cppyy-backend/python/cppyy_backend/include:\
+/opt/conda/envs/.venv/include/llvm:\
+/opt/conda/envs/.venv/include/clang:\
+/opt/conda/include:\
+/home/jovyan/clad/include:\
+/home/jovyan/CppInterOp/include:\
+/opt/conda/include:\
+#
+/opt/conda/envs/.venv/lib/gcc/x86_64-conda-linux-gnu/12.3.0/include:\
+/opt/conda/envs/.venv/lib/gcc/x86_64-conda-linux-gnu/12.3.0/include-fixed:\
+/opt/conda/envs/.venv/lib/gcc/x86_64-conda-linux-gnu/12.3.0/../../../../x86_64-conda-linux-gnu/include:\
+/opt/conda/envs/.venv/x86_64-conda-linux-gnu/include/c++/12.3.0:\
+/opt/conda/envs/.venv/x86_64-conda-linux-gnu/include/c++/12.3.0/x86_64-conda-linux-gnu:\
+/opt/conda/envs/.venv/x86_64-conda-linux-gnu/include/c++/12.3.0/backward:\
+/opt/conda/envs/.venv/x86_64-conda-linux-gnu/sysroot/usr/include
+
 
 # VENV
 
@@ -162,20 +184,14 @@ RUN \
     source /home/jovyan/.conda.init && \
     conda activate .venv && \
     #
-    export VENV=${CONDA_DIR}/envs/.venv && \
     export PATH_TO_LLVM_BUILD=${VENV} && \
     #export PATH=${VENV}/bin:${CONDA_DIR}/bin:$PATH_TO_LLVM_BUILD/bin:$PATH && \
     export PATH=${VENV}/bin:${CONDA_DIR}/bin:$PATH && \
-    export LD_LIBRARY_PATH=$PATH_TO_LLVM_BUILD/lib:$LD_LIBRARY_PATH && \
-    echo "export VENV=$VENV" >> ~/.profile && \
-    echo "export PATH=$PATH" >> ~/.profile && \
     echo "export EDITOR=emacs" >> ~/.profile && \
     #
     # Build CppInterOp
     #
-    sys_incs=$(LC_ALL=C c++ -xc++ -E -v /dev/null 2>&1 | LC_ALL=C sed -ne '/starts here/,/End of/p' | LC_ALL=C sed '/^ /!d' | cut -c2- | tr '\n' ':') && \
-    #/usr/include/x86_64-linux-gnu:/usr/include:
-    export CPLUS_INCLUDE_PATH="${PATH_TO_LLVM_BUILD}/include/llvm:${PATH_TO_LLVM_BUILD}/include/clang:$CPLUS_INCLUDE_PATH:${sys_incs%:}" && \
+    #sys_incs=$(LC_ALL=C c++ -xc++ -E -v /dev/null 2>&1 | LC_ALL=C sed -ne '/starts here/,/End of/p' | LC_ALL=C sed '/^ /!d' | cut -c2- | tr '\n' ':') && \
     git clone https://github.com/compiler-research/CppInterOp.git && \
     export CB_PYTHON_DIR="$PWD/cppyy-backend/python" && \
     export CPPINTEROP_DIR="$CB_PYTHON_DIR/cppyy_backend" && \
@@ -186,9 +202,6 @@ RUN \
     cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DUSE_CLING=OFF -DUSE_REPL=ON -DLLVM_DIR=$PATH_TO_LLVM_BUILD -DLLVM_CONFIG_EXTRA_PATH_HINTS=${PATH_TO_LLVM_BUILD}/lib -DLLVM_USE_LINKER=gold -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=$CPPINTEROP_DIR .. && \
     cmake --build . --parallel $(nproc --all) && \
     #make install -j$(nproc --all)
-    export CPLUS_INCLUDE_PATH="$CPPINTEROP_DIR/include:$CPLUS_INCLUDE_PATH" && \
-    export LD_LIBRARY_PATH="${VENV}/lib:${CONDA_DIR}/lib:$CPPINTEROP_DIR/lib:$LD_LIBRARY_PATH" && \
-    echo "export LD_LIBRARY_PATH=$CPPINTEROP_DIR/lib:$LD_LIBRARY_PATH" >> ~/.profile && \
     cd ../.. && \
     #
     # Build and Install cppyy-backend
@@ -224,20 +237,12 @@ RUN \
     cd .. && \
     # Run cppyy
     #TODO: Fix cppyy path (/home/jovyan) to path to installed module
-    export PYTHONPATH=$PYTHONPATH:$CPYCPPYY_DIR:$CB_PYTHON_DIR:/home/jovyan && \
-    echo "export PYTHONPATH=$PYTHONPATH" >> ~/.profile && \
-    export CPLUS_INCLUDE_PATH="/home/jovyan/CPyCppyy/include/:$CPLUS_INCLUDE_PATH" && \
-    # FIXME: Remove the hardcoded version of python here.
-    export CPLUS_INCLUDE_PATH="/home/jovyan/clad/include:$CPLUS_INCLUDE_PATH" && \
-    export CPLUS_INCLUDE_PATH="${VENV}/include:${VENV}/include/python3.10:$CPLUS_INCLUDE_PATH" && \
     python -c "import cppyy" && \
     #
     # Build and Install xeus-cpp
     #
     mkdir build && \
     cd build && \
-    echo "export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH" >> ~/.profile && \
-    ##echo "conda activate .venv" >> ~/.profile
     cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_PREFIX_PATH=$KERNEL_PYTHON_PREFIX -DCMAKE_INSTALL_PREFIX=$KERNEL_PYTHON_PREFIX -DCMAKE_INSTALL_LIBDIR=lib -DCPPINTEROP_DIR=$CPPINTEROP_BUILD_DIR .. && \
     make install -j$(nproc --all) && \
     cd .. && \

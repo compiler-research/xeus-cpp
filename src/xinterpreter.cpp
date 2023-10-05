@@ -51,6 +51,7 @@ namespace xcpp
 {
     void interpreter::configure_impl()
     {
+        xeus::register_interpreter(this);
     }
 
     interpreter::interpreter(int argc, const char* const* argv)

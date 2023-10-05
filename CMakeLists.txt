@@ -197,6 +197,13 @@ set(XEUS_CPP_SRC
     src/xoptions.cpp
     src/xparser.cpp
     src/xutils.cpp
+    src/xdemangle.hpp
+    src/xinspect.hpp
+    src/xsystem.hpp
+    src/xparser.hpp
+    src/xmagics/os.hpp
+    src/xmagics/os.cpp
+    src/xmagics/pythonexec.hpp
     src/xmagics/pythonexec.cpp
 )
 
