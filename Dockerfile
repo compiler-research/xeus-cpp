@@ -6,6 +6,7 @@ ARG BASE_CONTAINER=jupyter/base-notebook
 ARG BASE_TAG=latest
 ARG BUILD_TYPE=Debug
 
+
 FROM $BASE_CONTAINER:$BASE_TAG
 
 LABEL maintainer="Xeus-cpp Project"
@@ -61,7 +62,8 @@ USER ${NB_UID}
 # Copy git repository to home directory of container
 COPY --chown=${NB_UID}:${NB_GID} . "${HOME}"/
 
-EXPOSE 8888
+EXPOSE 9999
+ENV JUPYTER_PORT=9999
 
 # Configure container startup
 CMD ["start-notebook.sh", "--debug", "&>/home/jovyan/log.txt"]
@@ -108,8 +110,9 @@ ENV NB_PYTHON_PREFIX=${CONDA_DIR} \
 /opt/conda/envs/.venv/x86_64-conda-linux-gnu/include/c++/12.3.0:\
 /opt/conda/envs/.venv/x86_64-conda-linux-gnu/include/c++/12.3.0/x86_64-conda-linux-gnu:\
 /opt/conda/envs/.venv/x86_64-conda-linux-gnu/include/c++/12.3.0/backward:\
-/opt/conda/envs/.venv/x86_64-conda-linux-gnu/sysroot/usr/include
-
+/opt/conda/envs/.venv/x86_64-conda-linux-gnu/sysroot/usr/include:\
+#
+/usr/include
 
 # VENV
 
@@ -185,8 +188,8 @@ RUN \
     conda activate .venv && \
     #
     export PATH_TO_LLVM_BUILD=${VENV} && \
-    #export PATH=${VENV}/bin:${CONDA_DIR}/bin:$PATH_TO_LLVM_BUILD/bin:$PATH && \
-    export PATH=${VENV}/bin:${CONDA_DIR}/bin:$PATH && \
+    ###export PATH=${VENV}/bin:${CONDA_DIR}/bin:$PATH_TO_LLVM_BUILD/bin:$PATH && \
+    ##export PATH=${VENV}/bin:${CONDA_DIR}/bin:$PATH && \
     echo "export EDITOR=emacs" >> ~/.profile && \
     #
     # Build CppInterOp

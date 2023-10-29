@@ -8,7 +8,7 @@ jupyter-repo2docker \
     .
 
 #docker run --gpus all --publish 8888:8888 --name xeus-cpp-c -i -t xeus-cpp "start-notebook.sh"
-docker run --rm --runtime=nvidia --gpus all --publish 8888:8888 --name xeus-cpp-c -i -t xeus-cpp "start-notebook.sh"
+docker run --rm --runtime=nvidia --gpus all --publish 9999:9999 --name xeus-cpp-c -i -t xeus-cpp "start-notebook.sh"
 
 #    --editable \
 #    --ref InterOpIntegration \

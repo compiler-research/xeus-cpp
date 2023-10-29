@@ -53,7 +53,6 @@ void pythonexec::startup() {
     // if (!gMainDict)
     //   printf("Could not add module __main__");
 
-    
     // // Retrieve the dictionary of cppyy module
     // PyObject* cppyyDict = PyModule_GetDict(cppyyModule);
     // Py_DECREF(cppyyModule);

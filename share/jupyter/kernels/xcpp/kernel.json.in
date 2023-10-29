@@ -10,6 +10,7 @@
       "@CMAKE_VENV_PATH@/bin/xcpp",
       "-f",
       "{connection_file}",
+      "-cuda",
       "-std=c++17"@CMAKE_OMP@
   ],
   "language": "cpp",
