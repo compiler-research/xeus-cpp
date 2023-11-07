@@ -160,7 +160,6 @@ namespace xcpp
                     tagfile = it->at("tagfile");
                     std::string filename = tagfiles_dir + "/" + tagfile;
                     pugi::xml_document doc;
-                    pugi::xml_parse_result result = doc.load_file(filename.c_str());
                     class_member_predicate predicate{typename_, "function", method[2]};
                     auto node = doc.find_node(predicate);
                     if (!node.empty())
@@ -194,7 +193,6 @@ namespace xcpp
                 tagfile = it->at("tagfile");
                 std::string filename = tagfiles_dir + "/" + tagfile;
                 pugi::xml_document doc;
-                pugi::xml_parse_result result = doc.load_file(filename.c_str());
                 for (auto c : check)
                 {
                     node_predicate predicate{c, find_string};
