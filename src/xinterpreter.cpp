@@ -282,7 +282,7 @@ namespace xcpp
     }
 
     nl::json interpreter::execute_request_impl(
-        int execution_counter,
+        int /*execution_counter*/,
         const std::string& code,
         bool silent,
         bool /*store_history*/,
@@ -414,7 +414,7 @@ namespace xcpp
         return kernel_res;
     }
 
-    nl::json interpreter::complete_request_impl(const std::string& code, int cursor_pos)
+    nl::json interpreter::complete_request_impl(const std::string& /*code*/, int cursor_pos)
     {
         return xeus::create_complete_reply(
             nl::json::array(), /*matches*/
@@ -436,7 +436,7 @@ namespace xcpp
         return kernel_res;
     }
 
-    nl::json interpreter::is_complete_request_impl(const std::string& code)
+    nl::json interpreter::is_complete_request_impl(const std::string& /*code*/)
     {
         return xeus::create_is_complete_reply("complete", "   ");
     }
