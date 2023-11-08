@@ -6,7 +6,7 @@ You will first need to install dependencies.
 .. code-block:: bash
 
     mamba install cmake cxx-compiler xeus-zmq nlohmann_json cppzmq xtl jupyterlab
-    clangdev=16 cpp-argparse pugixml -c conda-forge
+    clangdev=17 cpp-argparse pugixml -c conda-forge
 
 
 **Note:** Use a mamba environment with python version >= 3.11 for fetching clang-versions.

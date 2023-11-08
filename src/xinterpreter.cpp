@@ -130,7 +130,9 @@ create_interpreter(const Args& ExtraArgs = {}, clang::DiagnosticConsumer* Client
 
     Args ClangArgs = {"-Xclang", "-emit-llvm-only", "-Xclang", "-diagnostic-log-file", "-Xclang", "-", "-xc++"};
     ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
-    auto CI = cantFail(clang::IncrementalCompilerBuilder::create(ClangArgs));
+    clang::IncrementalCompilerBuilder builder;
+    builder.SetCompilerArgs(ClangArgs);
+    auto CI = cantFail(builder.CreateCpp());
     if (Client)
     {
         CI->getDiagnostics().setClient(Client, /*ShouldOwnClient=*/false);
@@ -139,7 +141,7 @@ create_interpreter(const Args& ExtraArgs = {}, clang::DiagnosticConsumer* Client
 }
 
 static void
-inject_symbol(llvm::StringRef LinkerMangledName, llvm::JITTargetAddress KnownAddr, clang::Interpreter& Interp)
+inject_symbol(llvm::StringRef LinkerMangledName, llvm::orc::ExecutorAddr KnownAddr, clang::Interpreter& Interp)
 {
     using namespace llvm;
     using namespace llvm::orc;
@@ -153,7 +155,7 @@ inject_symbol(llvm::StringRef LinkerMangledName, llvm::JITTargetAddress KnownAdd
     }
 
     // Nothing to define, we are redefining the same function. FIXME: Diagnose.
-    if (*Symbol && (JITTargetAddress) *Symbol == KnownAddr)
+    if (*Symbol && (ExecutorAddr) *Symbol == KnownAddr)
     {
         return;
     }
@@ -163,12 +165,19 @@ inject_symbol(llvm::StringRef LinkerMangledName, llvm::JITTargetAddress KnownAdd
     SymbolMap::iterator It;
     static llvm::orc::SymbolMap m_InjectedSymbols;
 
-    llvm::orc::LLJIT* Jit = const_cast<llvm::orc::LLJIT*>(Interp.getExecutionEngine());
-    JITDylib& DyLib = Jit->getMainJITDylib();
+    auto JitOrError = Interp.getExecutionEngine();
 
+    if (Error Err = JitOrError.takeError())
+    {
+        logAllUnhandledErrors(std::move(Err), errs(), "[IncrementalJIT] define() failed2: ");
+        return;
+    }
+
+    llvm::orc::LLJIT &Jit = *JitOrError;
+    llvm::orc::JITDylib &DyLib = Jit.getMainJITDylib();
     std::tie(It, Inserted) = m_InjectedSymbols.try_emplace(
-        Jit->getExecutionSession().intern(LinkerMangledName),
-        JITEvaluatedSymbol(KnownAddr, JITSymbolFlags::Exported)
+        Jit.getExecutionSession().intern(LinkerMangledName),
+        ExecutorSymbolDef(KnownAddr, JITSymbolFlags::Exported)
     );
     assert(Inserted && "Why wasn't this found in the initial Jit lookup?");
 
@@ -178,14 +187,14 @@ inject_symbol(llvm::StringRef LinkerMangledName, llvm::JITTargetAddress KnownAdd
         // The symbol be in the DyLib or in-process.
         if (auto Err = DyLib.remove({It->first}))
         {
-            logAllUnhandledErrors(std::move(Err), errs(), "[IncrementalJIT] define() failed2: ");
+            logAllUnhandledErrors(std::move(Err), errs(), "[IncrementalJIT] define() failed3: ");
             return;
         }
     }
 
     if (Error Err = DyLib.define(absoluteSymbols({*It})))
     {
-        logAllUnhandledErrors(std::move(Err), errs(), "[IncrementalJIT] define() failed3: ");
+        logAllUnhandledErrors(std::move(Err), errs(), "[IncrementalJIT] define() failed4: ");
     }
 }
 
@@ -559,8 +568,8 @@ namespace xcpp
 
         // Inject versions of printf and fprintf that output to std::cout
         // and std::cerr (see implementation above).
-        inject_symbol("printf", llvm::pointerToJITTargetAddress(printf_jit), *m_interpreter);
-        inject_symbol("fprintf", llvm::pointerToJITTargetAddress(fprintf_jit), *m_interpreter);
+        inject_symbol("printf", llvm::orc::ExecutorAddr::fromPtr(printf_jit), *m_interpreter);
+        inject_symbol("fprintf", llvm::orc::ExecutorAddr::fromPtr(fprintf_jit), *m_interpreter);
     }
 
     void interpreter::restore_output()
