@@ -327,16 +327,8 @@ namespace xcpp
         // Attempt normal evaluation
         
         try
-        {   std::string exp = R"(\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)";
-            std::regex re(R"((\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)(\.?)*$)");
-            auto inspect_request = is_inspect_request(code, re);
-            if (inspect_request.first)
-            {
-                inspect(inspect_request.second[0], kernel_res, *m_interpreter);
-            }
-            
+        {
             compilation_result = process_code(*m_interpreter, code, error_stream);
-        
         }
         catch (std::exception& e)
         {
@@ -427,7 +419,7 @@ namespace xcpp
     {
         nl::json kernel_res;
         std::string exp = R"(\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)";
-        std::regex re(R"((\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)(\.?)*$)");
+        std::regex re{"(" + exp + R"(\.?)*$)"};
         auto inspect_request = is_inspect_request(code.substr(0, cursor_pos), re);
         if (inspect_request.first)
         {
