@@ -7,3 +7,4 @@ dependencies:
   - xeus-lite
   - xeus >=3.0.5,<4.0
   - xtl >=0.7,<0.8
+  - llvm  # includes clang
