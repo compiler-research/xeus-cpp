@@ -19,6 +19,16 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
 set(XEUS_CPP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+if ("${CMAKE_INSTALL_INCLUDEDIR}" STREQUAL "")
+  set(CMAKE_INSTALL_INCLUDEDIR "include")
+endif()
+if ("${CMAKE_INSTALL_LIBDIR}" STREQUAL "")
+  set(CMAKE_INSTALL_LIBDIR "lib")
+endif()
+if ("${CMAKE_INSTALL_BINDIR}" STREQUAL "")
+  set(CMAKE_INSTALL_BINDIR "bin")
+endif()
+
 # Versionning
 # ===========
 
@@ -222,7 +232,8 @@ include(CheckCXXCompilerFlag)
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" U_CMAKE_BUILD_TYPE)
 
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib; ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+list(REMOVE_DUPLICATES CMAKE_INSTALL_RPATH)
 
 macro(xeus_cpp_set_common_options target_name)
     if (MSVC)
@@ -311,7 +322,7 @@ macro(xeus_cpp_create_target target_name linkage output_name)
         set(XEUS_CPP_XEUS_TARGET xeus-static)
     endif ()
 
-    target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse xtl)
+    target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse xtl Python::Python)
     if (WIN32 OR CYGWIN)
         #
     elseif (APPLE)
@@ -421,10 +432,10 @@ set(XEUS_CPP_CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NA
 if (XEUS_CPP_BUILD_SHARED)
     install(TARGETS ${XEUS_CPP_TARGETS}
             EXPORT ${PROJECT_NAME}-targets
-            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-            PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xeus-cpp)
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+            PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/xeus-cpp)
 
     # Makes the project importable from the build directory
     export(EXPORT ${PROJECT_NAME}-targets
@@ -432,6 +443,9 @@ if (XEUS_CPP_BUILD_SHARED)
 endif ()
 
 # Install xcpp
+if ("${CMAKE_VENV_PATH}" STREQUAL "")
+  set(CMAKE_VENV_PATH "${CMAKE_INSTALL_PREFIX}")
+endif()
 if (XEUS_CPP_BUILD_EXECUTABLE)
     install(TARGETS xcpp
             RUNTIME DESTINATION ${CMAKE_VENV_PATH}/bin)

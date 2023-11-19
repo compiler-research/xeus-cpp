@@ -27,7 +27,7 @@
 #include "xeus-cpp/xmagics.hpp"
 
 #include "xinput.hpp"
-// #include "xinspect.hpp"
+#include "xinspect.hpp"
 // #include "xmagics/executable.hpp"
 // #include "xmagics/execution.hpp"
 #include "xmagics/os.hpp"
@@ -124,12 +124,12 @@ namespace xcpp
         // Attempt normal evaluation
         try
         {
-	    std::string exp = R"(\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)";
-	    std::regex re(R"((\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)(\.?)*$)");
+            std::string exp = R"(\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)";
+            std::regex re(R"((\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)(\.?)*$)");
             auto inspect_request = is_inspect_request(code, re);
             if (inspect_request.first)
-                inspect(inspect_request.second[0], kernel_res, *m_interpreter);
-            
+                inspect(inspect_request.second[0], kernel_res);
+
             Cpp::BeginStdStreamCapture(Cpp::kStdErr);
             Cpp::BeginStdStreamCapture(Cpp::kStdOut);
             compilation_result = Cpp::Process(code.c_str());
@@ -148,7 +148,7 @@ namespace xcpp
             errorlevel = 1;
             ename = "Error :";
         }
-    
+
         if (compilation_result)
         {
             errorlevel = 1;
@@ -227,7 +227,7 @@ namespace xcpp
         auto inspect_request = is_inspect_request(code.substr(0, cursor_pos), re);
         if (inspect_request.first)
         {
-            inspect(inspect_request.second[0], kernel_res, *m_interpreter);
+            inspect(inspect_request.second[0], kernel_res);
         }
         return kernel_res;
     }
