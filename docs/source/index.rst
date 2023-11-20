@@ -23,7 +23,7 @@ The full license is in the file LICENSE, distributed with this software.
 
 
 Welcome to Xeus-Cpp's documentation!
-===========================================
+====================================
 
 The Xeus-Cpp is a Jupyter kernel for the C++ programming language
 
@@ -31,12 +31,11 @@ The Xeus-Cpp is a Jupyter kernel for the C++ programming language
    :caption: DEVELOPER ZONE
    :maxdepth: 2
 
-   dev-build-options
    InstallationAndUsage
    UsingXeus-Cpp
-   reference
    tutorials
+   dev-build-options
    FAQ
-   DevelopersDocumentation
-
+   reference
+   
 .. _xeus: https://github.com/jupyter-xeus/xeus

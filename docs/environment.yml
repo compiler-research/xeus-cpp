@@ -1,22 +1,9 @@
-name: xeus-cpp
+name: xeus-cpp-docs
 
 channels:
   - conda-forge
-  - defaults
 
 dependencies:
-  # Build dependencies
-  - cmake
-  # Host dependencies
-  - xeus
-  - pip
-  - cppzmq
-  - xeus-zmq
-  - nlohmann_json
-  - xtl
-  - pugixml
-  - jupyterlab
   - breathe
-  - cpp-argparse
   - pip:
-    - sphinx_rtd_theme  
+    - sphinx_rtd_theme
