@@ -160,6 +160,7 @@ namespace xcpp
                     tagfile = it->at("tagfile");
                     std::string filename = tagfiles_dir + "/" + tagfile;
                     pugi::xml_document doc;
+                    doc.load_file(filename.c_str());
                     class_member_predicate predicate{typename_, "function", method[2]};
                     auto node = doc.find_node(predicate);
                     if (!node.empty())
@@ -193,6 +194,7 @@ namespace xcpp
                 tagfile = it->at("tagfile");
                 std::string filename = tagfiles_dir + "/" + tagfile;
                 pugi::xml_document doc;
+                doc.load_file(filename.c_str());
                 for (auto c : check)
                 {
                     node_predicate predicate{c, find_string};
@@ -262,5 +264,36 @@ namespace xcpp
             kernel_res["status"] = "ok";
         }
     }
+
+    class xintrospection : public xpreamble
+    {
+    public:
+
+        using xpreamble::pattern;
+        const std::string spattern = R"(^\?)";
+
+        xintrospection(clang::Interpreter& p)
+            : m_interpreter{p}
+        {
+            pattern = spattern;
+        }
+
+        void apply(const std::string& code, nl::json& kernel_res) override
+        {
+            std::regex re(spattern + R"((.*))");
+            std::smatch to_inspect;
+            std::regex_search(code, to_inspect, re);
+            inspect(to_inspect[1], kernel_res, m_interpreter);
+        }
+
+        virtual xpreamble* clone() const override
+        {
+            return new xintrospection(*this);
+        }
+
+    private:
+
+        clang::Interpreter& m_interpreter;
+    };
 }
 #endif

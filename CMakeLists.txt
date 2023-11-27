@@ -50,7 +50,8 @@ OPTION(XEUS_CPP_BUILD_EXECUTABLE "Build the xcpp executable" ON)
 OPTION(XEUS_CPP_USE_SHARED_XEUS "Link xcpp  with the xeus shared library (instead of the static library)" ON)
 OPTION(XEUS_CPP_USE_SHARED_XEUS_CPP "Link xcpp  with the xeus shared library (instead of the static library)" ON)
 
-
+# Test options
+OPTION(XEUS_CPP_BUILD_TESTS "xeus-cpp test suite" ON)
 
 if(EMSCRIPTEN)
     add_compile_definitions(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
@@ -303,6 +304,13 @@ if(EMSCRIPTEN)
     xeus_cpp_set_kernel_options(xcpp)
     xeus_wasm_compile_options(xcpp)
     xeus_wasm_link_options(xcpp "web,worker")
+endif()
+
+# Tests
+# =====
+
+if(XEUS_CPP_BUILD_TESTS)
+    add_subdirectory(test)
 endif()
 
 # Installation

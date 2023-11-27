@@ -54,6 +54,13 @@ jobs:
           cd bld
           make install
 
+      - name: Test xeus-cpp C++
+        shell: bash -l {0}
+        run: |
+          cd bld/test
+          ./test_xeus_cpp
+        timeout-minutes: 4
+
       - name: test
         shell: bash -l {0}
         run: |
