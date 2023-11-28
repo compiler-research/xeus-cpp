@@ -13,11 +13,11 @@
 
 #include <xeus/xembind.hpp>
 
-#include "xeus-cpp/xinterpreter.hpp"
+#include "xeus-cpp/xinterpreter_wasm.hpp"
 
 EMSCRIPTEN_BINDINGS(my_module)
 {
     xeus::export_core();
-    using interpreter_type = xcpp::interpreter;
+    using interpreter_type = xcpp::wasm_interpreter;
     xeus::export_kernel<interpreter_type>("xkernel");
 }
