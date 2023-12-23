@@ -10,7 +10,7 @@ dependencies:
   - xeus-zmq >=1.0.2,<2.0
   - nlohmann_json
   - cppzmq
-  - xtl
+  - xtl =0.7.7
   - clangdev >=16,<17
   - pugixml
   - cpp-argparse
