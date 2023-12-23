@@ -94,7 +94,7 @@ jobs:
         shell: powershell
         run: |
           cd bld
-          cmake --build . --config Release --target ALL_BUILD
+          cmake --build . --target ALL_BUILD
 
       # - name: test
       #   shell: cmd
