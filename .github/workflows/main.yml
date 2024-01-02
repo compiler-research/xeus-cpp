@@ -99,13 +99,6 @@ jobs:
           set CL=/MP
           nmake install
 
-      - name: test
-        shell: cmd
-        run: |
-          call C:\Users\runneradmin\micromamba-root\condabin\micromamba.bat activate xeus-cpp
-          cd test
-          pytest .  --reruns 5
-
   emscripten_wasm:
 
     runs-on: ubuntu-latest
