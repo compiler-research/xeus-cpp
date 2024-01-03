@@ -50,9 +50,9 @@ OPTION(XEUS_CPP_BUILD_EXECUTABLE "Build the xcpp executable" ON)
 OPTION(XEUS_CPP_USE_SHARED_XEUS "Link xcpp  with the xeus shared library (instead of the static library)" ON)
 OPTION(XEUS_CPP_USE_SHARED_XEUS_CPP "Link xcpp  with the xeus shared library (instead of the static library)" ON)
 
-OPTION(XEUS_CPP_EMSCRIPTEN_WASM_BUILD "Build for wasm with emscripten" OFF)
 
-if(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+
+if(EMSCRIPTEN)
     add_compile_definitions(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
     message("Build with emscripten")
     SET(XEUS_CPP_BUILD_STATIC ON)
@@ -90,7 +90,7 @@ else()
 endif ()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Intel")
-    if(NOT XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+    if(NOT EMSCRIPTEN)
         add_compile_options(-Wunused-parameter -Wextra -Wreorder)
     endif()
     
@@ -103,7 +103,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
     endif ()
 endif ()
 
-if(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+if(EMSCRIPTEN)
     # ENV (https://github.com/emscripten-core/emscripten/commit/6d9681ad04f60b41ef6345ab06c29bbc9eeb84e0)
     set(EMSCRIPTEN_FEATURES "${EMSCRIPTEN_FEATURES} -s \"EXTRA_EXPORTED_RUNTIME_METHODS=[ENV']\"")
 endif()
@@ -130,6 +130,10 @@ set(XEUS_CPP_SRC
     src/xoptions.cpp
     src/xparser.cpp
 )
+
+if(EMSCRIPTEN)
+    list(APPEND XEUS_CPP_SRC src/xinterpreter_wasm.cpp)
+endif()
 
 set(XEUS_CPP_MAIN_SRC
     src/main.cpp
@@ -192,7 +196,7 @@ macro(xeus_cpp_set_kernel_options target_name)
         target_link_libraries(${target_name} PRIVATE xeus-cpp-static)
     endif()
 
-    if(NOT XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+    if(NOT EMSCRIPTEN)
         find_package(Threads)
         target_link_libraries(${target_name} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
     endif()
@@ -238,7 +242,7 @@ macro(xeus_cpp_create_target target_name linkage output_name)
     elseif (APPLE)
         target_link_libraries(${target_name} PRIVATE "-undefined dynamic_lookup")
     endif ()
-    if(NOT XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+    if(NOT EMSCRIPTEN)
         find_package(Threads) # TODO: add Threads as a dependence of xeus-static?
         target_link_libraries(${target_name} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
     endif()
@@ -291,14 +295,14 @@ if (XEUS_CPP_BUILD_EXECUTABLE)
     target_link_libraries(xcpp PRIVATE xeus-zmq)
 endif()
 
-if(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+if(EMSCRIPTEN)
     include(WasmBuildOptions)
     find_package(xeus-lite REQUIRED)
-    add_executable(xcpp_wasm src/main_emscripten_kernel.cpp )
-    target_link_libraries(xcpp_wasm PRIVATE xeus-lite)
-    xeus_cpp_set_kernel_options(xcpp_wasm)
-    xeus_wasm_compile_options(xcpp_wasm)
-    xeus_wasm_link_options(xcpp_wasm "web,worker")
+    add_executable(xcpp src/main_emscripten_kernel.cpp )
+    target_link_libraries(xcpp PRIVATE xeus-lite)
+    xeus_cpp_set_kernel_options(xcpp)
+    xeus_wasm_compile_options(xcpp)
+    xeus_wasm_link_options(xcpp "web,worker")
 endif()
 
 # Installation
@@ -325,7 +329,9 @@ endif ()
 if (XEUS_CPP_BUILD_EXECUTABLE)
     install(TARGETS xcpp
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
 
+if(XEUS_CPP_BUILD_EXECUTABLE OR EMSCRIPTEN)
     # Configuration and data directories for jupyter and xeus-cpp
     set(XJUPYTER_DATA_DIR "share/jupyter"    CACHE STRING "Jupyter data directory")
 
@@ -391,13 +397,13 @@ if (XEUS_CPP_BUILD_SHARED)
             DESTINATION ${XEUS_CPP_CMAKECONFIG_INSTALL_DIR})
 endif ()
 
-if(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
-    install(TARGETS xcpp_wasm
+if(EMSCRIPTEN)
+    install(TARGETS xcpp
             ARCHIVE DESTINATION ${XEUS_CPP_CMAKECONFIG_INSTALL_DIR})
 
     install(FILES
-            "$<TARGET_FILE_DIR:xcpp_wasm>/xcpp_wasm.js"
-            "$<TARGET_FILE_DIR:xcpp_wasm>/xcpp_wasm.wasm"
+            "$<TARGET_FILE_DIR:xcpp>/xcpp.js"
+            "$<TARGET_FILE_DIR:xcpp>/xcpp.wasm"
             DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
 

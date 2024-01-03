@@ -21,11 +21,8 @@ namespace xcpp
     public:
 
         wasm_interpreter();
-        virtual ~wasm_interpreter();
+        virtual ~wasm_interpreter() = default;
 
-    private:
-
-        void configure_impl() override;
     };
 }
 

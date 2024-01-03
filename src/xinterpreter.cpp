@@ -90,7 +90,7 @@ process_code(clang::Interpreter& Interp, const std::string& code, llvm::raw_stri
                         auto Addr = Interp.getSymbolAddress(clang::GlobalDecl(VD));
                         if (!Addr)
                         {
-                            llvm::logAllUnhandledErrors(std::move(Addr.takeError()), error_stream, "error: ");
+                            llvm::logAllUnhandledErrors(Addr.takeError(), error_stream, "error: ");
                             return true;
                         }
                     }
@@ -106,7 +106,7 @@ process_code(clang::Interpreter& Interp, const std::string& code, llvm::raw_stri
                         auto Addr = Interp.getSymbolAddress(clang::GlobalDecl(VD));
                         if (!Addr)
                         {
-                            llvm::logAllUnhandledErrors(std::move(Addr.takeError()), error_stream, "error: ");
+                            llvm::logAllUnhandledErrors(Addr.takeError(), error_stream, "error: ");
                             return true;
                         }
                     }
@@ -261,7 +261,7 @@ namespace xcpp
     }
 
     interpreter::interpreter(int argc, const char* const* argv)
-        : m_interpreter(std::move(create_interpreter(Args() /*argv + 1, argv + argc)*/, DiagPrinter.get())))
+        : m_interpreter(create_interpreter(Args() /*argv + 1, argv + argc)*/, DiagPrinter.get()))
         , m_version(get_stdopt(argc, argv))
         ,  // Extract C++ language standard version from command-line option
         xmagics()
