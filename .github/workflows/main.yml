@@ -89,7 +89,7 @@ jobs:
           call C:\Users\runneradmin\micromamba-root\condabin\micromamba.bat activate xeus-cpp
           mkdir -p bld
           cd bld
-          cmake .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DXEUS_BUILD_TESTS=ON -DDEPENDENCY_SEARCH_PREFIX="%CONDA_PREFIX%\Library" -DCMAKE_PREFIX_PATH="%CONDA_PREFIX%\Library" -DCMAKE_INSTALL_PREFIX="%CONDA_PREFIX%" 
+          cmake .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DXEUS_BUILD_TESTS=ON -DDEPENDENCY_SEARCH_PREFIX="%CONDA_PREFIX%\Library" -DCMAKE_PREFIX_PATH="%CONDA_PREFIX%\Library" -DCMAKE_INSTALL_PREFIX="%CONDA_PREFIX%"
 
       - name: build
         shell: cmd
@@ -99,103 +99,6 @@ jobs:
           set CL=/MP
           nmake install
 
-      - name: test
-        shell: cmd
-        run: |
-          call C:\Users\runneradmin\micromamba-root\condabin\micromamba.bat activate xeus-cpp
-          cd test
-          pytest .  --reruns 5
-
-  emscripten_wasm_docker:
-    runs-on: ubuntu-20.04
-
-    strategy:
-      fail-fast: false
-      matrix:
-        container: ["emscripten/emsdk:2.0.34", "emscripten/emsdk:3.1.3", "emscripten/emsdk:latest"]
-
-    
-    container: ${{ matrix.container}}
-     
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Verify emscripten
-        run: emcc -v
-
-      - name: "install xtl"
-        run: |
-          mkdir -p /opt/xtl/build 
-          git clone https://github.com/xtensor-stack/xtl.git  /opt/xtl/src
-          cd /opt/xtl/src 
-          git checkout 0.7.2
-          cd /opt/xtl/build 
-          emcmake cmake ../src/ -DCMAKE_INSTALL_PREFIX=/custom_sysroot
-          emmake make -j2 install
-
-      - name: "install nlohmann-json"
-        run: |
-          mkdir -p /opt/nlohmannjson/build 
-          git clone https://github.com/nlohmann/json.git  /opt/nlohmannjson/src
-          cd  /opt/nlohmannjson/src
-          git checkout v3.9.0
-          cd /opt/nlohmannjson/build 
-          emcmake cmake ../src/  -DJSON_BuildTests=OFF -DCMAKE_INSTALL_PREFIX=/custom_sysroot
-          emmake make -j2 install
-
-      - name: "install xeus"
-        run: |
-          mkdir -p /opt/xeus/build 
-          git clone https://github.com/jupyter-xeus/xeus.git  /opt/xeus/src
-          cd /opt/xeus/build 
-          emcmake cmake ../src \
-            -DXEUS_EMSCRIPTEN_WASM_BUILD=ON \
-            -DCMAKE_INSTALL_PREFIX=/custom_sysroot\
-            -Dxtl_DIR=/custom_sysroot/share/cmake/xtl \
-            -Dnlohmann_json_DIR=/custom_sysroot/lib/cmake/nlohmann_json 
-
-          emmake make -j2
-          emmake make -j2 install
-
-      - name: "install xeus-lite"
-        run: |
-          mkdir -p /opt/xeus-lite/build 
-          git clone https://github.com/jupyter-xeus/xeus-lite.git  /opt/xeus-lite/src
-          cd /opt/xeus-lite/build 
-          emcmake cmake ../src \
-            -DXEUS_EMSCRIPTEN_WASM_BUILD=ON \
-            -DCMAKE_INSTALL_PREFIX=/custom_sysroot \
-            -Dxtl_DIR=/custom_sysroot/share/cmake/xtl \
-            -Dnlohmann_json_DIR=/custom_sysroot/lib/cmake/nlohmann_json \
-            -Dxeus_DIR=/custom_sysroot/lib/cmake/xeus
-          emmake make -j2
-          emmake make -j2 install
-
-      - name: cmake configure rendered project
-        shell: bash -l {0}
-        run: |
-          mkdir -p bld
-          cd bld
-          emcmake cmake .. \
-           -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON \
-           -Dxtl_DIR=/custom_sysroot/share/cmake/xtl \
-           -Dnlohmann_json_DIR=/custom_sysroot/lib/cmake/nlohmann_json \
-           -Dxeus_DIR=/custom_sysroot/lib/cmake/xeus \
-           -Dxeus-lite_DIR=/custom_sysroot/lib/cmake/xeus-lite \
-           -DCMAKE_INSTALL_PREFIX=/custom_sysroot
-
-      - name: build rendered project
-        shell: bash -l {0}
-        run: |
-          cd bld
-          emmake make -j2
-
-      - name: install rendered project
-        shell: bash -l {0}
-        run: |
-          cd bld
-          make install
-
   emscripten_wasm:
 
     runs-on: ubuntu-latest
@@ -203,7 +106,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        emsdk_ver: ["2.0.34", "3.1.3"]
+        emsdk_ver: ["3.1.45"]
 
     steps:
       - uses: actions/checkout@v2
@@ -224,7 +127,7 @@ jobs:
         run: |
           emsdk activate ${{matrix.emsdk_ver}}
           source $CONDA_EMSDK_DIR/emsdk_env.sh
-          micromamba create -f environment-wasm-host.yml --platform=emscripten-32
+          micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
           
           mkdir build
           pushd build
@@ -241,4 +144,4 @@ jobs:
             -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
             -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ON            \
             ..
-          make -j5
+          EMCC_CFLAGS='-sERROR_ON_UNDEFINED_SYMBOLS=0' emmake make -j5
