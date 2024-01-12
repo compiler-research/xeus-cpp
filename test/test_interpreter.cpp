@@ -8,6 +8,7 @@
 
 #include "doctest/doctest.h"
 #include "xeus-cpp/xinterpreter.hpp"
+#include "xeus-cpp/xutils.hpp"
 
 TEST_SUITE("execute_request")
 {
@@ -32,5 +33,18 @@ TEST_SUITE("execute_request")
         REQUIRE(result["user_expressions"] == nl::json::object());
         REQUIRE(result["found"] == true);
         REQUIRE(result["status"] == "ok");
+    }
+}
+
+TEST_SUITE("extract_filename")
+{
+    TEST_CASE("extract_filename_basic_test")
+    {
+        const char* arguments[] = {"argument1", "-f", "filename.txt", "argument4"};
+        int argc = sizeof(arguments) / sizeof(arguments[0]);
+
+        std::string result = xcpp::extract_filename(argc, const_cast<char**>(arguments));
+        REQUIRE(result == "filename.txt");
+        REQUIRE(argc == 2);
     }
 }

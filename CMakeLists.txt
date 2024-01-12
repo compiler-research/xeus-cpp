@@ -130,6 +130,7 @@ set(XEUS_CPP_SRC
     src/xinterpreter.cpp
     src/xoptions.cpp
     src/xparser.cpp
+    src/xutils.cpp
 )
 
 if(EMSCRIPTEN)
