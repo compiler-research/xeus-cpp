@@ -27,81 +27,11 @@
 
 #include "xeus-cpp/xeus_cpp_config.hpp"
 #include "xeus-cpp/xinterpreter.hpp"
-
-#ifdef __GNUC__
-void handler(int sig)
-{
-    void* array[10];
-
-    // get void*'s for all entries on the stack
-    std::size_t size = backtrace(array, 10);
-
-    // print out all the frames to stderr
-    fprintf(stderr, "Error: signal %d:\n", sig);
-    backtrace_symbols_fd(array, size, STDERR_FILENO);
-    exit(1);
-}
-#endif
-
-void stop_handler(int /*sig*/)
-{
-    exit(0);
-}
-
-bool should_print_version(int argc, char* argv[])
-{
-    for (int i = 0; i < argc; ++i)
-    {
-        if (std::string(argv[i]) == "--version")
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-std::string extract_filename(int argc, char* argv[])
-{
-    std::string res = "";
-    for (int i = 0; i < argc; ++i)
-    {
-        if ((std::string(argv[i]) == "-f") && (i + 1 < argc))
-        {
-            res = argv[i + 1];
-            for (int j = i; j < argc - 2; ++j)
-            {
-                argv[j] = argv[j + 2];
-            }
-            argc -= 2;
-            break;
-        }
-    }
-    return res;
-}
-
-using interpreter_ptr = std::unique_ptr<xcpp::interpreter>;
-
-interpreter_ptr build_interpreter(int argc, char** argv)
-{
-    int interpreter_argc = argc;  // + 1;                                               // ...
-    const char** interpreter_argv = new const char*[interpreter_argc];
-    interpreter_argv[0] = "xeus-cpp";
-    // Copy all arguments in the new array excepting the process name.
-    for (int i = 1; i < argc; i++)
-    {
-        interpreter_argv[i] = argv[i];
-    }
-    // std::string include_dir = std::string(LLVM_DIR) + std::string("/include");     // ...
-    // interpreter_argv[interpreter_argc - 1] = include_dir.c_str();                  // ...
-
-    interpreter_ptr interp_ptr = interpreter_ptr(new xcpp::interpreter(interpreter_argc, interpreter_argv));
-    delete[] interpreter_argv;
-    return interp_ptr;
-}
+#include "xeus-cpp/xutils.hpp"
 
 int main(int argc, char* argv[])
 {
-    if (should_print_version(argc, argv))
+    if (xcpp::should_print_version(argc, argv))
     {
         std::clog << "xcpp " << XEUS_CPP_VERSION << std::endl;
         return 0;
@@ -120,16 +50,16 @@ int main(int argc, char* argv[])
     // Registering SIGSEGV handler
 #ifdef __GNUC__
     std::clog << "registering handler for SIGSEGV" << std::endl;
-    signal(SIGSEGV, handler);
+    signal(SIGSEGV, xcpp::handler);
 
     // Registering SIGINT and SIGKILL handlers
-    signal(SIGKILL, stop_handler);
+    signal(SIGKILL, xcpp::stop_handler);
 #endif
-    signal(SIGINT, stop_handler);
+    signal(SIGINT, xcpp::stop_handler);
 
-    std::string file_name = extract_filename(argc, argv);
+    std::string file_name = xcpp::extract_filename(argc, argv);
 
-    interpreter_ptr interpreter = build_interpreter(argc, argv);
+    interpreter_ptr interpreter = xcpp::build_interpreter(argc, argv);
 
     auto context = xeus::make_context<zmq::context_t>();
 

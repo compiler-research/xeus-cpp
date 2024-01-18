@@ -52,7 +52,7 @@ namespace xcpp
         {
             std::lock_guard<std::mutex> lock(m_mutex);
             // Called for a string of characters.
-            m_output.append(s, count);
+            m_output.append(s, static_cast<std::size_t>(count));
             return count;
         }
 
