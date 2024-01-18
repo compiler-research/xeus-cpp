@@ -28,18 +28,19 @@ jobs:
         id: review
         with:
           build_dir: build
-          apt_packages: libxml2,libxml2-dev,libtinfo-dev,zlib1g-dev,libzstd-dev
+          apt_packages: libxml2,libxml2-dev,libtinfo-dev,zlib1g-dev,libzstd-dev,curl
           exclude: "test/*,unittests/*,benchmark/*,demos/*"
           split_workflow: true
           cmake_command: >
-            pip install cmake lit &&
-            cmake --version &&
+            set -x &&
+            mkdir micromamba && cd micromamba && curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba &&
+            export MAMBA_ROOT_PREFIX=/github/workspace/micromamba &&
+            eval "$(./bin/micromamba shell hook -s posix)" &&
+            micromamba create -n xeus-cpp -y --log-level warning -f /github/workspace/environment-dev.yml &&
+            micromamba activate xeus-cpp &&
+            cd .. &&
             git config --global --add safe.directory /github/workspace &&
-            cmake . -B build -DLLVM_DIR="$GITHUB_WORKSPACE/llvm"
-            -DClang_DIR="$GITHUB_WORKSPACE/llvm"
-            -DCMAKE_BUILD_TYPE="Release"
-            -DLLVM_EXTERNAL_LIT="`which lit`"
-            -DCMAKE_EXPORT_COMPILE_COMMANDS=On
+            cmake . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=On
 
       - name: Upload artifacts
         uses: ZedThree/clang-tidy-review/upload@v0.13.1
