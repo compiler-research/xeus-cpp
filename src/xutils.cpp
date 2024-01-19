@@ -82,17 +82,16 @@ namespace xcpp
 
     interpreter_ptr build_interpreter(int argc, char** argv)
     {
-        int interpreter_argc = argc;  // + 1;
-        const char** interpreter_argv = new const char*[interpreter_argc];
+        std::vector<const char*> interpreter_argv(argc);
         interpreter_argv[0] = "xeus-cpp";
-        // Copy all arguments in the new array excepting the process name.
+
+        // Copy all arguments in the new vector excepting the process name.
         for (int i = 1; i < argc; i++)
         {
             interpreter_argv[i] = argv[i];
         }
 
-        interpreter_ptr interp_ptr = std::make_unique<interpreter>(interpreter_argc, interpreter_argv);
-        delete[] interpreter_argv;
+        interpreter_ptr interp_ptr = std::make_unique<interpreter>(argc, interpreter_argv.data());
         return interp_ptr;
     }
 
