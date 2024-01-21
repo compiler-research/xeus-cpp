@@ -102,6 +102,11 @@ jobs:
         with:
           file: ./coverage.info
 
+      - name: Setup tmate session
+        if: ${{ failure() && runner.debug }}
+        uses: mxschmitt/action-tmate@v3
+        # When debugging increase to a suitable value!
+        timeout-minutes: 30
   win:
     
     runs-on: ${{ matrix.os }}
