@@ -21,7 +21,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        include:
+          - name: ubu
+            os: ubuntu-latest
+          - name: ubu-analyzers
+            os: ubuntu-latest
+            coverage: true
+            extra_cmake_flags: -DCMAKE_BUILD_TYPE=Debug
+          - name: osx
+            os: macos-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -40,28 +48,30 @@ jobs:
       - name: cmake configure
         shell: bash -l {0}
         run: |
-          mkdir -p bld
-          cd bld
+          mkdir -p build
+          cd build
           cmake .. \
            -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
-           -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX 
+           -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
+           -DXEUS_CPP_ENABLE_CODE_COVERAGE=${{ matrix.coverage }} \
+           ${{ matrix.extra_cmake_flags }}
 
       - name: build
         shell: bash -l {0}
         run: |
-          cd bld
+          cd build
           make -j8
 
       - name: install
         shell: bash -l {0}
         run: |
-          cd bld
+          cd build
           make install
 
       - name: Test xeus-cpp C++
         shell: bash -l {0}
         run: |
-          cd bld/test
+          cd build/test
           ./test_xeus_cpp
         timeout-minutes: 4
 
@@ -70,6 +80,27 @@ jobs:
         run: |
           cd test
           pytest .  --reruns 5
+
+      - name: Prepare code coverage report
+        if: ${{ success() && (matrix.coverage == true) }}
+        shell: bash -l {0}
+        run: |
+          # Create lcov report
+          # Find the current compiler version.
+          CC=$(realpath `which c++`)
+          vers="${CC##*-}"
+          sudo apt install lcov
+          # capture coverage info
+          lcov --directory build/ --capture --output-file coverage.info --gcov-tool $CONDA_PREFIX/bin/gcov
+          lcov --remove coverage.info '/usr/*' "${HOME}"'/.cache/*' ${{ github.workspace }}'/llvm-project/*' ${{ github.workspace }}'/test/*' --output-file coverage.info
+          # output coverage data for debugging (optional)
+          lcov --list coverage.info
+
+      - name: Upload to codecov.io
+        if: ${{ success() && (matrix.coverage == true) }}
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.info
 
   win:
     
@@ -98,15 +129,15 @@ jobs:
         shell: cmd
         run: |
           call C:\Users\runneradmin\micromamba-root\condabin\micromamba.bat activate xeus-cpp
-          mkdir -p bld
-          cd bld
+          mkdir -p build
+          cd build
           cmake .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DXEUS_BUILD_TESTS=ON -DDEPENDENCY_SEARCH_PREFIX="%CONDA_PREFIX%\Library" -DCMAKE_PREFIX_PATH="%CONDA_PREFIX%\Library" -DCMAKE_INSTALL_PREFIX="%CONDA_PREFIX%"
 
       - name: build
         shell: cmd
         run: |
           call C:\Users\runneradmin\micromamba-root\condabin\micromamba.bat activate xeus-cpp
-          cd bld
+          cd build
           set CL=/MP
           nmake install
 
