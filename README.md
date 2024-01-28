@@ -8,7 +8,7 @@
 `xeus-cpp` is a Jupyter kernel for cpp based on the native implementation of the
 Jupyter protocol [xeus](https://github.com/jupyter-xeus/xeus).
 
-## Installation
+## Installation within a mamba envirnoment
 
 xeus-cpp has not been packaged for the mamba (or conda) package manager.
 
@@ -19,32 +19,22 @@ fresh environment. It is also needed to use a
 [anaconda](https://www.anaconda.com/) you may have a conflict with the `zeromq` library
 which is already installed in the anaconda distribution.
 
-The safest usage is to create an environment named `xeus-cpp`
-
+First clone the repository, and move into that directory
 ```bash
-mamba create -n  `xeus-cpp`
-source activate  `xeus-cpp`
+git clone --depth=1 https://github.com/compiler-research/xeus-cpp.git
+cd ./xeus-cpp
 ```
-
-<!-- ### Installing from conda-forge
-
-Then you can install in this environment `xeus-cpp` and its dependencies
-
+The safest usage of xeus-cpp is to build and install it within a clean environment named `xeus-cpp`. You can create and activate this environment 
+with mamba by executing the following
 ```bash
-mamba install`xeus-cpp` notebook -c conda-forge
-``` -->
-
-### Installing from source
-
-Or you can install it from the sources, you will first need to install dependencies
-
-```bash
-mamba install cmake cxx-compiler xeus-zmq nlohmann_json cppzmq xtl jupyterlab clangdev=16 cpp-argparse pugixml -c conda-forge
+mamba create -n  "xeus-cpp"
+source activate  "xeus-cpp"
 ```
-
-Then you can compile the sources (replace `$CONDA_PREFIX` with a custom installation
-prefix if need be)
-
+We will now install the dependencies needed to compile xeux-cpp from source within this environment by executing the following
+```bash
+mamba install notebook cmake cxx-compiler xeus-zmq nlohmann_json cppzmq xtl jupyterlab clangdev=16 cpp-argparse pugixml doctest -c conda-forge
+```
+Now you can compile the kernel from the source by executing (replace `$CONDA_PREFIX` with a custom installation prefix if need be)
 ```bash
 mkdir build && cd build
 cmake .. -D CMAKE_PREFIX_PATH=$CONDA_PREFIX -D CMAKE_INSTALL_PREFIX=$CONDA_PREFIX -D CMAKE_INSTALL_LIBDIR=lib
