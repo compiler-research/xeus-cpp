@@ -174,7 +174,7 @@ if(EMSCRIPTEN)
     set(EMSCRIPTEN_FEATURES "${EMSCRIPTEN_FEATURES} -s \"EXTRA_EXPORTED_RUNTIME_METHODS=[ENV']\"")
 endif()
 
-find_package(CppInterOp REQUIRED)
+find_package(CppInterOp)
 if(NOT CppInterOp_FOUND)
   find_package(CppInterOp REQUIRED CONFIG PATHS "${CPPINTEROP_DIR}" "${CPPINTEROP_DIR}/lib")
 endif()
