@@ -333,7 +333,7 @@ namespace xcpp
 
     void interpreter::init_preamble()
     {
-        preamble_manager.register_preamble("introspection", new xintrospection(*m_interpreter));
+        //preamble_manager.register_preamble("introspection", new xintrospection(*m_interpreter));
         preamble_manager.register_preamble("magics", new xmagics_manager());
         preamble_manager.register_preamble("shell", new xsystem());
     }

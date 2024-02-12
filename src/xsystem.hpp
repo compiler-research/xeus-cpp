@@ -32,6 +32,8 @@ namespace xcpp
             std::smatch to_execute;
             std::regex_search(code, to_execute, re);
 
+            int ret = 1; // ???
+
             // Redirection of stderr to stdout
             std::string command = to_execute.str(1) + " 2>&1";
 
@@ -43,6 +45,9 @@ namespace xcpp
             if (shell_result)
             {
                 char buff[512];
+
+                ret = 0; // ???
+
                 while (fgets(buff, sizeof(buff), shell_result))
                 {
                     std::cout << buff;
