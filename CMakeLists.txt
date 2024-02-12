@@ -176,7 +176,7 @@ endif()
 
 find_package(CppInterOp REQUIRED CONFIG PATHS "${CMAKE_PREFIX_PATH}" "${CMAKE_PREFIX_PATH}/lib" "${CPPINTEROP_DIR}" "${CPPINTEROP_DIR}/lib")
 if(CppInterOp_FOUND)
-  message(STATUS "Found CppInterOp: config=${CppInterOp_CONFIG} (found version=${CppInterOp_VERSION})")
+  message(STATUS "Found CppInterOp: config=${CppInterOp_CONFIG} dir=${CppInterOp_DIR} (found version=${CppInterOp_VERSION})")
 endif()
 
 find_package(argparse REQUIRED)
