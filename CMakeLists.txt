@@ -176,8 +176,6 @@ endif()
 
 find_package(CppInterOp REQUIRED CONFIG PATHS "${CMAKE_PREFIX_PATH}" "${CMAKE_PREFIX_PATH}/lib" "${CPPINTEROP_DIR}" "${CPPINTEROP_DIR}/lib")
 if(CppInterOp_FOUND)
-  set(CppInterOp_DIR "/home/runner/micromamba-root/envs/xeus-cpp/lib")
-  set(CppInterOp_VERSION "1.1.0")
   message(STATUS "Found CppInterOp: config=${CppInterOp_CONFIG} dir=${CppInterOp_DIR} (found version=${CppInterOp_VERSION})")
 endif()
 
