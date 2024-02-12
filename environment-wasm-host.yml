@@ -10,3 +10,4 @@ dependencies:
   - llvm =16.0.6
   - cpp-argparse
   - pugixml
+  - CppInterOp

@@ -15,6 +15,7 @@ dependencies:
   - pugixml
   - cpp-argparse
   - zlib
+  - CppInterOp
   # Test dependencies
   - pytest
   - jupyter_kernel_test>=0.4.3
