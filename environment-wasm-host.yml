@@ -7,7 +7,6 @@ dependencies:
   - xeus-lite
   - xeus >=3.0.5,<4.0
   - xtl >=0.7,<0.8
-  - llvm =16.0.6
   - cpp-argparse
   - pugixml
   - CppInterOp

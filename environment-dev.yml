@@ -11,7 +11,6 @@ dependencies:
   - nlohmann_json
   - cppzmq
   - xtl
-  - clangdev >=16,<17
   - pugixml
   - cpp-argparse
   - zlib
