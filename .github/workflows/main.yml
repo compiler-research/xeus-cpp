@@ -52,7 +52,6 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          find $CONDA_PREFIX | grep -i "CppInterOp"
           cmake .. \
            -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
            -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
@@ -75,6 +74,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cd build/test
+          export
           ./test_xeus_cpp
         timeout-minutes: 4
 
