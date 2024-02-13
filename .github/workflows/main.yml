@@ -74,7 +74,8 @@ jobs:
         shell: bash -l {0}
         run: |
           cd build/test
-          export CPLUS_INCLUDE_PATH=$CONDA_PREFIX/include
+          export CPLUS_INCLUDE_PATH=$CONDA_PREFIX/include:$CONDA_BUILD_SYSROOT:$CONDA_BUILD_SYSROOT/..:$CONDA_BUILD_SYSROOT/../include:$CONDA_BUILD_SYSROOT/usr/include
+          ls -la $CONDA_BUILD_SYSROOT
           export
           ./test_xeus_cpp
         timeout-minutes: 4
