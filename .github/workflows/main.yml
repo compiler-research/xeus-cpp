@@ -36,16 +36,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: mamba update all
-        shell: bash -l {0}
-        run: |
-          $HOME/micromamba-bin/micromamb update --all
-
       - name: install mamba
         uses: mamba-org/provision-with-micromamba@main
         with:
           environment-file: environment-dev.yml
           environment-name: xeus-cpp
+
+      - name: mamba update all
+        shell: bash -l {0}
+        run: |
+          $HOME/micromamba-bin/micromamba update --all
 
       - name: install cxx compiler
         shell: bash -l {0}
