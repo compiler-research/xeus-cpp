@@ -69,9 +69,7 @@ void pythonexec::startup() {
     // PyRun_SimpleString("import cppyy");
 }
 
-argparser pythonexec::get_options() {
-  argparser argpars{"python", "Start executing Python Cell"};
-  return argpars;
+void pythonexec::get_options(argparser &argpars) {
 }
 
 void pythonexec::execute(std::string &line, std::string &cell) {
@@ -80,6 +78,7 @@ void pythonexec::execute(std::string &line, std::string &cell) {
   //                          std::istream_iterator<std::string>());
   startup();
 
+//  argparser argpars{"python", "Start executing Python Cell"};
 //  auto argpars = get_options();
 //  argpars.parse(line);
 

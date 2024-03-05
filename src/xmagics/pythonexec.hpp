@@ -29,7 +29,7 @@ namespace xcpp {
     {
     public:
 
-        argparser get_options();
+        void get_options(argparser &argpars);
         virtual void operator()(const std::string& line, const std::string& cell) override {
           std::string cline = line;
           std::string ccell = cell;
