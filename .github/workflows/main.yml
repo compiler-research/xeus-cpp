@@ -39,7 +39,7 @@ jobs:
       - name: mamba update all
         shell: bash -l {0}
         run: |
-          $HOME/micromamba-bin/micromamb update --all
+          $HOME/micromamba-bin/micromamba update --all
 
       - name: install mamba
         uses: mamba-org/provision-with-micromamba@main
