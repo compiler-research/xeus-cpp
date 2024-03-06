@@ -124,11 +124,11 @@ namespace xcpp
         // Attempt normal evaluation
         try
         {
-            std::string exp = R"(\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)";
-            std::regex re(R"((\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)(\.?)*$)");
-            auto inspect_request = is_inspect_request(code, re);
-            if (inspect_request.first)
-                inspect(inspect_request.second[0], kernel_res);
+            // std::string exp = R"(\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)";
+            // std::regex re(R"((\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)(\.?)*$)");
+            // auto inspect_request = is_inspect_request(code, re);
+            // if (inspect_request.first)
+            //     inspect(inspect_request.second[0], kernel_res);
 
             Cpp::BeginStdStreamCapture(Cpp::kStdErr);
             Cpp::BeginStdStreamCapture(Cpp::kStdOut);
