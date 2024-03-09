@@ -22,14 +22,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: ubu
-            os: ubuntu-latest
-          - name: ubu-analyzers
-            os: ubuntu-latest
+          - name: ubu22
+            os: ubuntu-22.04
+          - name: ubu22-analyzers
+            os: ubuntu-22.04
             coverage: true
             extra_cmake_flags: -DCMAKE_BUILD_TYPE=Debug
-          - name: osx
-            os: macos-latest
+          - name: osx13-x86
+            os: macos-13
+          - name: osx14-arm
+            os: macos-14
 
     steps:
       - uses: actions/checkout@v2
@@ -114,7 +116,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ windows-latest]
+        os: [ windows-2022]
 
     steps:
       - uses: actions/checkout@v2
@@ -148,7 +150,7 @@ jobs:
 
   emscripten_wasm:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
