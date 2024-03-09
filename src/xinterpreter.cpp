@@ -124,12 +124,6 @@ namespace xcpp
         // Attempt normal evaluation
         try
         {
-            // std::string exp = R"(\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)";
-            // std::regex re(R"((\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)(\.?)*$)");
-            // auto inspect_request = is_inspect_request(code, re);
-            // if (inspect_request.first)
-            //     inspect(inspect_request.second[0], kernel_res);
-
             Cpp::BeginStdStreamCapture(Cpp::kStdErr);
             Cpp::BeginStdStreamCapture(Cpp::kStdOut);
             compilation_result = Cpp::Process(code.c_str());
@@ -333,7 +327,7 @@ namespace xcpp
 
     void interpreter::init_preamble()
     {
-        //preamble_manager.register_preamble("introspection", new xintrospection(*m_interpreter));
+        preamble_manager.register_preamble("introspection", new xintrospection());
         preamble_manager.register_preamble("magics", new xmagics_manager());
         preamble_manager.register_preamble("shell", new xsystem());
     }

@@ -298,7 +298,6 @@ namespace xcpp
         }
     }
 
-/*
     class xintrospection : public xpreamble
     {
     public:
@@ -306,8 +305,7 @@ namespace xcpp
         using xpreamble::pattern;
         const std::string spattern = R"(^\?)";
 
-        xintrospection(clang::Interpreter& p)
-            : m_interpreter{p}
+        xintrospection()
         {
             pattern = spattern;
         }
@@ -317,18 +315,14 @@ namespace xcpp
             std::regex re(spattern + R"((.*))");
             std::smatch to_inspect;
             std::regex_search(code, to_inspect, re);
-            inspect(to_inspect[1], kernel_res, m_interpreter);
+            inspect(to_inspect[1], kernel_res);
         }
 
         virtual xpreamble* clone() const override
         {
             return new xintrospection(*this);
         }
-
-    private:
-
-        clang::Interpreter& m_interpreter;
     };
-*/
+
 }
 #endif
