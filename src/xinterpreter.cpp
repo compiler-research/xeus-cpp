@@ -63,7 +63,7 @@ namespace xcpp
         , m_cout_buffer(std::bind(&interpreter::publish_stdout, this, _1))
         , m_cerr_buffer(std::bind(&interpreter::publish_stderr, this, _1))
     {
-        createInterpreter(Args(argv, argv + argc));
+        createInterpreter(Args(argv + 1, argv + argc));
         redirect_output();
         // Bootstrap the execution engine
         init_includes();
