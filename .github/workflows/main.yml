@@ -89,6 +89,10 @@ jobs:
         shell: bash -l {0}
         run: |
           cd test
+          echo $CONDA_PREFIX
+          echo $PREFIX
+          echo $BUILD_PREFIX
+          find / | grep xcpp
           pytest .  --reruns 5
 
       - name: Prepare code coverage report
