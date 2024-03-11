@@ -322,7 +322,10 @@ macro(xeus_cpp_create_target target_name linkage output_name)
     endif ()
 
     target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse xtl)
-    if (NOT EMSCRIPTEN)
+    if (EMSCRIPTEN)
+      # For some reason emscripten cannot find Python::Python.
+      target_link_libraries(${target_name} PUBLIC Development.Embed)
+    else()
       target_link_libraries(${target_name} PUBLIC Python::Python)
     endif()
 
