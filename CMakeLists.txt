@@ -21,6 +21,7 @@ set(XEUS_CPP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 enable_language(CXX)
 set(CMAKE_CXX_EXTENSIONS NO)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include(GNUInstallDirs)
 
@@ -320,10 +321,7 @@ macro(xeus_cpp_create_target target_name linkage output_name)
     endif ()
 
     target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse xtl)
-    if (EMSCRIPTEN)
-      # For some reason emscripten cannot find Python::Python.
-      target_link_libraries(${target_name} PUBLIC Development.Embed)
-    else()
+    if (NOT EMSCRIPTEN)
       target_link_libraries(${target_name} PUBLIC Python::Python)
     endif()
 
