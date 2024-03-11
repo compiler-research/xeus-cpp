@@ -14,7 +14,7 @@ TEST_SUITE("execute_request")
 {
     TEST_CASE("fetch_documentation")
     {
-        std::vector<const char*> Args = {"-v", "resource-dir", "....."};
+        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
         xcpp::interpreter interpreter(Args.size(), Args.data());
 
         std::string code = "?std::vector";
