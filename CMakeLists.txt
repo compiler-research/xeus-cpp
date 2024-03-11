@@ -210,12 +210,12 @@ set(XEUS_CPP_SRC
     src/xparser.hpp
     src/xmagics/os.hpp
     src/xmagics/os.cpp
-    src/xmagics/pythonexec.hpp
-    src/xmagics/pythonexec.cpp
 )
 
 if(EMSCRIPTEN)
     list(APPEND XEUS_CPP_SRC src/xinterpreter_wasm.cpp)
+else()
+    list(APPEND XEUS_CPP_SRC src/xmagics/pythonexec.hpp src/xmagics/pythonexec.cpp)
 endif()
 
 set(XEUS_CPP_MAIN_SRC
