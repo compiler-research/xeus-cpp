@@ -86,7 +86,9 @@ jobs:
       - name: test
         shell: bash -l {0}
         run: |
-          pytest test  --reruns 5
+          export
+          conda info --envs
+          $CONDA_PREFIX/bin/pytest test --reruns 5
 
       - name: Prepare code coverage report
         if: ${{ success() && (matrix.coverage == true) }}
