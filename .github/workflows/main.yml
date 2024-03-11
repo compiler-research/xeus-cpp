@@ -89,7 +89,7 @@ jobs:
           export
           conda info --envs
           echo "!!! $CONDA_PREFIX"
-          sudo ln -s $CONDA_PREFIX/bin/xcpp /bin/xcpp
+          #sudo ln -s $CONDA_PREFIX/bin/xcpp /bin/xcpp
           $CONDA_PREFIX/bin/pytest test --reruns 5
 
       - name: Prepare code coverage report

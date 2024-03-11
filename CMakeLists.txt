@@ -19,15 +19,10 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
 set(XEUS_CPP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-if ("${CMAKE_INSTALL_INCLUDEDIR}" STREQUAL "")
-  set(CMAKE_INSTALL_INCLUDEDIR "include")
-endif()
-if ("${CMAKE_INSTALL_LIBDIR}" STREQUAL "")
-  set(CMAKE_INSTALL_LIBDIR "lib")
-endif()
-if ("${CMAKE_INSTALL_BINDIR}" STREQUAL "")
-  set(CMAKE_INSTALL_BINDIR "bin")
-endif()
+enable_language(CXX)
+set(CMAKE_CXX_EXTENSIONS NO)
+
+include(GNUInstallDirs)
 
 # Versionning
 # ===========
@@ -46,49 +41,46 @@ message(STATUS "Building xeus-cpp v${${PROJECT_NAME}_VERSION}")
 # Configuration
 # =============
 
-include(GNUInstallDirs)
-
 if (NOT DEFINED XEUS_CPP_KERNELSPEC_PATH)
     set(XEUS_CPP_KERNELSPEC_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/")
 endif ()
 
-set(CMAKE_CPLUS_INCLUDE_PATH "$ENV{CPLUS_INCLUDE_PATH}")
-set(CMAKE_PATH "$ENV{PATH}")
-set(CMAKE_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
-set(CMAKE_PYTHONPATH "$ENV{PYTHONPATH}")
-set(CMAKE_VENV_PATH "$ENV{VENV}")
-
-message(STATUS "Debug: Replace in kernels")
-message(STATUS "Debug: CMAKE_CPLUS_INCLUDE_PATH=${CMAKE_CPLUS_INCLUDE_PATH}")
-message(STATUS "Debug: CMAKE_PATH=${CMAKE_PATH}")
-message(STATUS "Debug: CMAKE_LD_LIBRARY_PATH=${CMAKE_LD_LIBRARY_PATH}")
-message(STATUS "Debug: CMAKE_PYTHONPATH=${CMAKE_PYTHONPATH}")
-message(STATUS "Debug: CMAKE_VENV_PATH=${CMAKE_VENV_PATH}")
-message(STATUS "Debug: CMAKE_CURRENT_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}")
-message(STATUS "Debug: CMAKE_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}")
-
-
 function(configure_kernel kernel)
-    configure_file (
+  set(CMAKE_CPLUS_INCLUDE_PATH "$ENV{CPLUS_INCLUDE_PATH}")
+  set(CMAKE_PATH "$ENV{PATH}")
+  set(CMAKE_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
+  set(CMAKE_PYTHONPATH "$ENV{PYTHONPATH}")
+  set(CMAKE_VENV_PATH "$ENV{VENV}")
+
+  message(STATUS "Debug: Replace in kernels")
+  message(STATUS "Debug: CMAKE_CPLUS_INCLUDE_PATH=${CMAKE_CPLUS_INCLUDE_PATH}")
+  message(STATUS "Debug: CMAKE_PATH=${CMAKE_PATH}")
+  message(STATUS "Debug: CMAKE_LD_LIBRARY_PATH=${CMAKE_LD_LIBRARY_PATH}")
+  message(STATUS "Debug: CMAKE_PYTHONPATH=${CMAKE_PYTHONPATH}")
+  message(STATUS "Debug: CMAKE_VENV_PATH=${CMAKE_VENV_PATH}")
+  message(STATUS "Debug: CMAKE_CURRENT_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}")
+  message(STATUS "Debug: CMAKE_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}")
+
+  configure_file (
     "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/kernel.json.in"
     "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/kernel.json"
     )
-    file(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/*.png")
-    foreach(file ${files})
-        configure_file(
-            "${file}"
-            "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
-            COPYONLY
-       )
-    endforeach()
-    file(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/*.svg")
-    foreach(file ${files})
-        configure_file(
-            "${file}"
-            "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
-            COPYONLY
-       )
-    endforeach()
+  file(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/*.png")
+  foreach(file ${files})
+    configure_file(
+      "${file}"
+      "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
+      COPYONLY
+      )
+  endforeach()
+  file(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/*.svg")
+  foreach(file ${files})
+    configure_file(
+      "${file}"
+      "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
+      COPYONLY
+      )
+  endforeach()
 endfunction()
 
 file(GLOB _kernels LIST_DIRECTORIES true RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "share/jupyter/kernels/*")
