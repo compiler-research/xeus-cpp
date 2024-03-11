@@ -14,8 +14,8 @@ TEST_SUITE("execute_request")
 {
     TEST_CASE("fetch_documentation")
     {
-
-        xcpp::interpreter interpreter(0, nullptr);
+        std::vector<const char*> Args = {"-v", "resource-dir", "....."};
+        xcpp::interpreter interpreter(Args.size(), Args.data());
 
         std::string code = "?std::vector";
         std::string inspect_result = "https://en.cppreference.com/w/cpp/container/vector";

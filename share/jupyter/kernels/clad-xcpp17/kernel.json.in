@@ -10,6 +10,7 @@
       "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
       "-f",
       "{connection_file}",
+      "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
       "-fplugin=/opt/conda/lib/clad.so",
       "-std=c++17"@CMAKE_OMP@
   ],

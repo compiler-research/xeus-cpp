@@ -11,6 +11,7 @@
       "-f",
       "{connection_file}",
       "-cuda",
+      "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
       "-std=c++17"@CMAKE_OMP@
   ],
   "language": "CUDA",

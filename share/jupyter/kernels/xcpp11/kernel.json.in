@@ -10,6 +10,7 @@
       "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
       "-f",
       "{connection_file}",
+      "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
       "-std=c++11"@CMAKE_OMP@
   ],
   "language": "C++11",
