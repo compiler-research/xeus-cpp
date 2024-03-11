@@ -319,7 +319,14 @@ macro(xeus_cpp_create_target target_name linkage output_name)
         set(XEUS_CPP_XEUS_TARGET xeus-static)
     endif ()
 
-    target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse xtl Python::Python)
+    target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse xtl)
+    if (EMSCRIPTEN)
+      # For some reason emscripten cannot find Python::Python.
+      target_link_libraries(${target_name} PUBLIC Development.Embed)
+    else()
+      target_link_libraries(${target_name} PUBLIC Python::Python)
+    endif()
+
     if (WIN32 OR CYGWIN)
         #
     elseif (APPLE)
