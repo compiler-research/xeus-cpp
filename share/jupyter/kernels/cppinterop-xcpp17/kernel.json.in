@@ -7,7 +7,7 @@
       "PYTHONPATH":"@CMAKE_PYTHONPATH@"
   },
   "argv": [
-      "@CMAKE_VENV_PATH@/bin/xcpp",
+      "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
       "-f",
       "{connection_file}",
       "-cuda",
