@@ -42,11 +42,6 @@ jobs:
           environment-file: environment-dev.yml
           environment-name: xeus-cpp
 
-      - name: mamba update all
-        shell: bash -l {0}
-        run: |
-          $HOME/micromamba-bin/micromamba update --all
-
       - name: install cxx compiler
         shell: bash -l {0}
         run: |
