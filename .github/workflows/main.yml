@@ -81,7 +81,7 @@ jobs:
       - name: test
         shell: bash -l {0}
         run: |
-          ln -s $CONDA_PREFIX/share/jupyter/kernels/xcpp $CONDA_PREFIX/envs/xeus-xcpp/share/jupyter/kernels/xcpp
+          ln -s /opt/conda/share/jupyter/kernels/xcpp $CONDA_PREFIX/share/jupyter/kernels/xcpp
           $CONDA_PREFIX/bin/pytest test --reruns 5
 
       - name: Prepare code coverage report
