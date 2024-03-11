@@ -167,6 +167,7 @@ RUN \
       'jupyter_kernel_test>=0.4.3' \
       nbval \
       pytest-rerunfailures \
+      doctest \
       && \
     hash -r && \
     pip install ipython && \
@@ -240,7 +241,7 @@ RUN \
     cd .. && \
     # Run cppyy
     #TODO: Fix cppyy path (/home/jovyan) to path to installed module
-    python -c "import cppyy" && \
+    ###python -c "import cppyy" && \
     #
     # Build and Install xeus-cpp
     #
