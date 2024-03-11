@@ -21,7 +21,13 @@ TEST_SUITE("execute_request")
         std::string inspect_result = "https://en.cppreference.com/w/cpp/container/vector";
         nl::json user_expressions = nl::json::object();
 
-        nl::json result = interpreter.execute_request(code, false, false, user_expressions, false);
+        nl::json result = interpreter.execute_request(
+            code, 
+            false, 
+            false, 
+            user_expressions, 
+            false
+        );
 
         REQUIRE(result["payload"][0]["data"]["text/plain"] == inspect_result);
         REQUIRE(result["user_expressions"] == nl::json::object());
