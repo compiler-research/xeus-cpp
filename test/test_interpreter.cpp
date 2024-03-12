@@ -17,8 +17,10 @@ TEST_SUITE("execute_request")
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
         xcpp::interpreter interpreter(Args.size(), Args.data());
 
-        std::string code = "?std::vector";
-        std::string inspect_result = "https://en.cppreference.com/w/cpp/container/vector";
+        //std::string code = "?std::vector";
+        //std::string inspect_result = "https://en.cppreference.com/w/cpp/container/vector";
+        std::string code = "#include <string>\\n#include \"xcpp/xdisplay.hpp\"\\nstd::string test(\"foobar\");\\nxcpp::display(test);";
+        std::string inspect_result = "foobar";
         nl::json user_expressions = nl::json::object();
 
         nl::json result = interpreter.execute_request(
