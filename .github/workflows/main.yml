@@ -15,9 +15,9 @@ concurrency:
 
 jobs:
   unix:
-    
+
     runs-on: ${{ matrix.os }}
-     
+
     strategy:
       fail-fast: false
       matrix:
@@ -111,11 +111,12 @@ jobs:
         if: ${{ failure() && runner.debug }}
         uses: mxschmitt/action-tmate@v3
         # When debugging increase to a suitable value!
-        timeout-minutes: 90
+        timeout-minutes: 60
+
   win:
-    
+
     runs-on: ${{ matrix.os }}
-     
+
     strategy:
       fail-fast: false
       matrix:
