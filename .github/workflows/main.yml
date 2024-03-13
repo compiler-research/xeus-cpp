@@ -111,7 +111,7 @@ jobs:
         if: ${{ failure() && runner.debug }}
         uses: mxschmitt/action-tmate@v3
         # When debugging increase to a suitable value!
-        timeout-minutes: 30
+        timeout-minutes: 90
   win:
     
     runs-on: ${{ matrix.os }}
@@ -202,4 +202,4 @@ jobs:
         if: ${{ failure() && runner.debug }}
         uses: mxschmitt/action-tmate@v3
         # When debugging increase to a suitable value!
-        timeout-minutes: 90
+        timeout-minutes: 30
