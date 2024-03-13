@@ -180,7 +180,7 @@ jobs:
           emsdk activate ${{matrix.emsdk_ver}}
           source $CONDA_EMSDK_DIR/emsdk_env.sh
           micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
-          
+
           mkdir build
           pushd build
 
@@ -202,4 +202,4 @@ jobs:
         if: ${{ failure() && runner.debug }}
         uses: mxschmitt/action-tmate@v3
         # When debugging increase to a suitable value!
-        timeout-minutes: 30
+        timeout-minutes: 90
