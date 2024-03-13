@@ -81,9 +81,6 @@ jobs:
       - name: test
         shell: bash -l {0}
         run: |
-          pwd
-          export
-          ls -l $CONDA_PREFIX/share/jupyter/kernels
           $CONDA_PREFIX/bin/pytest test --reruns 5
 
       - name: Prepare code coverage report
@@ -111,7 +108,7 @@ jobs:
         if: ${{ failure() && runner.debug }}
         uses: mxschmitt/action-tmate@v3
         # When debugging increase to a suitable value!
-        timeout-minutes: 60
+        timeout-minutes: 30
 
   win:
 
