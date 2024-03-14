@@ -23,8 +23,6 @@ enable_language(CXX)
 set(CMAKE_CXX_EXTENSIONS NO)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-include(GNUInstallDirs)
-
 # Versionning
 # ===========
 
@@ -41,6 +39,8 @@ message(STATUS "Building xeus-cpp v${${PROJECT_NAME}_VERSION}")
 
 # Configuration
 # =============
+
+include(GNUInstallDirs)
 
 if (NOT DEFINED XEUS_CPP_KERNELSPEC_PATH)
     set(XEUS_CPP_KERNELSPEC_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/")
