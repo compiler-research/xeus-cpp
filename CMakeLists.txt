@@ -133,14 +133,26 @@ find_package(pugixml REQUIRED)
 # ============
 
 set(XEUS_CPP_HEADERS
+    include/xeus-cpp/xbuffer.hpp
     include/xeus-cpp/xeus_cpp_config.hpp
+    include/xeus-cpp/xholder.hpp
     include/xeus-cpp/xinterpreter.hpp
+    include/xeus-cpp/xmanager.hpp
+    include/xeus-cpp/xmagics.hpp
+    include/xeus-cpp/xoptions.hpp
+    include/xeus-cpp/xpreamble.hpp
+    #src/xdemangle.hpp
+    #src/xinspect.hpp
+    #src/xsystem.hpp
+    #src/xparser.hpp
+    #src/xmagics/os.hpp
 )
 
 set(XEUS_CPP_SRC
     src/xholder.cpp
     src/xinput.cpp
     src/xinterpreter.cpp
+    src/xmagics/os.cpp
     src/xoptions.cpp
     src/xparser.cpp
     src/xutils.cpp
