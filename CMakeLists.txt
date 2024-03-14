@@ -8,6 +8,13 @@
 
 cmake_minimum_required(VERSION 3.4.3)
 project(xeus-cpp)
+
+enable_language(CXX)
+set(CMAKE_CXX_EXTENSIONS NO)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
 set(XEUS_CPP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -107,14 +114,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
     if(NOT EMSCRIPTEN)
         add_compile_options(-Wunused-parameter -Wextra -Wreorder)
     endif()
-    
-
-    CHECK_CXX_COMPILER_FLAG("-std=c++17" HAS_CPP_17_FLAG)
-    if (HAS_CPP_17_FLAG)
-        add_compile_options(-std=c++17)
-    else ()
-        message(FATAL_ERROR "Unsupported compiler -- xeus requires C++17 support!")
-    endif ()
 endif ()
 
 if(EMSCRIPTEN)
