@@ -1,5 +1,5 @@
 {
-  "display_name": "C++17 (xcpp)",
+  "display_name": "CppInterOp (C++17)",
   "env": {
       "CPLUS_INCLUDE_PATH":"@CMAKE_CPLUS_INCLUDE_PATH@",
       "PATH":"@CMAKE_PATH@",
@@ -14,6 +14,6 @@
       "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
       "-std=c++17"@CMAKE_OMP@
   ],
-  "language": "cpp",
+  "language": "CUDA",
   "metadata": {"debugger": false}
 }

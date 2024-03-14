@@ -16,7 +16,8 @@
 #include <string>
 #include <vector>
 
-#include <clang/Interpreter/Interpreter.h>
+//#include <clang/Interpreter/Interpreter.h>
+#include "clang/Interpreter/CppInterOp.h" // from CppInterOp package
 
 #include <nlohmann/json.hpp>
 
@@ -77,8 +78,6 @@ namespace xcpp
         void init_magic();
 
         std::string get_stdopt(int argc, const char* const* argv);
-
-        std::unique_ptr<clang::Interpreter> m_interpreter;
 
         std::string m_version;
 

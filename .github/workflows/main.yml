@@ -15,9 +15,9 @@ concurrency:
 
 jobs:
   unix:
-    
+
     runs-on: ${{ matrix.os }}
-     
+
     strategy:
       fail-fast: false
       matrix:
@@ -74,14 +74,14 @@ jobs:
         shell: bash -l {0}
         run: |
           cd build/test
+          export CPLUS_INCLUDE_PATH=$CONDA_PREFIX/include:$CONDA_BUILD_SYSROOT:$CONDA_BUILD_SYSROOT/..:$CONDA_BUILD_SYSROOT/../x86_64-conda-linux-gnu/include/c++/12.3.0:$CONDA_BUILD_SYSROOT/../x86_64-conda-linux-gnu/include/c++/12.3.0/include:$CONDA_BUILD_SYSROOT/../include:$CONDA_BUILD_SYSROOT/usr/include:/home/runner/micromamba-root/envs/xeus-cpp/bin/../lib/gcc/x86_64-conda-linux-gnu/12.3.0/include:/home/runner/micromamba-root/envs/xeus-cpp/bin/../lib/gcc/x86_64-conda-linux-gnu/12.3.0/include-fixed:/home/runner/micromamba-root/envs/xeus-cpp/bin/../lib/gcc/x86_64-conda-linux-gnu/12.3.0/../../../../x86_64-conda-linux-gnu/include:/home/runner/micromamba-root/envs/xeus-cpp/bin/../x86_64-conda-linux-gnu/sysroot/usr/include
           ./test_xeus_cpp
         timeout-minutes: 4
 
       - name: test
         shell: bash -l {0}
         run: |
-          cd test
-          pytest .  --reruns 5
+          $CONDA_PREFIX/bin/pytest test --reruns 5
 
       - name: Prepare code coverage report
         if: ${{ success() && (matrix.coverage == true) }}
@@ -109,10 +109,11 @@ jobs:
         uses: mxschmitt/action-tmate@v3
         # When debugging increase to a suitable value!
         timeout-minutes: 30
+
   win:
-    
+
     runs-on: ${{ matrix.os }}
-     
+
     strategy:
       fail-fast: false
       matrix:
@@ -177,7 +178,7 @@ jobs:
           emsdk activate ${{matrix.emsdk_ver}}
           source $CONDA_EMSDK_DIR/emsdk_env.sh
           micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
-          
+
           mkdir build
           pushd build
 
