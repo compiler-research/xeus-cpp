@@ -45,6 +45,31 @@ TEST_SUITE("extract_filename")
 
         std::string result = xcpp::extract_filename(argc, const_cast<char**>(arguments));
         REQUIRE(result == "filename.txt");
-        REQUIRE(argc == 2);
+        REQUIRE(argc == 3);
+    }
+}
+
+TEST_SUITE("should_print_version")
+{
+    /* Checks when the right argument is passed*/
+    TEST_CASE("should_print_version_with_version_arg")
+    {
+        
+        const char* arguments[] = {"argument1", "--version"};
+        int argc = sizeof(arguments) / sizeof(arguments[0]);;
+
+        bool result = xcpp::should_print_version(argc, const_cast<char**>(arguments));
+        REQUIRE(result);
+    }
+
+    /* Checks when the wrong argument is passed*/
+    TEST_CASE("should_print_version_without_version_arg")
+    {
+        const char* arguments[] = {"argument1", "argument2"};
+        int argc = sizeof(arguments) / sizeof(arguments[0]);;
+
+        bool result = xcpp::should_print_version(argc, const_cast<char**>(arguments));
+
+        REQUIRE(!result);
     }
 }
