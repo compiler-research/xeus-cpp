@@ -194,3 +194,9 @@ jobs:
             -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ON            \
             ..
           EMCC_CFLAGS='-sERROR_ON_UNDEFINED_SYMBOLS=0' emmake make -j5
+
+      - name: Setup tmate session
+        if: ${{ failure() && runner.debug }}
+        uses: mxschmitt/action-tmate@v3
+        # When debugging increase to a suitable value!
+        timeout-minutes: 30
