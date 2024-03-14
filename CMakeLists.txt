@@ -166,7 +166,6 @@ endif ()
 if(EMSCRIPTEN)
     # ENV (https://github.com/emscripten-core/emscripten/commit/6d9681ad04f60b41ef6345ab06c29bbc9eeb84e0)
     set(EMSCRIPTEN_FEATURES "${EMSCRIPTEN_FEATURES} -s \"EXTRA_EXPORTED_RUNTIME_METHODS=[ENV']\"")
-    set(CMAKE_SHARED_LIBRARY_SUFFIX ".a")
 endif()
 
 find_package(CppInterOp REQUIRED CONFIG PATHS "${CMAKE_PREFIX_PATH}" "${CMAKE_PREFIX_PATH}/lib" "${CPPINTEROP_DIR}" "${CPPINTEROP_DIR}/lib")
