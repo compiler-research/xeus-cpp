@@ -20,7 +20,6 @@ namespace xcpp
     {
     public:
 
-        argparser get_options();
         virtual void operator()(const std::string& line, const std::string& cell) override;
 
     private:
