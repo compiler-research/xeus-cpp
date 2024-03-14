@@ -34,7 +34,7 @@ jobs:
             os: macos-14
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: install mamba
         uses: mamba-org/provision-with-micromamba@main
