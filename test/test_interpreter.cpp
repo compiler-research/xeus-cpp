@@ -8,6 +8,7 @@
 
 #include "doctest/doctest.h"
 #include "xeus-cpp/xinterpreter.hpp"
+#include "xeus-cpp/xholder.hpp"
 #include "xeus-cpp/xmanager.hpp"
 #include "xeus-cpp/xutils.hpp"
 
