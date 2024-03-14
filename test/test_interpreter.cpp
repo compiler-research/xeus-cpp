@@ -45,7 +45,7 @@ TEST_SUITE("extract_filename")
 
         std::string result = xcpp::extract_filename(argc, const_cast<char**>(arguments));
         REQUIRE(result == "filename.txt");
-        REQUIRE(argc == 3);
+        REQUIRE(argc == 2);
     }
 }
 
