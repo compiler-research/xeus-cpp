@@ -8,6 +8,13 @@
 
 cmake_minimum_required(VERSION 3.4.3)
 project(xeus-cpp)
+
+enable_language(CXX)
+set(CMAKE_CXX_EXTENSIONS NO)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
 set(XEUS_CPP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -107,14 +114,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
     if(NOT EMSCRIPTEN)
         add_compile_options(-Wunused-parameter -Wextra -Wreorder)
     endif()
-    
-
-    CHECK_CXX_COMPILER_FLAG("-std=c++17" HAS_CPP_17_FLAG)
-    if (HAS_CPP_17_FLAG)
-        add_compile_options(-std=c++17)
-    else ()
-        message(FATAL_ERROR "Unsupported compiler -- xeus requires C++17 support!")
-    endif ()
 endif ()
 
 if(EMSCRIPTEN)
@@ -133,14 +132,26 @@ find_package(pugixml REQUIRED)
 # ============
 
 set(XEUS_CPP_HEADERS
+    include/xeus-cpp/xbuffer.hpp
     include/xeus-cpp/xeus_cpp_config.hpp
+    include/xeus-cpp/xholder.hpp
     include/xeus-cpp/xinterpreter.hpp
+    include/xeus-cpp/xmanager.hpp
+    include/xeus-cpp/xmagics.hpp
+    include/xeus-cpp/xoptions.hpp
+    include/xeus-cpp/xpreamble.hpp
+    #src/xdemangle.hpp
+    #src/xinspect.hpp
+    #src/xsystem.hpp
+    #src/xparser.hpp
+    #src/xmagics/os.hpp
 )
 
 set(XEUS_CPP_SRC
     src/xholder.cpp
     src/xinput.cpp
     src/xinterpreter.cpp
+    src/xmagics/os.cpp
     src/xoptions.cpp
     src/xparser.cpp
     src/xutils.cpp
@@ -428,3 +439,7 @@ if(EMSCRIPTEN)
             "$<TARGET_FILE_DIR:xcpp>/xcpp.wasm"
             DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
+
+if(XEUS_CPP_INCLUDE_DOCS)
+    add_subdirectory(docs)
+endif()
