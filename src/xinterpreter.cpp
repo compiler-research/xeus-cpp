@@ -1,5 +1,6 @@
 /************************************************************************************
  * Copyright (c) 2023, xeus-cpp contributors                                        *
+ * Copyright (c) 2023, Johan Mabille, Loic Gouarin, Sylvain Corlay, Wolf Vollprecht *
  * Copyright (c) 2023, Martin Vassilev                                              *
  *                                                                                  *
  * Distributed under the terms of the BSD 3-Clause License.                         *
@@ -55,6 +56,47 @@ void* createInterpreter(const Args &ExtraArgs = {}) {
   return Cpp::CreateInterpreter(ClangArgs/*, {"-cuda"}*/);
 }
 
+/*
+#include <xtl/xsystem.hpp>
+
+#include <xeus/xhelper.hpp>
+
+#include "xeus-cpp/xbuffer.hpp"
+#include "xeus-cpp/xeus_cpp_config.hpp"
+
+#include "xeus-cpp/xinterpreter.hpp"
+#include "xeus-cpp/xmagics.hpp"
+
+#include "xinput.hpp"
+#include "xinspect.hpp"
+// #include "xmagics/executable.hpp"
+// #include "xmagics/execution.hpp"
+#include "xmagics/os.hpp"
+#include "xmagics/pythonexec.hpp"
+#include "xparser.hpp"
+#include "xsystem.hpp"
+
+using Args = std::vector<const char*>;
+
+void* createInterpreter(const Args &ExtraArgs = {}) {
+  Args ClangArgs = {/*"-xc++"*/"-v"}; // ? {"-Xclang", "-emit-llvm-only", "-Xclang", "-diagnostic-log-file", "-Xclang", "-", "-xc++"};
+  std::string resource_dir = Cpp::DetectResourceDir();
+  ClangArgs.push_back("-resource-dir");
+  ClangArgs.push_back(resource_dir.c_str());
+  std::vector<std::string> CxxSystemIncludes;
+  Cpp::DetectSystemCompilerIncludePaths(CxxSystemIncludes);
+  for (const std::string& CxxInclude : CxxSystemIncludes) {
+    ClangArgs.push_back("-isystem");
+    ClangArgs.push_back(CxxInclude.c_str());
+  }
+  ClangArgs.push_back("-I/home/apenev/.conda/envs/xeus-cpp/include/");
+  ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
+  // FIXME: We should process the kernel input options and conditionally pass
+  // the gpu args here.
+  return Cpp::CreateInterpreter(ClangArgs/*, {"-cuda"}*/);
+}
+*/
+
 using namespace std::placeholders;
 
 namespace xcpp
@@ -91,9 +133,36 @@ __get_cxx_version ()
       long cxx_version = Cpp::Evaluate(code);
       return std::to_string(cxx_version);
     }
+/*
+    std::string interpreter::get_stdopt(int argc, const char* const* argv)
+    {
+        std::string res = "17"; //TODO: Detect from CppInterOp
+        for (int i = 0; i < argc; ++i)
+        {
+            std::string tmp(argv[i]);
+            auto pos = tmp.find("-std=c++");
+            if (pos != std::string::npos)
+            {
+                res = tmp.substr(pos + 8);
+                break;
+            }
+        }
+        return res;
+    }
+*/
 
 
     interpreter::interpreter(int argc, const char* const* argv) :
+/*
+        // todo: why is error_stream necessary
+        std::string error_message;
+        llvm::raw_string_ostream error_stream(error_message);
+        // Expose xinterpreter instance to interpreted C++
+        process_code(*m_interpreter, "#include \"xeus/xinterpreter.hpp\"", error_stream);
+        std::string code = "xeus::register_interpreter(static_cast<xeus::xinterpreter*>((void*)"
+                           + std::to_string(intptr_t(this)) + "));";
+        process_code(*m_interpreter, code.c_str(), error_stream);
+*/
         xmagics()
         , p_cout_strbuf(nullptr)
         , p_cerr_strbuf(nullptr)
@@ -104,9 +173,11 @@ __get_cxx_version ()
         createInterpreter(Args(argv ? argv + 1 : argv, argv + argc));
         m_version = get_stdopt();
         redirect_output();
+        // Bootstrap the execution engine
         init_includes();
         init_preamble();
         init_magic();
+        Cpp::Process("#include <string>");
     }
 
     interpreter::~interpreter()
@@ -153,10 +224,25 @@ __get_cxx_version ()
             std::cerr.rdbuf(&null);
         }
 
+        // Scope guard performing the temporary redirection of input requests.
+        auto input_guard = input_redirection(allow_stdin);
+        //std::string evalue;
+        //bool compilation_result = false;
+
+        std::string err;
+        std::string out;
+
         // Attempt normal evaluation
         try
         {
             compilation_result = Cpp::Process(code.c_str());
+
+            Cpp::BeginStdStreamCapture(Cpp::kStdErr);
+            Cpp::BeginStdStreamCapture(Cpp::kStdOut);
+            compilation_result = Cpp::Process(code.c_str());
+            out = Cpp::EndStdStreamCapture();
+            err = Cpp::EndStdStreamCapture();
+            std::cout << out;
         }
         catch (std::exception& e)
         {
@@ -174,8 +260,12 @@ __get_cxx_version ()
         {
             errorlevel = 1;
             ename = "Error :";
-            evalue = "Compilation error!";
+            //evalue = error_stream.str();
+            std::cerr << err;
         }
+
+        //error_stream.str().clear();
+        //DiagnosticsOS.str().clear();
 
         // Flush streams
         std::cout << std::flush;

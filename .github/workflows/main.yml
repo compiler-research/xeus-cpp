@@ -15,9 +15,9 @@ concurrency:
 
 jobs:
   unix:
-    
+
     runs-on: ${{ matrix.os }}
-     
+
     strategy:
       fail-fast: false
       matrix:
@@ -53,10 +53,10 @@ jobs:
           mkdir -p build
           cd build
           cmake .. \
-           -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
-           -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
-           -DXEUS_CPP_ENABLE_CODE_COVERAGE=${{ matrix.coverage }} \
-           ${{ matrix.extra_cmake_flags }}
+            -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
+            -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
+            -DXEUS_CPP_ENABLE_CODE_COVERAGE=${{ matrix.coverage }} \
+            ${{ matrix.extra_cmake_flags }}
 
       - name: build
         shell: bash -l {0}
@@ -74,6 +74,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cd build/test
+          export CPLUS_INCLUDE_PATH=$CONDA_PREFIX/include:$CONDA_BUILD_SYSROOT:$CONDA_BUILD_SYSROOT/..:$CONDA_BUILD_SYSROOT/../x86_64-conda-linux-gnu/include/c++/12.3.0:$CONDA_BUILD_SYSROOT/../x86_64-conda-linux-gnu/include/c++/12.3.0/include:$CONDA_BUILD_SYSROOT/../include:$CONDA_BUILD_SYSROOT/usr/include:/home/runner/micromamba-root/envs/xeus-cpp/bin/../lib/gcc/x86_64-conda-linux-gnu/12.3.0/include:/home/runner/micromamba-root/envs/xeus-cpp/bin/../lib/gcc/x86_64-conda-linux-gnu/12.3.0/include-fixed:/home/runner/micromamba-root/envs/xeus-cpp/bin/../lib/gcc/x86_64-conda-linux-gnu/12.3.0/../../../../x86_64-conda-linux-gnu/include:/home/runner/micromamba-root/envs/xeus-cpp/bin/../x86_64-conda-linux-gnu/sysroot/usr/include
           ./test_xeus_cpp
         timeout-minutes: 4
 
@@ -169,7 +170,7 @@ jobs:
       - name: Setup emsdk
         shell: bash -l {0}
         run: |
-          emsdk install ${{matrix.emsdk_ver}}     
+          emsdk install ${{matrix.emsdk_ver}}
 
       - name: Build xeus-cpp
         shell: bash -l {0}
@@ -177,7 +178,7 @@ jobs:
           emsdk activate ${{matrix.emsdk_ver}}
           source $CONDA_EMSDK_DIR/emsdk_env.sh
           micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
-          
+
           mkdir build
           pushd build
 

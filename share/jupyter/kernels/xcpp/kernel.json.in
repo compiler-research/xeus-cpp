@@ -12,7 +12,6 @@
       "-I", "@CMAKE_INSTALL_PREFIX@/include",
       "-std=c++17"@XEUS_CPP_OMP@
   ],
-  "language": "cpp",
-  "metadata": {"debugger": false
-  }
+  "language": "C++",
+  "metadata": {"debugger": false}
 }
