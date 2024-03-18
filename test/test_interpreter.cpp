@@ -11,7 +11,6 @@
 #include "xeus-cpp/xutils.hpp"
 
 #include "../src/xparser.hpp"
-#include "../src/xinput.hpp"
 
 TEST_SUITE("execute_request")
 {
