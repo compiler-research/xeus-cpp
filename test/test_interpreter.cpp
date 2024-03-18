@@ -9,7 +9,9 @@
 #include "doctest/doctest.h"
 #include "xeus-cpp/xinterpreter.hpp"
 #include "xeus-cpp/xutils.hpp"
+
 #include "../src/xparser.hpp"
+#include "../src/xinput.hpp"
 
 TEST_SUITE("execute_request")
 {
@@ -71,7 +73,7 @@ TEST_SUITE("trim"){
     }
 
     /*Checks if it trims the string which has no characters*/
-    TEST_CASE("trim_start_and_end"){
+    TEST_CASE("trim_empty"){
         std::string argument = "  ";
 
         std::string result = xcpp::trim(argument);
@@ -79,4 +81,17 @@ TEST_SUITE("trim"){
         REQUIRE(result == "");
     }
 
+}
+
+TEST_SUITE("build_interpreter")
+{   
+    /*Checks if the interpreter function returns a non null pointer*/
+    TEST_CASE("build_interpreter_pointer_not_null"){
+        const char* arguments[] = {"argument1", "argument2"};
+        int argc = sizeof(arguments) / sizeof(arguments[0]);
+
+        interpreter_ptr result = xcpp::build_interpreter(argc, const_cast<char**>(arguments));
+
+        REQUIRE(result != nullptr);
+    }
 }
