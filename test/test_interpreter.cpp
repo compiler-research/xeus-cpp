@@ -85,7 +85,8 @@ TEST_SUITE("trim"){
 TEST_SUITE("build_interpreter")
 {   
     /*Checks if the interpreter function returns a non null pointer*/
-    TEST_CASE("build_interpreter_pointer_not_null"){
+    TEST_CASE("build_interpreter_basic_test"){
+
         const char* arguments[] = {"argument1", "argument2"};
         int argc = sizeof(arguments) / sizeof(arguments[0]);
 
