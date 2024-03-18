@@ -9,6 +9,7 @@
 #include "doctest/doctest.h"
 #include "xeus-cpp/xinterpreter.hpp"
 #include "xeus-cpp/xutils.hpp"
+#include "../src/xparser.hpp"
 
 TEST_SUITE("execute_request")
 {
@@ -47,4 +48,35 @@ TEST_SUITE("extract_filename")
         REQUIRE(result == "filename.txt");
         REQUIRE(argc == 2);
     }
+}
+
+TEST_SUITE("trim"){
+
+    TEST_CASE("trim_basic_test"){
+        std::string argument = "argument";
+
+        std::string result = xcpp::trim(argument);
+
+        REQUIRE(result == "argument");
+    }
+
+    /*Checks if it trims the string which 
+    has an empty space at the start and in the end*/
+    TEST_CASE("trim_start_and_end"){
+        std::string argument = " argument ";
+
+        std::string result = xcpp::trim(argument);
+
+        REQUIRE(result == "argument");
+    }
+
+    /*Checks if it trims the string which has no characters*/
+    TEST_CASE("trim_start_and_end"){
+        std::string argument = "  ";
+
+        std::string result = xcpp::trim(argument);
+
+        REQUIRE(result == "");
+    }
+
 }
