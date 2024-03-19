@@ -133,6 +133,8 @@ find_package(pugixml REQUIRED)
 
 set(XEUS_CPP_HEADERS
     include/xeus-cpp/xbuffer.hpp
+    include/xeus-cpp/xholder.hpp
+    include/xeus-cpp/xoptions.hpp
     include/xeus-cpp/xeus_cpp_config.hpp
     include/xeus-cpp/xholder.hpp
     include/xeus-cpp/xinterpreter.hpp
