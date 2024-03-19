@@ -10,10 +10,13 @@
 #ifndef XEUS_CPP_PARSER_HPP
 #define XEUS_CPP_PARSER_HPP
 
+#include "xeus-cpp/xeus_cpp_config.hpp"
+
 #include <string>
 
 namespace xcpp
-{
+{   
+    XEUS_CPP_API
     std::string trim(const std::string& str);
 }
 #endif
