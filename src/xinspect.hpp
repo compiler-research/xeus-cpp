@@ -9,6 +9,7 @@
 #ifndef XEUS_CPP_INSPECT_HPP
 #define XEUS_CPP_INSPECT_HPP
 
+#include <filesystem>
 #include <fstream>
 #include <string>
 
@@ -22,9 +23,6 @@
 
 #include "xdemangle.hpp"
 #include "xparser.hpp"
-
-#include "llvm/Support/FileSystem.h"
-#include "llvm/Support/Path.h"
 
 namespace xcpp
 {
@@ -102,17 +100,13 @@ namespace xcpp
     static nl::json read_tagconfs(const char* path)
     {
         nl::json result = nl::json::array();
-        std::error_code EC;
-        for (llvm::sys::fs::directory_iterator File(path, EC), FileEnd;
-             File != FileEnd && !EC; File.increment(EC)) {
-          llvm::StringRef FilePath = File->path();
-          llvm::StringRef FileName = llvm::sys::path::filename(FilePath);
-          if (!FileName.endswith("json"))
-            continue;
-          std::ifstream i(FilePath.str());
-          nl::json entry;
-          i >> entry;
-          result.emplace_back(std::move(entry));
+        for (const auto &entry: std::filesystem::directory_iterator(path)) {
+            if (entry.path().extension() != ".json")
+              continue;
+            std::ifstream i(entry.path());
+            nl::json json_entry;
+            i >> json_entry;
+            result.emplace_back(std::move(json_entry));
         }
         return result;
     }
