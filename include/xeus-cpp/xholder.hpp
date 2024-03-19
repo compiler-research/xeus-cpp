@@ -16,12 +16,13 @@
 #include <nlohmann/json.hpp>
 
 #include "xpreamble.hpp"
+#include "xeus_cpp_config.hpp"
 
 namespace nl = nlohmann;
 
 namespace xcpp
 {
-    class xholder_preamble
+    class XEUS_CPP_API xholder_preamble
     {
     public:
 
