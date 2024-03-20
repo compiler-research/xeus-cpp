@@ -1,0 +1,59 @@
+Checks: >
+  -*,
+  bugprone-*,
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  cppcoreguidelines-*,
+  llvm-*,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -bugprone-narrowing-conversions,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-implicit-widening-of-multiplication-result,
+  -bugprone-unchecked-optional-access,
+  -misc-const-correctness,
+  -misc-unused-parameters,
+  -misc-non-private-member-variables-in-classes,
+  -misc-no-recursion,
+  -misc-use-anonymous-namespace,
+  -modernize-return-braced-init-list,
+  -modernize-use-trailing-return-type,
+  -readability-braces-around-statements,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+  -readability-named-parameter,
+  -readability-function-cognitive-complexity,
+  -readability-implicit-bool-conversion,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -clang-analyzer-cplusplus.NewDeleteLeaks,
+
+CheckOptions:
+  - key:             readability-identifier-naming.ClassCase
+    value:           aNy_CasE
+  - key:             readability-identifier-naming.FunctionCase
+    value:           aNy_CasE
+  - key:             readability-identifier-naming.MemberCase
+    value:           aNy_CasE
+  - key:             readability-identifier-naming.PrivateMemberPrefix
+    value:           'm_'
+  - key:             readability-identifier-naming.ProtectedMemberPrefix
+    value:           'm_'
+  - key:             readability-identifier-naming.PublicMemberPrefix
+    value:           ''
+  - key:             readability-identifier-naming.ParameterCase
+    value:           aNy_CasE
+  - key:             readability-identifier-naming.UnionCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.VariableCase
+    value:           aNy_CasE
+  - key:             readability-identifier-naming.IgnoreMainLikeFunctions
+    value:           1
+  - key:             readability-implicit-bool-conversion.AllowPointerConditions
+    value:           1
+  - key:             readability-magic-numbers.IgnorePowersOf2IntegerValues
+    value:           1
+  - key:             readability-magic-numbers.IgnoredIntegerValues
+    value:           4;8;16;
