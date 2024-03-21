@@ -16,9 +16,26 @@
 
 TEST_SUITE("execute_request")
 {
+    TEST_CASE("stl")
+    {
+        std::vector<const char*> Args = {"stl-test-case", "-v"};
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+        std::string code = "#include <vector>";
+        nl::json user_expressions = nl::json::object();
+        nl::json result = interpreter.execute_request(
+            code,
+            /*silent=*/false,
+            /*store_history=*/false,
+            user_expressions,
+            /*allow_stdin=*/false
+        );
+        REQUIRE(result["status"] == "ok");
+    }
+
     TEST_CASE("fetch_documentation")
     {
-        xcpp::interpreter interpreter(0, nullptr);
+        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
 
         std::string code = "?std::vector";
         std::string inspect_result = "https://en.cppreference.com/w/cpp/container/vector";

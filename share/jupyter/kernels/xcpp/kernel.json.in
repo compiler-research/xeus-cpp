@@ -1,11 +1,17 @@
 {
-  "display_name": "cpp 14 (xcpp)",
+  "display_name": "C++17 (xcpp)",
+  "env": {
+      "PATH":"@XEUS_CPP_PATH@",
+      "LD_LIBRARY_PATH":"@XEUS_CPP_LD_LIBRARY_PATH@"
+  },
   "argv": [
       "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
       "-f",
-      "{connection_file}"
+      "{connection_file}",
+      "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
+      "-I", "@CMAKE_INSTALL_PREFIX@/include",
+      "-std=c++17"@XEUS_CPP_OMP@
   ],
-  "language": "cpp",
-  "metadata": {"debugger": false
-  }
+  "language": "C++",
+  "metadata": {"debugger": false}
 }
