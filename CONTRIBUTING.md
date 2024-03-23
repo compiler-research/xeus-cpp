@@ -21,7 +21,7 @@ First, you need to fork the project. Then setup your environment:
 
 ```bash
 # create a new conda environment
-conda create -f environment-dev.yml
+conda env create -f environment-dev.yml
 conda activate xeus-cpp
 
 # download xeus-cpp from your GitHub fork
