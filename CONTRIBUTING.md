@@ -7,7 +7,7 @@ Xeus and xeus-cpp are subprojects of Project Jupyter and subject to the
 ## General Guidelines
 
 For general documentation about contributing to Jupyter projects, see the
-[Project Jupyter Contributor Documentation](https://jupyter.readthedocs.io/en/latest/contributor/content-contributor.html).
+[Project Jupyter Contributor Documentation](https://docs.jupyter.org/en/latest/contributing/content-contributor.html).
 
 ## Community
 
