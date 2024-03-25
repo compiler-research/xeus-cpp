@@ -126,13 +126,38 @@ if (NOT DEFINED XEUS_CPP_KERNELSPEC_PATH)
     set(XEUS_CPP_KERNELSPEC_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/")
 endif ()
 
-set(XEUS_CPP_PATH "$ENV{PATH}")
-set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
-set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CppInterOp_CLANG_VERSION})
-configure_file (
-    "${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter/kernels/xcpp/kernel.json.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/share/jupyter/kernels/xcpp/kernel.json"
-)
+function(configure_kernel kernel)
+  set(XEUS_CPP_PATH "$ENV{PATH}")
+  set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
+  set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CppInterOp_CLANG_VERSION})
+
+  configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/kernel.json.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/kernel.json"
+    )
+  file(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/*.png")
+  foreach(file ${files})
+    configure_file(
+      "${file}"
+      "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
+      COPYONLY
+      )
+  endforeach()
+  file(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/*.svg")
+  foreach(file ${files})
+    configure_file(
+      "${file}"
+      "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
+      COPYONLY
+      )
+  endforeach()
+endfunction()
+
+file(GLOB _kernels LIST_DIRECTORIES true RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "share/jupyter/kernels/*")
+foreach(_kernel IN LISTS _kernels)
+  message("Configure kernel: ${_kernel}")
+  configure_kernel("${_kernel}")
+endforeach()
 
 # Source files
 # ============
