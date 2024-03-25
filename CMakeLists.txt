@@ -111,10 +111,10 @@ if(EMSCRIPTEN)
     set(EMSCRIPTEN_FEATURES "${EMSCRIPTEN_FEATURES} -s \"EXTRA_EXPORTED_RUNTIME_METHODS=[ENV']\"")
 endif()
 
-find_package(CppInterOp REQUIRED)
-if(CppInterOp_FOUND)
-  message(STATUS "Found CppInterOp: config=${CPPINTEROP_CONFIG} dir=${CPPINTEROP_DIR} (found version=${CPPINTEROP_VERSION} compatible with Clang ${CPPINTEROP_LLVM_VERSION_MAJOR}.x)")
-endif()
+find_package(Clang REQUIRED)
+include(AddLLVM)
+include(HandleLLVMOptions)
+add_definitions(${LLVM_DEFINITIONS})
 
 find_package(argparse REQUIRED)
 find_package(pugixml REQUIRED)
@@ -295,7 +295,7 @@ macro(xeus_cpp_create_target target_name linkage output_name)
         set(XEUS_CPP_XEUS_TARGET xeus-static)
     endif ()
 
-    target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse xtl)
+    target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangInterpreter pugixml argparse::argparse xtl)
 
     if (WIN32 OR CYGWIN)
         #
