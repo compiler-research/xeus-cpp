@@ -128,7 +128,7 @@ endif ()
 
 configure_file (
     "${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter/kernels/xcpp/kernel.json.in"
-    "${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter/kernels/xcpp/kernel.json"
+    "${CMAKE_CURRENT_BINARY_DIR}/share/jupyter/kernels/xcpp/kernel.json"
 )
 
 # Source files
