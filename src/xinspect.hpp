@@ -13,7 +13,6 @@
 #include <fstream>
 #include <string>
 
-
 #include <pugixml.hpp>
 
 #include <xtl/xsystem.hpp>
@@ -23,6 +22,8 @@
 
 #include "xdemangle.hpp"
 #include "xparser.hpp"
+
+#include "clang/Interpreter/CppInterOp.h"
 
 namespace xcpp
 {
@@ -79,22 +80,23 @@ namespace xcpp
         }
     };
 
-    std::string find_type(const std::string& expression, clang::Interpreter& interpreter)
-    {
-        auto PTU = interpreter.Parse(expression + ";");
-        if (llvm::Error Err = PTU.takeError()) {
-            llvm::logAllUnhandledErrors(std::move(Err), llvm::errs(), "error: ");
-            return "";
+    std::string find_type_slow(const std::string& expression) {
+        static unsigned long long var_count = 0;
+
+        if (auto *type = Cpp::GetType(expression))
+            return Cpp::GetQualifiedName(type);
+
+        // Here we might need to deal with integral types such as 3.14.
+
+        std::string id = "__Xeus_GetType_" + std::to_string(var_count++);
+        std::string using_clause = "using " + id + " = __typeof__(" + expression + ");\n";
+
+        if (!Cpp::Declare(using_clause.c_str(), /*silent=*/false)) {
+            Cpp::TCppScope_t lookup = Cpp::GetNamed(id, nullptr);
+            Cpp::TCppType_t lookup_ty = Cpp::GetTypeFromScope(lookup);
+            return Cpp::GetQualifiedCompleteName(Cpp::GetCanonicalType(lookup_ty));
         }
-
-	    clang::Decl *D = *PTU->TUPart->decls_begin();
-	    if (!llvm::isa<clang::TopLevelStmtDecl>(D))
-	        return "";
-
-	    clang::Expr *E = llvm::cast<clang::Expr>(llvm::cast<clang::TopLevelStmtDecl>(D)->getStmt());
-
-	    clang::QualType QT = E->getType();
-        return  QT.getAsString();
+        return "";
     }
 
     static nl::json read_tagconfs(const char* path)
@@ -111,17 +113,16 @@ namespace xcpp
         return result;
     }
 
-    std::pair<bool, std::smatch> is_inspect_request(const std::string code, std::regex re) 
+    std::pair<bool, std::smatch> is_inspect_request(const std::string& code,
+                                                    const std::regex& re)
     {
         std::smatch inspect;
-        if (std::regex_search(code, inspect, re)){
+        if (std::regex_search(code, inspect, re))
             return std::make_pair(true, inspect);
-        }
         return std::make_pair(false, inspect);
-       
     }
 
-    void inspect(const std::string& code, nl::json& kernel_res, clang::Interpreter& interpreter)
+    void inspect(const std::string& code, nl::json& kernel_res)
     {
         std::string tagconf_dir = XCPP_TAGCONFS_DIR;
         std::string tagfiles_dir = XCPP_TAGFILES_DIR;
@@ -144,9 +145,9 @@ namespace xcpp
         // Method or variable of class found (xxxx.yyyy)
         if (std::regex_search(to_inspect, method, std::regex(R"((.*)\.(\w*)$)")))
         {
-            std::string typename_ = find_type(method[1], interpreter);
+            std::string type_name = find_type_slow(method[1]);
 
-            if (!typename_.empty())
+            if (!type_name.empty())
             {
                 for (nl::json::const_iterator it = tagconfs.cbegin(); it != tagconfs.cend(); ++it)
                 {
@@ -154,8 +155,8 @@ namespace xcpp
                     tagfile = it->at("tagfile");
                     std::string filename = tagfiles_dir + "/" + tagfile;
                     pugi::xml_document doc;
-                    doc.load_file(filename.c_str());
-                    class_member_predicate predicate{typename_, "function", method[2]};
+                    pugi::xml_parse_result result = doc.load_file(filename.c_str());
+                    class_member_predicate predicate{type_name, "function", method[2]};
                     auto node = doc.find_node(predicate);
                     if (!node.empty())
                     {
@@ -178,8 +179,8 @@ namespace xcpp
             }
             else
             {
-                std::string typename_ = find_type(to_inspect, interpreter);
-                find_string = (typename_.empty()) ? to_inspect : typename_;
+                std::string type_name = find_type_slow(to_inspect);
+                find_string = (type_name.empty()) ? to_inspect : type_name;
             }
 
             for (nl::json::const_iterator it = tagconfs.cbegin(); it != tagconfs.cend(); ++it)
@@ -188,7 +189,7 @@ namespace xcpp
                 tagfile = it->at("tagfile");
                 std::string filename = tagfiles_dir + "/" + tagfile;
                 pugi::xml_document doc;
-                doc.load_file(filename.c_str());
+                pugi::xml_parse_result result = doc.load_file(filename.c_str());
                 for (auto c : check)
                 {
                     node_predicate predicate{c, find_string};
@@ -266,8 +267,7 @@ namespace xcpp
         using xpreamble::pattern;
         const std::string spattern = R"(^\?)";
 
-        xintrospection(clang::Interpreter& p)
-            : m_interpreter{p}
+        xintrospection()
         {
             pattern = spattern;
         }
@@ -277,17 +277,15 @@ namespace xcpp
             std::regex re(spattern + R"((.*))");
             std::smatch to_inspect;
             std::regex_search(code, to_inspect, re);
-            inspect(to_inspect[1], kernel_res, m_interpreter);
+            inspect(to_inspect[1], kernel_res);
         }
 
         virtual xpreamble* clone() const override
         {
             return new xintrospection(*this);
         }
-
-    private:
-
-        clang::Interpreter& m_interpreter;
     };
+
 }
-#endif
+
+#endif // XEUS_CPP_INSPECT_HPP

@@ -15,6 +15,10 @@ set(CMAKE_CXX_EXTENSIONS NO)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+include(GNUInstallDirs)
+
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
 set(XEUS_CPP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -32,20 +36,6 @@ endforeach ()
 set(${PROJECT_NAME}_VERSION
     ${XEUS_CPP_VERSION_MAJOR}.${XEUS_CPP_VERSION_MINOR}.${XEUS_CPP_VERSION_PATCH})
 message(STATUS "Building xeus-cpp v${${PROJECT_NAME}_VERSION}")
-
-# Configuration
-# =============
-
-include(GNUInstallDirs)
-
-if (NOT DEFINED XEUS_CPP_KERNELSPEC_PATH)
-    set(XEUS_CPP_KERNELSPEC_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/")
-endif ()
-
-configure_file (
-    "${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter/kernels/xcpp/kernel.json.in"
-    "${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter/kernels/xcpp/kernel.json"
-)
 
 # Build options
 # =============
@@ -121,12 +111,28 @@ if(EMSCRIPTEN)
     set(EMSCRIPTEN_FEATURES "${EMSCRIPTEN_FEATURES} -s \"EXTRA_EXPORTED_RUNTIME_METHODS=[ENV']\"")
 endif()
 
-find_package(Clang REQUIRED)
-include(AddLLVM)
-include(HandleLLVMOptions)
-add_definitions(${LLVM_DEFINITIONS})
+find_package(CppInterOp REQUIRED)
+if(CppInterOp_FOUND)
+  message(STATUS "Found CppInterOp: config=${CPPINTEROP_CONFIG} dir=${CPPINTEROP_DIR} (found version=${CPPINTEROP_VERSION} compatible with Clang ${CPPINTEROP_LLVM_VERSION_MAJOR}.x)")
+endif()
+
 find_package(argparse REQUIRED)
 find_package(pugixml REQUIRED)
+
+# Configuration
+# =============
+
+if (NOT DEFINED XEUS_CPP_KERNELSPEC_PATH)
+    set(XEUS_CPP_KERNELSPEC_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/")
+endif ()
+
+set(XEUS_CPP_PATH "$ENV{PATH}")
+set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
+set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CppInterOp_CLANG_VERSION})
+configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter/kernels/xcpp/kernel.json.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/share/jupyter/kernels/xcpp/kernel.json"
+)
 
 # Source files
 # ============
@@ -174,7 +180,8 @@ include(CheckCXXCompilerFlag)
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" U_CMAKE_BUILD_TYPE)
 
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib; ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+list(REMOVE_DUPLICATES CMAKE_INSTALL_RPATH)
 
 macro(xeus_cpp_set_common_options target_name)
     if (MSVC)
@@ -228,7 +235,6 @@ macro(xeus_cpp_set_kernel_options target_name)
         find_package(Threads)
         target_link_libraries(${target_name} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
     endif()
-    
 endmacro()
 
 # Common macro for shared and static library
@@ -264,7 +270,8 @@ macro(xeus_cpp_create_target target_name linkage output_name)
         set(XEUS_CPP_XEUS_TARGET xeus-static)
     endif ()
 
-    target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangInterpreter pugixml argparse::argparse xtl)
+    target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse xtl)
+
     if (WIN32 OR CYGWIN)
         #
     elseif (APPLE)
@@ -274,7 +281,7 @@ macro(xeus_cpp_create_target target_name linkage output_name)
         find_package(Threads) # TODO: add Threads as a dependence of xeus-static?
         target_link_libraries(${target_name} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
     endif()
-    
+
 endmacro()
 
 # xeus-cpp-headers
@@ -371,7 +378,7 @@ if(XEUS_CPP_BUILD_EXECUTABLE OR EMSCRIPTEN)
     set(XJUPYTER_DATA_DIR "share/jupyter"    CACHE STRING "Jupyter data directory")
 
     # Install xcpp Jupyter kernelspec
-    set(KERNELSPEC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter/kernels)
+    set(KERNELSPEC_DIR ${CMAKE_CURRENT_BINARY_DIR}/share/jupyter/kernels)
     install(DIRECTORY ${KERNELSPEC_DIR}
             DESTINATION ${XJUPYTER_DATA_DIR}
             PATTERN "*.in" EXCLUDE)
