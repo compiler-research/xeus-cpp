@@ -4,9 +4,9 @@ channels:
   - https://repo.mamba.pm/conda-forge
 dependencies:
   - nlohmann_json
-  - xeus-lite
+  - xeus-lite <2.0
   - xeus >=3.0.5,<4.0
   - xtl >=0.7,<0.8
-  - llvm =16.0.6
+  - CppInterOp
   - cpp-argparse
   - pugixml

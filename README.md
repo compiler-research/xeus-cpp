@@ -32,7 +32,7 @@ source activate  "xeus-cpp"
 ```
 We will now install the dependencies needed to compile xeux-cpp from source within this environment by executing the following
 ```bash
-mamba install notebook cmake cxx-compiler xeus-zmq nlohmann_json=3.11.2 cppzmq xtl jupyterlab clangdev=16 cpp-argparse pugixml doctest -c conda-forge
+mamba install notebook cmake cxx-compiler xeus-zmq nlohmann_json=3.11.2 cppzmq xtl jupyterlab CppInterOp cpp-argparse<3.1 pugixml doctest -c conda-forge
 ```
 Now you can compile the kernel from the source by executing (replace `$CONDA_PREFIX` with a custom installation prefix if need be)
 ```bash
@@ -65,13 +65,13 @@ http://xeus-cpp.readthedocs.io
 - [clang](https://github.com/llvm/llvm-project/)
 - [argparse](https://github.com/p-ranav/argparse)
 
-| `xeus-cpp` | `xeus-zmq`      | `xtl`           | `clang`   | `pugixml` | `cppzmq` | `cpp-argparse`| `nlohmann_json` | `dirent` (windows only) |
-|------------|-----------------|-----------------|-----------|-----------|----------|---------------|-----------------|-------------------------|
-|  main      |  >=1.0.0,<2.0.0 |  >=0.7.7,<0.8.0 | >=16,<17  | ~1.8.1    | ~4.3.0   | ~2.9          | >=3.6.1,<4.0    | >=2.3.2,<3              |
-|  0.3.0     |  >=1.0.0,<2.0.0 |  >=0.7.7,<0.8.0 | >=16,<17  | ~1.8.1    | ~4.3.0   | ~2.9          | >=3.6.1,<4.0    | >=2.3.2,<3              |
-|  0.2.0     |  >=1.0.0,<2.0.0 |  >=0.7.7,<0.8.0 | >=16,<17  | ~1.8.1    | ~4.3.0   | ~2.9          | >=3.6.1,<4.0    | >=2.3.2,<3              |
-|  0.1.0     |  >=1.0.0,<2.0.0 |  >=0.7.0,<0.8.0 | >=16,<17  | ~1.8.1    | ~4.3.0   | ~2.9          | >=3.6.1,<4.0    | >=2.3.2,<3              |
-|  0.0.1     |  >=1.0.0,<2.0.0 |  >=0.7.0,<0.8.0 | >=16,<17  | ~1.8.1    | ~4.3.0   | ~2.9          | >=3.6.1,<4.0    | >=2.3.2,<3              |
+| `xeus-cpp` | `xeus-zmq`      | `xtl`           | `CppInterOp` | `clang`   | `pugixml` | `cppzmq` | `cpp-argparse`| `nlohmann_json` | `dirent` (windows only) |
+|------------|-----------------|-----------------|--------------|-----------|-----------|----------|---------------|-----------------|-------------------------|
+|  main      |  >=1.0.0,<2.0.0 |  >=0.7.7,<0.8.0 | >=1.2.0      |           | ~1.8.1    | ~4.3.0   | <3.1          | >=3.11.2,<4.0    | >=2.3.2,<3              |
+|  0.3.0     |  >=1.0.0,<2.0.0 |  >=0.7.7,<0.8.0 |              | >=16,<17  | ~1.8.1    | ~4.3.0   | ~2.9          | >=3.6.1,<4.0    | >=2.3.2,<3              |
+|  0.2.0     |  >=1.0.0,<2.0.0 |  >=0.7.7,<0.8.0 |              | >=16,<17  | ~1.8.1    | ~4.3.0   | ~2.9          | >=3.6.1,<4.0    | >=2.3.2,<3              |
+|  0.1.0     |  >=1.0.0,<2.0.0 |  >=0.7.0,<0.8.0 |              | >=16,<17  | ~1.8.1    | ~4.3.0   | ~2.9          | >=3.6.1,<4.0    | >=2.3.2,<3              |
+|  0.0.1     |  >=1.0.0,<2.0.0 |  >=0.7.0,<0.8.0 |              | >=16,<17  | ~1.8.1    | ~4.3.0   | ~2.9          | >=3.6.1,<4.0    | >=2.3.2,<3              |
 
 ## Contributing
 
