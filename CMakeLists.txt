@@ -133,31 +133,27 @@ function(configure_kernel kernel)
 
   configure_file (
     "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/kernel.json.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/kernel.json"
-    )
-  file(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/*.png")
-  foreach(file ${files})
-    configure_file(
-      "${file}"
-      "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
-      COPYONLY
-      )
-  endforeach()
-  file(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/*.svg")
-  foreach(file ${files})
-    configure_file(
-      "${file}"
-      "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
-      COPYONLY
-      )
-  endforeach()
+    "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/kernel.json")
+
+  configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/logo-32x32.png"
+    "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
+    COPYONLY)
+  configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/logo-64x64.png"
+    "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
+    COPYONLY)
+  configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/logo-svg.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
+    COPYONLY)
 endfunction()
 
-file(GLOB _kernels LIST_DIRECTORIES true RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "share/jupyter/kernels/*")
-foreach(_kernel IN LISTS _kernels)
-  message("Configure kernel: ${_kernel}")
-  configure_kernel("${_kernel}")
-endforeach()
+message("Configure kernels: ...")
+configure_kernel("share/jupyter/kernels/xcpp")
+configure_kernel("share/jupyter/kernels/xcpp11")
+configure_kernel("share/jupyter/kernels/xcpp14")
+configure_kernel("share/jupyter/kernels/xcpp17")
 
 # Source files
 # ============
