@@ -1,5 +1,5 @@
 {
-  "display_name": "cpp 17 (xcpp)",
+  "display_name": "C++11 (xcpp)",
   "env": {
       "PATH":"@XEUS_CPP_PATH@",
       "LD_LIBRARY_PATH":"@XEUS_CPP_LD_LIBRARY_PATH@"
@@ -9,10 +9,8 @@
       "-f",
       "{connection_file}",
       "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
-      "-I", "@CMAKE_INSTALL_PREFIX@/include",
-      "-std=c++17"@XEUS_CPP_OMP@
+      "-std=c++11"@XEUS_CPP_OMP@
   ],
   "language": "cpp",
-  "metadata": {"debugger": false
-  }
+  "metadata": {"debugger": false}
 }

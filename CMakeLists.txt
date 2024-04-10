@@ -126,13 +126,34 @@ if (NOT DEFINED XEUS_CPP_KERNELSPEC_PATH)
     set(XEUS_CPP_KERNELSPEC_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/")
 endif ()
 
-set(XEUS_CPP_PATH "$ENV{PATH}")
-set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
-set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CppInterOp_CLANG_VERSION})
-configure_file (
-    "${CMAKE_CURRENT_SOURCE_DIR}/share/jupyter/kernels/xcpp/kernel.json.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/share/jupyter/kernels/xcpp/kernel.json"
-)
+function(configure_kernel kernel)
+  set(XEUS_CPP_PATH "$ENV{PATH}")
+  set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
+  set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CppInterOp_CLANG_VERSION})
+
+  configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/kernel.json.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/kernel.json")
+
+  configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/logo-32x32.png"
+    "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
+    COPYONLY)
+  configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/logo-64x64.png"
+    "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
+    COPYONLY)
+  configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/logo-svg.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
+    COPYONLY)
+endfunction()
+
+message("Configure kernels: ...")
+configure_kernel("share/jupyter/kernels/xcpp")
+configure_kernel("share/jupyter/kernels/xcpp11")
+configure_kernel("share/jupyter/kernels/xcpp14")
+configure_kernel("share/jupyter/kernels/xcpp17")
 
 # Source files
 # ============
