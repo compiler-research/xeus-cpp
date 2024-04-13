@@ -127,6 +127,9 @@ endif()
 find_package(argparse REQUIRED)
 find_package(pugixml REQUIRED)
 
+set(Python_FIND_VIRTUALENV ONLY)
+find_package(Python COMPONENTS Interpreter Development)
+
 # Configuration
 # =============
 
