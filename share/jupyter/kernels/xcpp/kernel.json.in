@@ -11,7 +11,7 @@
       "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
       "-I", "@CMAKE_INSTALL_PREFIX@/include",
       "-std=c++17"@XEUS_CPP_OMP@
-  ],
-  "language": "C++",
-  "metadata": {"debugger": false}
+  ],  "language": "cpp",
+  "metadata": {"debugger": false
+  }
 }
