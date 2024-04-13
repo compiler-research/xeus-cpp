@@ -119,12 +119,6 @@ if(EMSCRIPTEN)
     set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 endif()
 
-find_package(CppInterOp REQUIRED CONFIG PATHS "${CMAKE_PREFIX_PATH}" "${CMAKE_PREFIX_PATH}/lib" "${CPPINTEROP_DIR}" "${CPPINTEROP_DIR}/lib")
-if(CppInterOp_FOUND)
-  set(CppInterOp_CLANG_VERSION "17")
-  message(STATUS "Found CppInterOp: config=${CppInterOp_CONFIG} dir=${CppInterOp_DIR} (found version=${CppInterOp_VERSION} compatible with Clang ${CppInterOp_CLANG_VERSION}.x)")
-endif()
-
 find_package(CppInterOp REQUIRED)
 if(CppInterOp_FOUND)
   message(STATUS "Found CppInterOp: config=${CPPINTEROP_CONFIG} dir=${CPPINTEROP_DIR} (found version=${CPPINTEROP_VERSION} compatible with Clang ${CPPINTEROP_LLVM_VERSION_MAJOR}.x)")
