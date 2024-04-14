@@ -127,9 +127,6 @@ endif()
 find_package(argparse REQUIRED)
 find_package(pugixml REQUIRED)
 
-set(Python_FIND_VIRTUALENV ONLY)
-find_package(Python COMPONENTS Interpreter Development)
-
 # Configuration
 # =============
 
@@ -205,8 +202,6 @@ set(XEUS_CPP_SRC
 
 if(EMSCRIPTEN)
     list(APPEND XEUS_CPP_SRC src/xinterpreter_wasm.cpp)
-else()
-    list(APPEND XEUS_CPP_SRC src/xmagics/pythonexec.hpp src/xmagics/pythonexec.cpp)
 endif()
 
 set(XEUS_CPP_MAIN_SRC
@@ -371,7 +366,7 @@ if (XEUS_CPP_BUILD_EXECUTABLE)
     set_target_properties(xcpp PROPERTIES
       ENABLE_EXPORTS 1
       CXX_STANDARD ${CMAKE_CXX_STANDARD})
-    target_link_libraries(xcpp PUBLIC xeus-cpp pthread Python::Python)
+    target_link_libraries(xcpp PUBLIC xeus-cpp pthread)
 
     ##TODO: We may be need sse RPATH
     set_target_properties(xcpp clangCppInterOp PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
@@ -381,9 +376,6 @@ if (XEUS_CPP_BUILD_EXECUTABLE)
       target_link_libraries(xcpp PUBLIC -Wl,--unresolved-symbols=ignore-in-object-files)
     endif()
 
-    target_include_directories(xeus-cpp PUBLIC ${Python_INCLUDE_DIRS})
-    target_link_libraries(xeus-cpp PUBLIC ${PYTHON_LIBRARIES})
-    target_link_libraries(xeus-cpp ${PYTHON_LIBRARIES_Development_Main})
     set_target_properties(xeus-cpp PROPERTIES
                       PUBLIC_HEADER "${XEUS_CPP_HEADERS}"
                       COMPILE_DEFINITIONS "XEUS_CPP_EXPORTS"
