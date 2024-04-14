@@ -23,12 +23,6 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 
 set(XEUS_CPP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-enable_language(CXX)
-set(CMAKE_CXX_EXTENSIONS NO)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-include(GNUInstallDirs)
-
 # Versionning
 # ===========
 
@@ -50,8 +44,8 @@ option(XEUS_CPP_BUILD_STATIC "Build xeus-cpp static library" ON)
 OPTION(XEUS_CPP_BUILD_SHARED "Split xcpp build into executable and library" ON)
 OPTION(XEUS_CPP_BUILD_EXECUTABLE "Build the xcpp executable" ON)
 
-OPTION(XEUS_CPP_USE_SHARED_XEUS "Link xcpp with the xeus shared library (instead of the static library)" ON)
-OPTION(XEUS_CPP_USE_SHARED_XEUS_CPP "Link xcpp with the xeus shared library (instead of the static library)" ON)
+OPTION(XEUS_CPP_USE_SHARED_XEUS "Link xcpp  with the xeus shared library (instead of the static library)" ON)
+OPTION(XEUS_CPP_USE_SHARED_XEUS_CPP "Link xcpp  with the xeus shared library (instead of the static library)" ON)
 
 # Test options
 OPTION(XEUS_CPP_BUILD_TESTS "xeus-cpp test suite" ON)
@@ -80,6 +74,7 @@ if(EMSCRIPTEN)
     SET(XEUS_CPP_BUILD_TESTS OFF)
 endif()
 
+
 # Dependencies
 # ============
 
@@ -105,9 +100,7 @@ else()
   add_compile_options(-fexceptions)
 endif ()
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
-    CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR
-    CMAKE_CXX_COMPILER_ID MATCHES "Intel")
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Intel")
     if(NOT EMSCRIPTEN)
         add_compile_options(-Wunused-parameter -Wextra -Wreorder)
     endif()
@@ -116,7 +109,6 @@ endif ()
 if(EMSCRIPTEN)
     # ENV (https://github.com/emscripten-core/emscripten/commit/6d9681ad04f60b41ef6345ab06c29bbc9eeb84e0)
     set(EMSCRIPTEN_FEATURES "${EMSCRIPTEN_FEATURES} -s \"EXTRA_EXPORTED_RUNTIME_METHODS=[ENV']\"")
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 endif()
 
 find_package(CppInterOp REQUIRED)
@@ -192,12 +184,6 @@ set(XEUS_CPP_SRC
     src/xoptions.cpp
     src/xparser.cpp
     src/xutils.cpp
-    src/xdemangle.hpp
-    src/xinspect.hpp
-    src/xsystem.hpp
-    src/xparser.hpp
-    src/xmagics/os.hpp
-    src/xmagics/os.cpp
 )
 
 if(EMSCRIPTEN)
@@ -363,27 +349,6 @@ if (XEUS_CPP_BUILD_EXECUTABLE)
     xeus_cpp_set_common_options(xcpp)
     xeus_cpp_set_kernel_options(xcpp)
     target_link_libraries(xcpp PRIVATE xeus-zmq)
-    set_target_properties(xcpp PROPERTIES
-      ENABLE_EXPORTS 1
-      CXX_STANDARD ${CMAKE_CXX_STANDARD})
-    target_link_libraries(xcpp PUBLIC xeus-cpp pthread)
-
-    ##TODO: We may be need sse RPATH
-    set_target_properties(xcpp clangCppInterOp PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
-    if(APPLE)
-      target_link_libraries(xcpp PUBLIC -Wl,-w -Wl,-bind_at_load -Wl,-undefined,dynamic_lookup)
-    elseif(NOT MSVC)
-      target_link_libraries(xcpp PUBLIC -Wl,--unresolved-symbols=ignore-in-object-files)
-    endif()
-
-    set_target_properties(xeus-cpp PROPERTIES
-                      PUBLIC_HEADER "${XEUS_CPP_HEADERS}"
-                      COMPILE_DEFINITIONS "XEUS_CPP_EXPORTS"
-                      PREFIX ""
-                      VERSION ${${PROJECT_NAME}_VERSION}
-                      SOVERSION ${XEUS_CPP_VERSION_MAJOR}
-                      OUTPUT_NAME "libxeus-cpp"
-                      CXX_STANDARD ${CMAKE_CXX_STANDARD})
 endif()
 
 if(EMSCRIPTEN)
@@ -413,10 +378,10 @@ set(XEUS_CPP_CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NA
 if (XEUS_CPP_BUILD_SHARED)
     install(TARGETS ${XEUS_CPP_TARGETS}
             EXPORT ${PROJECT_NAME}-targets
-            ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
-            LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}
-            RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
-            PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/xeus-cpp)
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xeus-cpp)
 
     # Makes the project importable from the build directory
     export(EXPORT ${PROJECT_NAME}-targets
@@ -426,7 +391,7 @@ endif ()
 # Install xcpp
 if (XEUS_CPP_BUILD_EXECUTABLE)
     install(TARGETS xcpp
-            RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if(XEUS_CPP_BUILD_EXECUTABLE OR EMSCRIPTEN)
