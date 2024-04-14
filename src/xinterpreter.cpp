@@ -72,7 +72,7 @@ void* createInterpreter(const Args &ExtraArgs = {}) {
 // #include "xmagics/executable.hpp"
 // #include "xmagics/execution.hpp"
 #include "xmagics/os.hpp"
-#include "xmagics/pythonexec.hpp"
+//#include "xmagics/pythonexec.hpp"
 #include "xparser.hpp"
 #include "xsystem.hpp"
 
