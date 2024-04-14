@@ -63,16 +63,6 @@ namespace xcpp
     void interpreter::configure_impl()
     {
         xeus::register_interpreter(this);
-/*
-        // todo: why is error_stream necessary
-        std::string error_message;
-        llvm::raw_string_ostream error_stream(error_message);
-        // Expose xinterpreter instance to interpreted C++
-        process_code(*m_interpreter, "#include \"xeus/xinterpreter.hpp\"", error_stream);
-        std::string code = "xeus::register_interpreter(static_cast<xeus::xinterpreter*>((void*)"
-                           + std::to_string(intptr_t(this)) + "));";
-        process_code(*m_interpreter, code.c_str(), error_stream);
-*/
     }
 
     static std::string get_stdopt()
@@ -215,7 +205,7 @@ __get_cxx_version ()
         {
             errorlevel = 1;
             ename = "Error :";
-            evalue = error_stream.str(); //?
+            //evalue = error_stream.str(); //?
             std::cerr << err;
         }
 
