@@ -93,6 +93,7 @@ __get_cxx_version ()
       return std::to_string(cxx_version);
     }
 
+
     interpreter::interpreter(int argc, const char* const* argv) :
         xmagics()
         , p_cout_strbuf(nullptr)
@@ -187,6 +188,7 @@ __get_cxx_version ()
         {
             errorlevel = 1;
             ename = "Error :";
+            evalue = "Compilation error!";
             //evalue = error_stream.str(); //?
             std::cerr << err;
         }
