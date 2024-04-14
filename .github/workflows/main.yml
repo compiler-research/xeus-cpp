@@ -15,9 +15,9 @@ concurrency:
 
 jobs:
   unix:
-
+    
     runs-on: ${{ matrix.os }}
-
+     
     strategy:
       fail-fast: false
       matrix:
@@ -110,9 +110,9 @@ jobs:
         # When debugging increase to a suitable value!
         timeout-minutes: 30
   win:
-
+    
     runs-on: ${{ matrix.os }}
-
+     
     strategy:
       fail-fast: false
       matrix:
@@ -169,7 +169,7 @@ jobs:
       - name: Setup emsdk
         shell: bash -l {0}
         run: |
-          emsdk install ${{matrix.emsdk_ver}}
+          emsdk install ${{matrix.emsdk_ver}}     
 
       - name: Build xeus-cpp
         shell: bash -l {0}
@@ -177,7 +177,7 @@ jobs:
           emsdk activate ${{matrix.emsdk_ver}}
           source $CONDA_EMSDK_DIR/emsdk_env.sh
           micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
-
+          
           mkdir build
           pushd build
 

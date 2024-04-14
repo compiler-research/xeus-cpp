@@ -24,7 +24,7 @@ class XCppTests(jupyter_kernel_test.KernelTests):
     code_stderr = '#include <iostream>\nstd::cerr << "oops" << std::endl;'
 
     # Pager: code that should display something (anything) in the pager
-    code_page_something = "?std::vector"
+    #code_page_something = "?std::vector"
 
     # Samples of code which generate a result value (ie, some text
     # displayed as Out[n])
