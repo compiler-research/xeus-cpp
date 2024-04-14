@@ -154,7 +154,7 @@ __get_cxx_version ()
         }
 
         // Scope guard performing the temporary redirection of input requests.
-        auto input_guard = input_redirection(allow_stdin);
+        //auto input_guard = input_redirection(allow_stdin);
 
         std::string err;
         std::string out;
