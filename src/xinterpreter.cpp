@@ -63,6 +63,16 @@ namespace xcpp
     void interpreter::configure_impl()
     {
         xeus::register_interpreter(this);
+/*
+        // todo: why is error_stream necessary
+        std::string error_message;
+        llvm::raw_string_ostream error_stream(error_message);
+        // Expose xinterpreter instance to interpreted C++
+        process_code(*m_interpreter, "#include \"xeus/xinterpreter.hpp\"", error_stream);
+        std::string code = "xeus::register_interpreter(static_cast<xeus::xinterpreter*>((void*)"
+                           + std::to_string(intptr_t(this)) + "));";
+        process_code(*m_interpreter, code.c_str(), error_stream);
+*/
     }
 
     static std::string get_stdopt()
@@ -112,16 +122,6 @@ __get_cxx_version ()
 
 
     interpreter::interpreter(int argc, const char* const* argv) :
-/*
-        // todo: why is error_stream necessary
-        std::string error_message;
-        llvm::raw_string_ostream error_stream(error_message);
-        // Expose xinterpreter instance to interpreted C++
-        process_code(*m_interpreter, "#include \"xeus/xinterpreter.hpp\"", error_stream);
-        std::string code = "xeus::register_interpreter(static_cast<xeus::xinterpreter*>((void*)"
-                           + std::to_string(intptr_t(this)) + "));";
-        process_code(*m_interpreter, code.c_str(), error_stream);
-*/
         xmagics()
         , p_cout_strbuf(nullptr)
         , p_cerr_strbuf(nullptr)
@@ -185,8 +185,6 @@ __get_cxx_version ()
 
         // Scope guard performing the temporary redirection of input requests.
         auto input_guard = input_redirection(allow_stdin);
-        //std::string evalue;
-        //bool compilation_result = false;
 
         std::string err;
         std::string out;
@@ -194,8 +192,6 @@ __get_cxx_version ()
         // Attempt normal evaluation
         try
         {
-            compilation_result = Cpp::Process(code.c_str());
-
             Cpp::BeginStdStreamCapture(Cpp::kStdErr);
             Cpp::BeginStdStreamCapture(Cpp::kStdOut);
             compilation_result = Cpp::Process(code.c_str());
@@ -219,12 +215,12 @@ __get_cxx_version ()
         {
             errorlevel = 1;
             ename = "Error :";
-            //evalue = error_stream.str();
+            evalue = error_stream.str(); //?
             std::cerr << err;
         }
 
-        //error_stream.str().clear();
-        //DiagnosticsOS.str().clear();
+        //error_stream.str().clear(); //?
+        //DiagnosticsOS.str().clear(); //?
 
         // Flush streams
         std::cout << std::flush;
