@@ -109,7 +109,6 @@ __get_cxx_version ()
         init_includes();
         init_preamble();
         init_magic();
-        Cpp::Process("#include <string>");
     }
 
     interpreter::~interpreter()
