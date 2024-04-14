@@ -1,6 +1,5 @@
 /************************************************************************************
  * Copyright (c) 2023, xeus-cpp contributors                                        *
- * Copyright (c) 2023, Johan Mabille, Loic Gouarin, Sylvain Corlay, Wolf Vollprecht *
  * Copyright (c) 2023, Martin Vassilev                                              *
  *                                                                                  *
  * Distributed under the terms of the BSD 3-Clause License.                         *
@@ -105,7 +104,6 @@ __get_cxx_version ()
         createInterpreter(Args(argv ? argv + 1 : argv, argv + argc));
         m_version = get_stdopt();
         redirect_output();
-        // Bootstrap the execution engine
         init_includes();
         init_preamble();
         init_magic();
@@ -188,12 +186,8 @@ __get_cxx_version ()
             errorlevel = 1;
             ename = "Error :";
             evalue = "Compilation error!";
-            //evalue = error_stream.str(); //?
             std::cerr << err;
         }
-
-        //error_stream.str().clear(); //?
-        //DiagnosticsOS.str().clear(); //?
 
         // Flush streams
         std::cout << std::flush;
