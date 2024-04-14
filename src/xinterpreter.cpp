@@ -92,24 +92,6 @@ __get_cxx_version ()
       long cxx_version = Cpp::Evaluate(code);
       return std::to_string(cxx_version);
     }
-/*
-    std::string interpreter::get_stdopt(int argc, const char* const* argv)
-    {
-        std::string res = "17"; //TODO: Detect from CppInterOp
-        for (int i = 0; i < argc; ++i)
-        {
-            std::string tmp(argv[i]);
-            auto pos = tmp.find("-std=c++");
-            if (pos != std::string::npos)
-            {
-                res = tmp.substr(pos + 8);
-                break;
-            }
-        }
-        return res;
-    }
-*/
-
 
     interpreter::interpreter(int argc, const char* const* argv) :
         xmagics()
