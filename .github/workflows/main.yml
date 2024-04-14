@@ -53,10 +53,10 @@ jobs:
           mkdir -p build
           cd build
           cmake .. \
-            -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
-            -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
-            -DXEUS_CPP_ENABLE_CODE_COVERAGE=${{ matrix.coverage }} \
-            ${{ matrix.extra_cmake_flags }}
+           -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
+           -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
+           -DXEUS_CPP_ENABLE_CODE_COVERAGE=${{ matrix.coverage }} \
+           ${{ matrix.extra_cmake_flags }}
 
       - name: build
         shell: bash -l {0}
@@ -110,9 +110,9 @@ jobs:
         # When debugging increase to a suitable value!
         timeout-minutes: 30
   win:
-    
+
     runs-on: ${{ matrix.os }}
-     
+
     strategy:
       fail-fast: false
       matrix:
