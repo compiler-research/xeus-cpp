@@ -56,47 +56,6 @@ void* createInterpreter(const Args &ExtraArgs = {}) {
   return Cpp::CreateInterpreter(ClangArgs/*, {"-cuda"}*/);
 }
 
-/*
-#include <xtl/xsystem.hpp>
-
-#include <xeus/xhelper.hpp>
-
-#include "xeus-cpp/xbuffer.hpp"
-#include "xeus-cpp/xeus_cpp_config.hpp"
-
-#include "xeus-cpp/xinterpreter.hpp"
-#include "xeus-cpp/xmagics.hpp"
-
-#include "xinput.hpp"
-#include "xinspect.hpp"
-// #include "xmagics/executable.hpp"
-// #include "xmagics/execution.hpp"
-#include "xmagics/os.hpp"
-//#include "xmagics/pythonexec.hpp"
-#include "xparser.hpp"
-#include "xsystem.hpp"
-
-using Args = std::vector<const char*>;
-
-void* createInterpreter(const Args &ExtraArgs = {}) {
-  Args ClangArgs = {/*"-xc++"*/"-v"}; // ? {"-Xclang", "-emit-llvm-only", "-Xclang", "-diagnostic-log-file", "-Xclang", "-", "-xc++"};
-  std::string resource_dir = Cpp::DetectResourceDir();
-  ClangArgs.push_back("-resource-dir");
-  ClangArgs.push_back(resource_dir.c_str());
-  std::vector<std::string> CxxSystemIncludes;
-  Cpp::DetectSystemCompilerIncludePaths(CxxSystemIncludes);
-  for (const std::string& CxxInclude : CxxSystemIncludes) {
-    ClangArgs.push_back("-isystem");
-    ClangArgs.push_back(CxxInclude.c_str());
-  }
-  ClangArgs.push_back("-I/home/apenev/.conda/envs/xeus-cpp/include/");
-  ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
-  // FIXME: We should process the kernel input options and conditionally pass
-  // the gpu args here.
-  return Cpp::CreateInterpreter(ClangArgs/*, {"-cuda"}*/);
-}
-*/
-
 using namespace std::placeholders;
 
 namespace xcpp
