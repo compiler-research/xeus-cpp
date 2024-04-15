@@ -18,7 +18,7 @@ class XCppTests(jupyter_kernel_test.KernelTests):
     language_name = 'C++'
 
     # Code that should write the exact string `hello, world` to STDOUT
-    code_hello_world = '#include <iostream>\n#include <stdio.h>\nstd::cout << "hello, world" << std::endl;\nprintf("Hello from printf%s", "!");'
+    code_hello_world = '#include <iostream>\nstd::cout << "hello, world" << std::endl;'
 
     # Code that should cause (any) text to be written to STDERR
     code_stderr = '#include <iostream>\nstd::cerr << "oops" << std::endl;'
@@ -71,6 +71,18 @@ xcpp::display(marie);""",
             'mime': 'image/png'
         }
     ]
+
+
+class XCppTests2(jupyter_kernel_test.KernelTests):
+
+    kernel_name = 'xcpp'
+
+    # language_info.name in a kernel_info_reply should match this
+    language_name = 'C++'
+
+    # Code that should write the exact string `hello, world` to STDOUT
+    code_hello_world = '#include <stdio.h>\nprintf("hello, world");'
+
 
 if __name__ == '__main__':
     unittest.main()
