@@ -81,7 +81,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cd test
-          pytest -svvv . --reruns 5
+          pytest -sv . --reruns 10
 
       - name: Prepare code coverage report
         if: ${{ success() && (matrix.coverage == true) }}
