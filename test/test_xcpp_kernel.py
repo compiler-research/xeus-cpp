@@ -18,7 +18,8 @@ class XCppTests(jupyter_kernel_test.KernelTests):
     language_name = 'C++'
 
     # Code that should write the exact string `hello, world` to STDOUT
-    code_hello_world = '#include <iostream>\nstd::cout << "hello, world" << std::endl;'
+    #code_hello_world = '#include <iostream>\nstd::cout << "hello, world" << std::endl;'
+    code_hello_world = '#include <stdio.h>\nprintf("hello, world");'
 
     # Code that should cause (any) text to be written to STDERR
     code_stderr = '#include <iostream>\nstd::cerr << "oops" << std::endl;'
