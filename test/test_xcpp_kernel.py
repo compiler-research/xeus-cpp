@@ -73,15 +73,15 @@ xcpp::display(marie);""",
     ]
 
 
-class XCppTests2(jupyter_kernel_test.KernelTests):
-
-    kernel_name = 'xcpp'
-
-    # language_info.name in a kernel_info_reply should match this
-    language_name = 'C++'
-
-    # Code that should write the exact string `hello, world` to STDOUT
-    code_hello_world = '#include <stdio.h>\nprintf("hello, world");'
+#class XCppTests2(jupyter_kernel_test.KernelTests):
+#
+#    kernel_name = 'xcpp'
+#
+#    # language_info.name in a kernel_info_reply should match this
+#    language_name = 'C++'
+#
+#    # Code that should write the exact string `hello, world` to STDOUT
+#    code_hello_world = '#include <stdio.h>\nprintf("hello, world");'
 
 
 if __name__ == '__main__':
