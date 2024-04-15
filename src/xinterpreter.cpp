@@ -172,20 +172,20 @@ __get_cxx_version ()
         catch (std::exception& e)
         {
             errorlevel = 1;
-            ename = "Standard Exception :";
+            ename = "Standard Exception: ";
             evalue = e.what();
         }
         catch (...)
         {
             errorlevel = 1;
-            ename = "Error :";
+            ename = "Error: ";
         }
 
         if (compilation_result)
         {
             errorlevel = 1;
-            ename = "Error :";
-            evalue = "Compilation error!";
+            ename = "Error: ";
+            evalue = "Compilation error! " + err;
             std::cerr << err;
         }
 
