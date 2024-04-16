@@ -167,9 +167,6 @@ __get_cxx_version ()
             std::cerr.rdbuf(&null);
         }
 
-        // Scope guard performing the temporary redirection of input requests.
-        //auto input_guard = input_redirection(allow_stdin);
-
         std::string err;
 
         // Attempt normal evaluation
