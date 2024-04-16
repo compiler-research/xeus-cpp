@@ -60,7 +60,7 @@ using namespace std::placeholders;
 namespace xcpp
 {
     struct StreamRedirectRAII {
-      std::string *err = NULL;
+      std::string *err = nullptr;
       StreamRedirectRAII(std::string *e) {
         err = e;
         Cpp::BeginStdStreamCapture(Cpp::kStdErr);
