@@ -10,6 +10,7 @@ import unittest
 import jupyter_kernel_test
 import platform
 
+
 class XCppTests(jupyter_kernel_test.KernelTests):
 
     kernel_name = 'xcpp'
