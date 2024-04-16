@@ -113,6 +113,7 @@ endif()
 
 find_package(CppInterOp REQUIRED)
 if(CppInterOp_FOUND)
+  set(CPPINTEROP_LLVM_VERSION_MAJOR "17")
   message(STATUS "Found CppInterOp: config=${CPPINTEROP_CONFIG} dir=${CPPINTEROP_DIR} (found version=${CPPINTEROP_VERSION} compatible with Clang ${CPPINTEROP_LLVM_VERSION_MAJOR}.x)")
 endif()
 
@@ -126,13 +127,13 @@ if (NOT DEFINED XEUS_CPP_KERNELSPEC_PATH)
     set(XEUS_CPP_KERNELSPEC_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/")
 endif ()
 
-message("!!!$"${CppInterOp_CLANG_VERSION})
+message("!!!$"${CPPINTEROP_LLVM_VERSION_MAJOR})
 
 function(configure_kernel kernel)
-message("!!!!!!$"${CppInterOp_CLANG_VERSION})
+message("!!!!!!$"${CPPINTEROP_LLVM_VERSION_MAJOR})
   set(XEUS_CPP_PATH "$ENV{PATH}")
   set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
-  set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CppInterOp_CLANG_VERSION})
+  set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR})
 
   configure_file (
     "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/kernel.json.in"
