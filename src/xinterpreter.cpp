@@ -171,7 +171,7 @@ __get_cxx_version ()
         // Attempt normal evaluation
         try
         {
-            StreamRedirectRAII R(&err);
+            StreamRedirectRAII R(err);
             compilation_result = Cpp::Process(code.c_str());
         }
         catch (std::exception& e)
