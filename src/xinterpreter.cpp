@@ -60,14 +60,14 @@ using namespace std::placeholders;
 namespace xcpp
 {
     struct StreamRedirectRAII {
-      std::string *err = nullptr;
+      std::string &err;
       StreamRedirectRAII(std::string &e) : err(e) {
         Cpp::BeginStdStreamCapture(Cpp::kStdErr);
         Cpp::BeginStdStreamCapture(Cpp::kStdOut);
       }
       ~StreamRedirectRAII() {
         std::string out = Cpp::EndStdStreamCapture();
-        *err = Cpp::EndStdStreamCapture();
+        err = Cpp::EndStdStreamCapture();
         std::cout << out;
       }
     };
