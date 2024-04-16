@@ -10,7 +10,7 @@ import unittest
 import jupyter_kernel_test
 
 
-class XCppTests(jkt.KernelTests):
+class XCppTests(jupyter_kernel_test.KernelTests):
 
     kernel_name = 'xcpp'
 
@@ -73,7 +73,7 @@ xcpp::display(marie);""",
     ]
 
 
-class XCppTests2(jkt.KernelTests):
+class XCppTests2(jupyter_kernel_test.KernelTests):
 
     kernel_name = 'xcpp'
 
