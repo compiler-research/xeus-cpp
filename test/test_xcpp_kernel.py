@@ -30,7 +30,8 @@ class XCppTests(jupyter_kernel_test.KernelTests):
     # Exception throwing
     # TODO: Remove 'if' when test work on MacOS/arm64. Throw Exceptions make
     # kernel/test non-workable.
-    code_generate_error = 'throw std::runtime_error("Unknown exception");' if platform.system() != "Darwin" or platform.processor() != 'arm' else ''
+    ###code_generate_error = 'throw std::runtime_error("Unknown exception");' if platform.system() != "Darwin" or platform.processor() != 'arm' else ''
+    code_generate_error = 'throw std::runtime_error("Unknown exception");'
 
     # Samples of code which generate a result value (ie, some text
     # displayed as Out[n])
