@@ -61,8 +61,7 @@ namespace xcpp
 {
     struct StreamRedirectRAII {
       std::string *err = nullptr;
-      StreamRedirectRAII(std::string *e) {
-        err = e;
+      StreamRedirectRAII(std::string &e) : err(e) {
         Cpp::BeginStdStreamCapture(Cpp::kStdErr);
         Cpp::BeginStdStreamCapture(Cpp::kStdOut);
       }
