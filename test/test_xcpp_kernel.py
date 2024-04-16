@@ -7,19 +7,26 @@
 #############################################################################
 
 import unittest
-import jupyter_kernel_test
+import jupyter_kernel_test as jkt
+from jupyter_client.kernelspec import NoSuchKernel
 
 
-class XCppTests(jupyter_kernel_test.KernelTests):
+class XCppTests(jkt.KernelTests):
 
     kernel_name = 'xcpp'
+
+    @classmethod
+    def setUpClass(cls):
+        try:
+            cls.km, cls.kc = jkt.start_new_kernel(kernel_name=cls.kernel_name)
+        except NoSuchKernel:
+            raise unittest.SkipTest("Xeus-cpp Kernel not installed") from None
 
     # language_info.name in a kernel_info_reply should match this
     language_name = 'C++'
 
     # Code that should write the exact string `hello, world` to STDOUT
-    #code_hello_world = '#include <iostream>\nstd::cout << "hello, world" << std::endl;'
-    code_hello_world = '#include <stdio.h>\nprintf("hello, world");'
+    code_hello_world = '#include <iostream>\nstd::cout << "hello, world" << std::endl;'
 
     # Code that should cause (any) text to be written to STDERR
     code_stderr = '#include <iostream>\nstd::cerr << "oops" << std::endl;'
@@ -74,9 +81,16 @@ xcpp::display(marie);""",
     ]
 
 
-class XCppTests2(jupyter_kernel_test.KernelTests):
+class XCppTests2(jkt.KernelTests):
 
-    kernel_name = 'xcpp'
+    kernel_name = 'xcpp17'
+
+    @classmethod
+    def setUpClass(cls):
+        try:
+            cls.km, cls.kc = jkt.start_new_kernel(kernel_name=cls.kernel_name)
+        except NoSuchKernel:
+            raise unittest.SkipTest("Xeus-cpp Kernel not installed") from None
 
     # language_info.name in a kernel_info_reply should match this
     language_name = 'C++'
