@@ -7,20 +7,12 @@
 #############################################################################
 
 import unittest
-import jupyter_kernel_test as jkt
-from jupyter_client.kernelspec import NoSuchKernel
+import jupyter_kernel_test
 
 
 class XCppTests(jkt.KernelTests):
 
     kernel_name = 'xcpp'
-
-    @classmethod
-    def setUpClass(cls):
-        try:
-            cls.km, cls.kc = jkt.start_new_kernel(kernel_name=cls.kernel_name)
-        except NoSuchKernel:
-            raise unittest.SkipTest("Xeus-cpp Kernel not installed") from None
 
     # language_info.name in a kernel_info_reply should match this
     language_name = 'C++'
@@ -83,14 +75,7 @@ xcpp::display(marie);""",
 
 class XCppTests2(jkt.KernelTests):
 
-    kernel_name = 'xcpp17'
-
-    @classmethod
-    def setUpClass(cls):
-        try:
-            cls.km, cls.kc = jkt.start_new_kernel(kernel_name=cls.kernel_name)
-        except NoSuchKernel:
-            raise unittest.SkipTest("Xeus-cpp Kernel not installed") from None
+    kernel_name = 'xcpp'
 
     # language_info.name in a kernel_info_reply should match this
     language_name = 'C++'
