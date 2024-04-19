@@ -59,6 +59,19 @@ using namespace std::placeholders;
 
 namespace xcpp
 {
+    struct StreamRedirectRAII {
+      std::string &err;
+      StreamRedirectRAII(std::string &e) : err(e) {
+        Cpp::BeginStdStreamCapture(Cpp::kStdErr);
+        Cpp::BeginStdStreamCapture(Cpp::kStdOut);
+      }
+      ~StreamRedirectRAII() {
+        std::string out = Cpp::EndStdStreamCapture();
+        err = Cpp::EndStdStreamCapture();
+        std::cout << out;
+      }
+    };
+
     void interpreter::configure_impl()
     {
         xeus::register_interpreter(this);
@@ -153,28 +166,32 @@ __get_cxx_version ()
             std::cerr.rdbuf(&null);
         }
 
+        std::string err;
+
         // Attempt normal evaluation
         try
         {
+            StreamRedirectRAII R(err);
             compilation_result = Cpp::Process(code.c_str());
         }
         catch (std::exception& e)
         {
             errorlevel = 1;
-            ename = "Standard Exception :";
+            ename = "Standard Exception: ";
             evalue = e.what();
         }
         catch (...)
         {
             errorlevel = 1;
-            ename = "Error :";
+            ename = "Error: ";
         }
 
         if (compilation_result)
         {
             errorlevel = 1;
-            ename = "Error :";
-            evalue = "Compilation error!";
+            ename = "Error: ";
+            evalue = "Compilation error! " + err;
+            std::cerr << err;
         }
 
         // Flush streams

@@ -129,7 +129,7 @@ endif ()
 function(configure_kernel kernel)
   set(XEUS_CPP_PATH "$ENV{PATH}")
   set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
-  set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CppInterOp_CLANG_VERSION})
+  set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR})
 
   configure_file (
     "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/kernel.json.in"
