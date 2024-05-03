@@ -13,10 +13,14 @@
 #include "xeus-cpp/xeus_cpp_config.hpp"
 
 #include <string>
+#include <vector>
 
 namespace xcpp
-{   
+{
     XEUS_CPP_API
     std::string trim(const std::string& str);
+
+    XEUS_CPP_API std::vector<std::string>
+    split_line(const std::string& input, const std::string& delims, std::size_t cursor_pos);
 }
 #endif

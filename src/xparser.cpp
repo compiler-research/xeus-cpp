@@ -10,7 +10,9 @@
 #include "xparser.hpp"
 
 #include <cstddef>
+#include <regex>
 #include <string>
+#include <vector>
 
 namespace xcpp
 {
@@ -25,5 +27,30 @@ namespace xcpp
         std::size_t first = firstScan == std::string::npos ? str.length() : firstScan;
         std::size_t last = str.find_last_not_of(' ');
         return str.substr(first, last - first + 1);
+    }
+
+    std::vector<std::string>
+    split_line(const std::string& input, const std::string& delims, std::size_t cursor_pos)
+    {
+        // passing -1 as the submatch index parameter performs splitting
+        std::vector<std::string> result;
+        std::stringstream ss;
+
+        ss << "[";
+        for (auto c : delims)
+        {
+            ss << "\\" << c;
+        }
+        ss << "]";
+
+        std::regex re(ss.str());
+
+        std::copy(
+            std::sregex_token_iterator(input.begin(), input.begin() + cursor_pos + 1, re, -1),
+            std::sregex_token_iterator(),
+            std::back_inserter(result)
+        );
+
+        return result;
     }
 }

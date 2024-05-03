@@ -248,12 +248,21 @@ __get_cxx_version ()
         return kernel_res;
     }
 
-    nl::json interpreter::complete_request_impl(const std::string& /*code*/, int cursor_pos)
+    nl::json interpreter::complete_request_impl(const std::string& code, int cursor_pos)
     {
-        return xeus::create_complete_reply(
-            nl::json::array(), /*matches*/
-            cursor_pos,        /*cursor_start*/
-            cursor_pos         /*cursor_end*/
+        std::vector<std::string> results;
+
+        // split the input to have only the word in the back of the cursor
+        std::string delims = " \t\n`!@#$^&*()=+[{]}\\|;:\'\",<>?.";
+        std::size_t _cursor_pos = cursor_pos;
+        auto text = split_line(code, delims, _cursor_pos);
+        std::string to_complete = text.back().c_str();
+
+        Cpp::CodeComplete(results, code.c_str(), 1, _cursor_pos + 1);
+
+        return xeus::create_complete_reply(results /*matches*/,
+            cursor_pos - to_complete.length() /*cursor_start*/,
+            cursor_pos /*cursor_end*/
         );
     }
 
