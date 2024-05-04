@@ -24,7 +24,7 @@ C++
    :align: center
 
 In this example, you can modify the code and execute the cell again to see the
-updated results. For example, you might change the values of `n``
+updated results. For example, you might change the values of `n`
 (function arguments) of the function `nthFibonacci` to see expected output. You can try
 out different examples to explore the features of C++.
 
