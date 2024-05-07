@@ -7,7 +7,6 @@
  * The full license is in the file LICENSE, distributed with this software.         *
  ************************************************************************************/
 
-
 #ifndef XEUS_CPP_INTERPRETER_WASM_HPP
 #define XEUS_CPP_INTERPRETER_WASM_HPP
 
