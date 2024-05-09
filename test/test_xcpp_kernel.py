@@ -11,6 +11,33 @@ import jupyter_kernel_test
 import platform
 
 
+class XCppCompleteTests(jupyter_kernel_test.KernelTests):
+
+    kernel_name = 'xcpp'
+
+    # language_info.name in a kernel_info_reply should match this
+    language_name = 'C++'
+
+    # Code complete
+    code_complete_presample_code = 'int foo = 12;'
+    code_complete_sample = 'f'
+
+    def test_codecomplete(self) -> None:
+        if not self.code_complete_sample:
+            raise SkipTest("No code complete sample")
+        if self.code_complete_presample_code:
+            self.flush_channels()
+            reply, output_msgs = self.execute_helper(code=self.code_complete_presample_code)
+            self.assertEqual(reply["content"]["status"], "ok")
+        self.flush_channels()
+        msg_id = self.kc.complete(self.code_complete_sample, len(self.code_complete_sample))
+        reply = self.get_non_kernel_info_reply(timeout=1)
+        assert reply is not None
+        self.assertEqual(reply["msg_type"], "complete_reply")
+        self.assertEqual(str(reply["content"]["matches"]), "['float', 'foo']")
+        self.assertEqual(reply["content"]["status"], "ok")
+
+
 class XCppTests(jupyter_kernel_test.KernelTests):
 
     kernel_name = 'xcpp'
