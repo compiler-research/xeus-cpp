@@ -14,14 +14,20 @@ concurrency:
 jobs:
   review:
     runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@v4
 
-      - name: Install LLVM and Clang
-        uses: KyleMayes/install-llvm-action@v2
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          version: "18.1.3"
+          python-version: "3.11"
+            
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v2.0.2
+        with:
+          version: "16.0.0"
 
       - name: Run clang-tidy
         uses: ZedThree/clang-tidy-review@v0.18.0
@@ -32,15 +38,19 @@ jobs:
           exclude: "test/*,unittests/*,benchmark/*,demos/*"
           split_workflow: true
           cmake_command: >
-            set -x &&
-            mkdir micromamba && cd micromamba && curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba &&
-            export MAMBA_ROOT_PREFIX=/github/workspace/micromamba &&
-            eval "$(./bin/micromamba shell hook -s posix)" &&
-            micromamba create -n xeus-cpp -y --log-level warning -f /github/workspace/environment-dev.yml &&
-            micromamba activate xeus-cpp &&
-            cd .. &&
-            git config --global --add safe.directory /github/workspace &&
+            cmake . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=On || true && 
+            rm -rf build && 
+            set -x && 
+            mkdir micromamba && 
+            cd micromamba && 
+            curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba && 
+            export MAMBA_ROOT_PREFIX=$GITHUB_WORKSPACE/micromamba && 
+            eval "$(./bin/micromamba shell hook -s posix)" && 
+            micromamba create -n xeus-cpp -y --log-level warning -f $GITHUB_WORKSPACE/environment-dev.yml && 
+            micromamba activate xeus-cpp && 
+            cd .. && 
+            git config --global --add safe.directory /github/workspace && 
             cmake . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=On
-
+            
       - name: Upload artifacts
         uses: ZedThree/clang-tidy-review/upload@v0.18.0
