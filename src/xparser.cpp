@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <regex>
+#include <sstream>
 #include <string>
 #include <vector>
 
