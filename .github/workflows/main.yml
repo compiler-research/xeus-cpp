@@ -22,11 +22,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: ubu22
-            os: ubuntu-22.04
+          - name: ubu24
+            os: ubuntu-24.04
             micromamba_shell_init: bash
-          - name: ubu22-analyzers
-            os: ubuntu-22.04
+          - name: ubu24-analyzers
+            os: ubuntu-24.04
             coverage: true
             extra_cmake_flags: -DCMAKE_BUILD_TYPE=Debug
             micromamba_shell_init: bash
@@ -165,7 +165,7 @@ jobs:
 
   emscripten_wasm:
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: false
