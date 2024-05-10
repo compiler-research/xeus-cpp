@@ -5,12 +5,16 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/compiler-research/xeus-cpp/main?urlpath=/lab/tree/notebooks/xeus-cpp.ipynb)
 [![codecov]( https://codecov.io/gh/compiler-research/xeus-cpp/branch/main/graph/badge.svg)](https://codecov.io/gh/compiler-research/xeus-cpp)
 
+[![Conda-Forge](https://img.shields.io/conda/vn/conda-forge/xeus-cpp)](https://github.com/conda-forge/xeus-cpp-feedstock)
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/xeus-cpp/badges/license.svg)](https://github.com/conda-forge/xeus-cpp-feedstock)
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/xeus-cpp/badges/platforms.svg)](https://github.com/conda-forge/xeus-cpp-feedstock)
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/xeus-cpp/badges/downloads.svg)](https://github.com/conda-forge/xeus-cpp-feedstock)
+
+
 `xeus-cpp` is a Jupyter kernel for cpp based on the native implementation of the
 Jupyter protocol [xeus](https://github.com/jupyter-xeus/xeus).
 
 ## Installation within a mamba envirnoment
-
-xeus-cpp has not been packaged for the mamba (or conda) package manager.
 
 To ensure that the installation works, it is preferable to install `xeus-cpp` in a
 fresh environment. It is also needed to use a
