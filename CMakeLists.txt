@@ -154,6 +154,7 @@ configure_kernel("share/jupyter/kernels/xcpp")
 configure_kernel("share/jupyter/kernels/xcpp11")
 configure_kernel("share/jupyter/kernels/xcpp14")
 configure_kernel("share/jupyter/kernels/xcpp17")
+configure_kernel("share/jupyter/kernels/xcpp20")
 
 # Source files
 # ============
