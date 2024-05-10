@@ -53,6 +53,21 @@ jobs:
             ${{ matrix.micromamba_shell_init }}
           environment-name: xeus-cpp
 
+      - name: Setup default Build Type on *nux
+        if: ${{ runner.os != 'windows' }}
+        run: |
+          os="${{ matrix.os }}"
+          if [[ "${os}" == "macos"* ]]; then
+            echo "ncpus=$(sysctl -n hw.ncpu)" >> $GITHUB_ENV
+          else
+            echo "ncpus=$(nproc --all)" >> $GITHUB_ENV
+          fi
+      - name: Setup default Build Type on Windows
+        if: ${{ runner.os == 'windows' }}
+        run: |
+          $env:ncpus=$([Environment]::ProcessorCount) 
+          echo "ncpus=$env:ncpus" >> $env:GITHUB_ENV
+
       - name: micromamba shell hook
         if: ${{ runner.os == 'windows' }}
         shell: powershell
@@ -84,7 +99,7 @@ jobs:
            -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
            -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
            -DXEUS_CPP_ENABLE_CODE_COVERAGE=${{ matrix.coverage }} \
-           ${{ matrix.extra_cmake_flags }}
+           ${{ matrix.extra_cmake_flags }} 
 
       - name: build & install
         if: ${{ runner.os == 'windows' }}
@@ -100,7 +115,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cd build
-          make install -j 8
+          make install -j ${{ env.ncpus }}
 
       - name: Test xeus-cpp C++
         if: ${{ runner.os != 'windows' }}
@@ -169,6 +184,22 @@ jobs:
           init-shell: >-
             ${{ matrix.micromamba_shell_init }}
           environment-name: xeus-cpp-wasm-build
+      
+      - name: Setup default Build Type on *nux
+        if: ${{ runner.os != 'windows' }}
+        run: |
+          os="${{ matrix.os }}"
+          if [[ "${os}" == "macos"* ]]; then
+            echo "ncpus=$(sysctl -n hw.ncpu)" >> $GITHUB_ENV
+          else
+            echo "ncpus=$(nproc --all)" >> $GITHUB_ENV
+          fi
+          
+      - name: Setup default Build Type on Windows
+        if: ${{ runner.os == 'windows' }}
+        run: |
+          $env:ncpus=$([Environment]::ProcessorCount) 
+          echo "ncpus=$env:ncpus" >> $env:GITHUB_ENV
 
       - name: Setup emsdk
         shell: bash -l {0}
@@ -197,7 +228,7 @@ jobs:
             -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
             -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ON            \
             ..
-          EMCC_CFLAGS='-sERROR_ON_UNDEFINED_SYMBOLS=0' emmake make -j5
+          EMCC_CFLAGS='-sERROR_ON_UNDEFINED_SYMBOLS=0' emmake make -j  ${{ env.ncpus }}
 
       - name: Setup tmate session
         if: ${{ failure() && runner.debug }}
