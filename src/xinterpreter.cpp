@@ -279,9 +279,18 @@ __get_cxx_version ()
         return kernel_res;
     }
 
-    nl::json interpreter::is_complete_request_impl(const std::string& /*code*/)
+    nl::json interpreter::is_complete_request_impl(const std::string& code)
     {
-        return xeus::create_is_complete_reply("complete", "   ");
+        if (!code.empty() && code[code.size() - 1] == '\\') {
+            auto found = code.rfind('\n');
+            if (found == std::string::npos)
+                found = -1;
+            auto found1 = found++;
+            while (isspace(code[++found1])) ;
+            return xeus::create_is_complete_reply("incomplete", code.substr(found, found1-found));
+        }
+
+        return xeus::create_is_complete_reply("complete");
     }
 
     nl::json interpreter::kernel_info_request_impl()

@@ -37,6 +37,32 @@ class XCppCompleteTests(jupyter_kernel_test.KernelTests):
         self.assertEqual(str(reply["content"]["matches"]), "['float', 'foo']")
         self.assertEqual(reply["content"]["status"], "ok")
 
+    # Continuation
+    code_continuation_incomplete = '  int foo = 12; \\\n  float bar = 1.5f;\\'
+    code_continuation_complete =   '  int foo = 12; \\\n  float bar = 1.5f;'
+
+    def test_continuation(self) -> None:
+        if not self.code_continuation_incomplete or not self.code_continuation_complete:
+            raise SkipTest("No code continuation sample")
+
+        # Incomplete
+        self.flush_channels()
+        msg_id = self.kc.is_complete(self.code_continuation_incomplete)
+        reply = self.get_non_kernel_info_reply(timeout=1)
+        assert reply is not None
+        self.assertEqual(reply["msg_type"], "is_complete_reply")
+        self.assertEqual(str(reply["content"]["indent"]), "  ")
+        self.assertEqual(reply["content"]["status"], "incomplete")
+
+        # Complete
+        self.flush_channels()
+        msg_id = self.kc.is_complete(self.code_continuation_complete)
+        reply = self.get_non_kernel_info_reply(timeout=1)
+        assert reply is not None
+        self.assertEqual(reply["msg_type"], "is_complete_reply")
+        self.assertEqual(str(reply["content"]["indent"]), "")
+        self.assertEqual(reply["content"]["status"], "complete")
+
 
 class XCppTests(jupyter_kernel_test.KernelTests):
 
