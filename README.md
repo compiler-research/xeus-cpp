@@ -7,7 +7,7 @@
 
 [![Conda-Forge](https://img.shields.io/conda/vn/conda-forge/xeus-cpp)](https://github.com/conda-forge/xeus-cpp-feedstock)
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/xeus-cpp/badges/license.svg)](https://github.com/conda-forge/xeus-cpp-feedstock)
-[![Anaconda-Server Badge](https://anaconda.org/conda-forge/xeus-cpp/badges/platforms.svg)](https://github.com/conda-forge/xeus-cpp-feedstock)
+[![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/xeus-cpp.svg)](https://anaconda.org/conda-forge/xeus-cpp)
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/xeus-cpp/badges/downloads.svg)](https://github.com/conda-forge/xeus-cpp-feedstock)
 
 
