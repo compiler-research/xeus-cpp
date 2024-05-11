@@ -79,13 +79,13 @@ endif()
 # ============
 
 set(xtl_REQUIRED_VERSION 0.7.0)
-set(xeus_REQUIRED_VERSION 3.0...<4.0)
+set(xeus_REQUIRED_VERSION 3.2.0)
 
 if (NOT TARGET xtl)
     find_package(xtl ${xtl_REQUIRED_VERSION} REQUIRED)
 endif ()
 if (NOT TARGET xeus AND NOT TARGET xeus-static)
-    find_package(xeus ${xeus_REQUIRED_VERSION} REQUIRED)
+    find_package(xeus REQUIRED)
 endif ()
 
 # Flags
