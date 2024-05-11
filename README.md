@@ -28,7 +28,7 @@ First clone the repository, and move into that directory
 git clone --depth=1 https://github.com/compiler-research/xeus-cpp.git
 cd ./xeus-cpp
 ```
-The safest usage of xeus-cpp is to build and install it within a clean environment named `xeus-cpp`. You can create and activate this environment 
+The safest usage of xeus-cpp from source is to build and install it within a clean environment named `xeus-cpp`. You can create and activate this environment 
 with mamba by executing the following
 ```bash
 mamba create -n  "xeus-cpp"
