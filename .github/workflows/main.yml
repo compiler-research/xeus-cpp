@@ -99,6 +99,7 @@ jobs:
            -DCMAKE_PREFIX_PATH=$CONDA_PREFIX \
            -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
            -DXEUS_CPP_ENABLE_CODE_COVERAGE=${{ matrix.coverage }} \
+          -DCMAKE_COMPILE_WARNING_AS_ERROR=ON            \
            ${{ matrix.extra_cmake_flags }} 
 
       - name: build & install

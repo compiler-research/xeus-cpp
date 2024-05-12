@@ -101,8 +101,8 @@ int __get_cxx_version () {
 __get_cxx_version ()
       )";
 
-      long cxx_version = Cpp::Evaluate(code);
-      return std::to_string(cxx_version);
+        auto cxx_version = Cpp::Evaluate(code);
+        return std::to_string(cxx_version);
     }
 
 
@@ -137,6 +137,9 @@ __get_cxx_version ()
     )
     {
         nl::json kernel_res;
+
+
+        auto input_guard = input_redirection(allow_stdin);
 
         // Check for magics
         for (auto& pre : preamble_manager.preamble)
