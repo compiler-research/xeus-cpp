@@ -38,9 +38,6 @@
 # Python
 __pycache__/
 
-# Generated kernelspec
-share/jupyter/kernels/xcpp/kernel.json
-
 # Build directory
 build/
 
