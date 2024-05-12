@@ -17,36 +17,42 @@ minutes of past meetings can be found on our
 
 ## Setting up a development environment
 
-First, you need to fork the project. Then setup your environment:
+First, you need to fork the project. After you have done this clone your forked repo. You can do this by 
+executing the folowing
 
 ```bash
-# create a new conda environment
-conda env create -f environment-dev.yml
-conda activate xeus-cpp
-
-# download xeus-cpp from your GitHub fork
 git clone https://github.com/<your-github-username>/xeus-cpp.git
 ```
 
-You may also want to install a C++ compiler, and cmake from conda if they are not
-available on your system.
-
-## Building and installing xeus-cpp
+To ensure that the installation works, it is preferable to install xeus-cpp in a fresh environment. It is
+also needed to use a miniforge or miniconda installation because with the full anaconda you may have a 
+conflict with the zeromq library which is already installed in the anaconda distribution. Once you have miniforge 
+or miniconda installed cd into the xeus-cpp directory and set setup your environment:
 
 ```bash
-# Create a directory for building
-mkdir build && cd build
-# Generate the makefile with cmake
-cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_PREFIX_PATH=$CONDA_PREFIX -D CMAKE_INSTALL_PREFIX=$CONDA_PREFIX -D CMAKE_INSTALL_LIBDIR=lib ..
-# Build and install
-make install -j2
+cd xeus-cpp
+micromamba create -n xeus-cpp environment-dev.yml
+micromamba activate xeus-cpp
 ```
 
-## Running the tests
-
-To run Python tests, from the build directory, type
+You are now in a position to install xeus-cpp into this envirnoment. You can do this by executing
 
 ```bash
-cd ../test
-pytest . -vvv
+mkdir build && cd build
+cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_PREFIX_PATH=$CONDA_PREFIX -D CMAKE_INSTALL_PREFIX=$CONDA_PREFIX -D CMAKE_INSTALL_LIBDIR=lib ..
+make install
+```
+
+To check that everything is installed correctly you can run the c++ tests by executing the following
+
+```bash
+cd ./test
+./test_xeus_cpp
+```
+
+and the python tests by executing
+
+```bash
+cd ./test
+pytest -sv .
 ```
