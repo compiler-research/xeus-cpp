@@ -137,8 +137,15 @@ class XCppTests2(jupyter_kernel_test.KernelTests):
     language_name = 'C++'
 
     # Code that should write the exact string `hello, world` to STDOUT
-    code_hello_world = '#include <stdio.h>\nprintf("hello, world");'
 
+
+    #ifdef _WIN32
+      code_hello_world = '#include <stdio.h>\r\nprintf("hello, world");'
+    #endif
+    
+    #ifndef _WIN32
+      code_hello_world = '#include <stdio.h>\nprintf("hello, world");'
+    #endif
 
 if __name__ == '__main__':
     unittest.main()
