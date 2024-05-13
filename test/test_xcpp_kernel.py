@@ -150,10 +150,10 @@ class XCppTests4(jupyter_kernel_test.KernelTests):
         self.assertEqual(output_msgs[0]['content']['text'], 'oops')
 
     def test_xcpp_stdcout(self):
-        reply, output_msgs = self.execute_helper(code='#include <iostream>\r\nstd::cout << "hello, world" << std::endl;')
+        reply, output_msgs = self.execute_helper(code='#include <iostream>\nstd::cout << "hello, world" << std::endl;')
         self.assertEqual(output_msgs[0]['msg_type'], 'stream')
         self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
-        self.assertEqual(output_msgs[0]['content']['text'], 'hello, world')
+        self.assertEqual(output_msgs[0]['content']['text'], 'hello, world\n')
 
 class XCppTests2(jupyter_kernel_test.KernelTests):
 
