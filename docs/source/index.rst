@@ -35,6 +35,7 @@ The Xeus-Cpp is a Jupyter kernel for the C++ programming language
    UsingXeus-Cpp
    tutorials
    dev-build-options
+   debug
    FAQ
    reference
    

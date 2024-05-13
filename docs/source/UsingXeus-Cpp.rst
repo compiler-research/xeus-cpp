@@ -9,7 +9,3 @@ Using xeus-cpp
   xeus-cpp. Thereby you can write and execute C++ code interactively in
   this environment.
 
-- Jupyter notebooks support magic commands (**%%python**) and inline code
-  execution for different languages. We use these features to run Python and C++
-  code in separate cells to achieve interactive communication between them.
-
