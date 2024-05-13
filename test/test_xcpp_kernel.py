@@ -132,6 +132,27 @@ xcpp::display(marie);""",
     ]
 
 
+class XCppTests4(jupyter_kernel_test.KernelTests):
+
+    kernel_name = 'xcpp'
+
+    # language_info.name in a kernel_info_reply should match this
+    language_name = 'C++'
+
+    # Code that should write the exact string `hello, world` to STDOUT
+    code_hello_world = '#include <iostream>\r\nstd::cout << "hello, world" << std::endl;'
+
+    # Code that should cause (any) text to be written to STDERR
+    code_stderr = '#include <iostream>\r\nstd::cerr << "oops" << std::endl;'
+
+    # Pager: code that should display something (anything) in the pager
+    code_page_something = "?std::vector"
+
+    # Exception throwing
+    # TODO: Remove 'if' when test work on MacOS/arm64. Throw Exceptions make
+    # kernel/test non-workable.
+    ###code_generate_error = 'throw std::runtime_error("Unknown exception");' if platform.system() != "Darwin" or platform.processor() != 'arm' else ''
+
 class XCppTests2(jupyter_kernel_test.KernelTests):
 
     kernel_name = 'xcpp'
