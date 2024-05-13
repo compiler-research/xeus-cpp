@@ -74,12 +74,6 @@ class XCppTests(jupyter_kernel_test.KernelTests):
     # language_info.name in a kernel_info_reply should match this
     language_name = 'C++'
 
-    # Code that should write the exact string `hello, world` to STDOUT
-    code_hello_world = '#include <iostream>\r\nstd::cout << "hello, world" << std::endl;'
-
-    # Code that should cause (any) text to be written to STDERR
-    code_stderr = '#include <iostream>\r\nstd::cerr << "oops" << std::endl;'
-
     # Pager: code that should display something (anything) in the pager
     code_page_something = "?std::vector"
 
@@ -138,9 +132,6 @@ class XCppTests4(jupyter_kernel_test.KernelTests):
 
     # language_info.name in a kernel_info_reply should match this
     language_name = 'C++'
-
-    # Code that should write the exact string `hello, world` to STDOUT
-    code_hello_world = '#include <iostream>\n std::cout << "hello, world" ;'
     
     # Code that should cause (any) text to be written to STDERR
     def test_xcpp_stderr(self):
@@ -149,6 +140,14 @@ class XCppTests4(jupyter_kernel_test.KernelTests):
         self.assertEqual(output_error_msgs[0]['content']['name'], 'stderr')
         self.assertEqual(output_error_msgs[0]['content']['text'], 'oops')
 
+
+class XCppTests3(jupyter_kernel_test.KernelTests):
+
+    kernel_name = 'xcpp20'
+
+    # language_info.name in a kernel_info_reply should match this
+    language_name = 'C++'
+    
     def test_xcpp_stdcout(self):
         reply_cout, output_msgs = self.execute_helper(code='#include <iostream>\nstd::cout << "hello, world" << std::endl;')
         self.assertEqual(output_msgs[0]['msg_type'], 'stream')
