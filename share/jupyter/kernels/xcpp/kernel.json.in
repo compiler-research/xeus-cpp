@@ -9,7 +9,7 @@
       "-f",
       "{connection_file}",
       "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
-      "-I", "@CMAKE_INSTALL_PREFIX@/include",
+      "-I", "@XEUS_CPP_INCLUDE_DIR@",
       "-std=c++20"@XEUS_CPP_OMP@
   ],
   "language": "cpp",
