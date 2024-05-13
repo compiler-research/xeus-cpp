@@ -117,7 +117,7 @@ jobs:
           cd build
           make install -j ${{ env.ncpus }}
 
-      - name: Test xeus-cpp C++
+      - name: Test xeus-cpp C++ Unix Systems
         if: ${{ runner.os != 'windows' }}
         shell: bash -l {0}
         run: |
@@ -125,12 +125,28 @@ jobs:
           ./test_xeus_cpp
         timeout-minutes: 4
 
-      - name: test
+      - name: Test xeus-cpp C++ Windows Systems
+        if: ${{ runner.os == 'windows' }}
+        shell: cmd /C call {0}
+        run: |
+          call C:\Users\runneradmin\micromamba-root\condabin\micromamba.bat activate xeus-cpp
+          cd build\test
+          .\test_xeus_cpp.exe
+
+      - name: Python tests Unix Systems
         if: ${{ runner.os != 'windows' }}
         shell: bash -l {0}
         run: |
           cd test
           pytest -sv .  --reruns 5
+  
+      - name: Python tests Windows Systems
+        if: ${{ runner.os == 'windows' }}
+        shell: cmd /C call {0}
+        run: |
+          call C:\Users\runneradmin\micromamba-root\condabin\micromamba.bat activate xeus-cpp
+          cd test
+          pytest -sv test_xcpp_kernel.py --reruns 5
 
       - name: Prepare code coverage report
         if: ${{ success() && (matrix.coverage == true) }}

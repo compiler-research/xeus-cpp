@@ -9,6 +9,7 @@
       "-f",
       "{connection_file}",
       "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
+      "-I", "@XEUS_CPP_INCLUDE_DIR@",
       "-std=c++11"@XEUS_CPP_OMP@
   ],
   "language": "cpp",
