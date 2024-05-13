@@ -143,10 +143,17 @@ class XCppTests4(jupyter_kernel_test.KernelTests):
     code_hello_world = '#include <iostream>\n std::cout << "hello, world" ;'
 
     # Code that should cause (any) text to be written to STDERR
-    code_stderr = '#include <iostream>\n std::cerr << "oops" ;'
+    def test_xcpp_stderr(self):
+        reply, output_msgs = self.execute_helper(code='#include <iostream>\nstd::cerr << "oops" << std::endl;')
+        self.assertEqual(output_msgs[0]['msg_type'], 'stream')
+        self.assertEqual(output_msgs[0]['content']['name'], 'stderr')
+        self.assertEqual(output_msgs[0]['content']['text'], 'oops')
 
-    # Pager: code that should display something (anything) in the pager
-    code_page_something = "?std::vector"
+    def test_xcpp_stdcout(self):
+        reply, output_msgs = self.execute_helper(code='#include <iostream>\r\nstd::cout << "hello, world" << std::endl;')
+        self.assertEqual(output_msgs[0]['msg_type'], 'stream')
+        self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
+        self.assertEqual(output_msgs[0]['content']['text'], 'hello, world')
 
 class XCppTests2(jupyter_kernel_test.KernelTests):
 
