@@ -16,7 +16,7 @@ class XCppCompleteTests(jupyter_kernel_test.KernelTests):
     kernel_name = 'xcpp'
 
     # language_info.name in a kernel_info_reply should match this
-    language_name = 'C++'
+    language_name = 'cpp'
 
     # Code complete
     code_complete_presample_code = 'int foo = 12;'
@@ -69,7 +69,7 @@ class XCppTests(jupyter_kernel_test.KernelTests):
     kernel_name = 'xcpp'
 
     # language_info.name in a kernel_info_reply should match this
-    language_name = 'C++'
+    language_name = 'cpp'
 
     # Code that should write the exact string `hello, world` to STDOUT
     code_hello_world = '#include <iostream>\r\nstd::cout << "hello, world" << std::endl;'
@@ -134,7 +134,7 @@ class XCppTests2(jupyter_kernel_test.KernelTests):
     kernel_name = 'xcpp'
 
     # language_info.name in a kernel_info_reply should match this
-    language_name = 'C++'
+    language_name = 'cpp'
 
     # Code that should write the exact string `hello, world` to STDOUT
     code_hello_world = '#include <stdio.h>\r\nprintf("hello, world");'
