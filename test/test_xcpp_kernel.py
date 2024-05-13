@@ -137,10 +137,10 @@ class XCppTests4(jupyter_kernel_test.KernelTests):
     
     # Code that should cause (any) text to be written to STDERR
     def test_xcpp_stderr(self):
-        reply, output_msgs = self.execute_helper(code='#include <iostream>\nstd::cerr << "oops\n";')
+        reply, output_msgs = self.execute_helper(code='#include <iostream>\nstd::cerr << "oops";')
         self.assertEqual(output_msgs[0]['msg_type'], 'stream')
         self.assertEqual(output_msgs[0]['content']['name'], 'stderr')
-        self.assertEqual(output_msgs[0]['content']['text'], 'oops\n')
+        self.assertEqual(output_msgs[0]['content']['text'], 'oops')
 
 
 class XCppTests3(jupyter_kernel_test.KernelTests):
@@ -153,10 +153,10 @@ class XCppTests3(jupyter_kernel_test.KernelTests):
     code_page_something = "?std::vector"
     
     def test_xcpp_stdcout(self):
-        reply, output_msgs = self.execute_helper(code='#include <iostream>\nstd::cout << "hello, world\n";')
+        reply, output_msgs = self.execute_helper(code='#include <iostream>\nstd::cout << "hello, world";')
         self.assertEqual(output_msgs[0]['msg_type'], 'stream')
         self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
-        self.assertEqual(output_msgs[0]['content']['text'], 'hello, world\n')
+        self.assertEqual(output_msgs[0]['content']['text'], 'hello, world')
 
 class XCppTests2(jupyter_kernel_test.KernelTests):
 
