@@ -38,8 +38,8 @@ class XCppCompleteTests(jupyter_kernel_test.KernelTests):
         self.assertEqual(reply["content"]["status"], "ok")
 
     # Continuation
-    code_continuation_incomplete = '  int foo = 12; \\\n  float bar = 1.5f;\\'
-    code_continuation_complete =   '  int foo = 12; \\\n  float bar = 1.5f;'
+    code_continuation_incomplete = '  int foo = 12; \\\r\n  float bar = 1.5f;\\'
+    code_continuation_complete =   '  int foo = 12; \\\r\n  float bar = 1.5f;'
 
     def test_continuation(self) -> None:
         if not self.code_continuation_incomplete or not self.code_continuation_complete:
@@ -72,10 +72,10 @@ class XCppTests(jupyter_kernel_test.KernelTests):
     language_name = 'C++'
 
     # Code that should write the exact string `hello, world` to STDOUT
-    code_hello_world = '#include <iostream>\nstd::cout << "hello, world" << std::endl;'
+    code_hello_world = '#include <iostream>\r\nstd::cout << "hello, world" << std::endl;'
 
     # Code that should cause (any) text to be written to STDERR
-    code_stderr = '#include <iostream>\nstd::cerr << "oops" << std::endl;'
+    code_stderr = '#include <iostream>\r\nstd::cerr << "oops" << std::endl;'
 
     # Pager: code that should display something (anything) in the pager
     code_page_something = "?std::vector"
@@ -98,7 +98,7 @@ class XCppTests(jupyter_kernel_test.KernelTests):
     # the expected MIME type
     code_display_data = [
         {
-            'code': '#include <string>\n#include "xcpp/xdisplay.hpp"\nstd::string test("foobar");\nxcpp::display(test);',
+            'code': '#include <string>\r\n#include "xcpp/xdisplay.hpp"\r\nstd::string test("foobar");\r\nxcpp::display(test);',
             'mime': 'text/plain'
         },
         {
