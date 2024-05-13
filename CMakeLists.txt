@@ -6,7 +6,7 @@
 # The full license is in the file LICENSE, distributed with this software.  #
 #############################################################################
 
-cmake_minimum_required(VERSION 3.4.3)
+cmake_minimum_required(VERSION 3.24)
 project(xeus-cpp)
 
 enable_language(CXX)
