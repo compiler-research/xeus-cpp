@@ -146,7 +146,7 @@ jobs:
         run: |
           call C:\Users\runneradmin\micromamba-root\condabin\micromamba.bat activate xeus-cpp
           cd test
-          pytest -sv test_xcpp_kernel.py --reruns 5
+          pytest -sv test_xcpp_kernel.py 
 
       - name: Prepare code coverage report
         if: ${{ success() && (matrix.coverage == true) }}
