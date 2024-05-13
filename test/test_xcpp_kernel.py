@@ -133,7 +133,7 @@ class XCppTests4(jupyter_kernel_test.KernelTests):
     # language_info.name in a kernel_info_reply should match this
     language_name = 'C++'
 
-    code_page_something = "?std::vector"
+    code_hello_world = '#include <stdio.h>\nprintf("hello, world");'
     
     # Code that should cause (any) text to be written to STDERR
     def test_xcpp_stderr(self):
@@ -151,7 +151,7 @@ class XCppTests3(jupyter_kernel_test.KernelTests):
     # language_info.name in a kernel_info_reply should match this
     language_name = 'C++'
 
-    code_page_something = "?std::vector"
+    code_hello_world = '#include <stdio.h>\nprintf("hello, world");'
     
     def test_xcpp_stdcout(self):
         self.flush_channels()
