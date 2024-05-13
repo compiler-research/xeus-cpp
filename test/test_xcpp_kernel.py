@@ -13,7 +13,7 @@ import platform
 
 class XCppCompleteTests(jupyter_kernel_test.KernelTests):
 
-    kernel_name = 'xcpp'
+    kernel_name = 'xcpp20'
 
     # language_info.name in a kernel_info_reply should match this
     language_name = 'C++'
@@ -66,7 +66,7 @@ class XCppCompleteTests(jupyter_kernel_test.KernelTests):
 
 class XCppTests(jupyter_kernel_test.KernelTests):
 
-    kernel_name = 'xcpp'
+    kernel_name = 'xcpp20'
 
     # language_info.name in a kernel_info_reply should match this
     language_name = 'C++'
@@ -131,7 +131,7 @@ xcpp::display(marie);""",
 
 class XCppTests2(jupyter_kernel_test.KernelTests):
 
-    kernel_name = 'xcpp'
+    kernel_name = 'xcpp20'
 
     # language_info.name in a kernel_info_reply should match this
     language_name = 'C++'
