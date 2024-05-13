@@ -134,7 +134,7 @@ xcpp::display(marie);""",
 
 class XCppTests4(jupyter_kernel_test.KernelTests):
 
-    kernel_name = 'xcpp'
+    kernel_name = 'xcpp20'
 
     # language_info.name in a kernel_info_reply should match this
     language_name = 'C++'
@@ -147,11 +147,6 @@ class XCppTests4(jupyter_kernel_test.KernelTests):
 
     # Pager: code that should display something (anything) in the pager
     code_page_something = "?std::vector"
-
-    # Exception throwing
-    # TODO: Remove 'if' when test work on MacOS/arm64. Throw Exceptions make
-    # kernel/test non-workable.
-    ###code_generate_error = 'throw std::runtime_error("Unknown exception");' if platform.system() != "Darwin" or platform.processor() != 'arm' else ''
 
 class XCppTests2(jupyter_kernel_test.KernelTests):
 
