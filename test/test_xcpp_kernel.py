@@ -132,13 +132,15 @@ class XCppTests4(jupyter_kernel_test.KernelTests):
 
     # language_info.name in a kernel_info_reply should match this
     language_name = 'C++'
+
+    code_page_something = "?std::vector"
     
     # Code that should cause (any) text to be written to STDERR
     def test_xcpp_stderr(self):
-        reply_stderr, output_error_msgs = self.execute_helper(code='#include <iostream>\nstd::cerr << "oops" << std::endl;')
-        self.assertEqual(output_error_msgs[0]['msg_type'], 'stream')
-        self.assertEqual(output_error_msgs[0]['content']['name'], 'stderr')
-        self.assertEqual(output_error_msgs[0]['content']['text'], 'oops')
+        reply, output_msgs = self.execute_helper(code='#include <iostream>\nstd::cerr << "oops" << std::endl;')
+        self.assertEqual(output_msgs[0]['msg_type'], 'stream')
+        self.assertEqual(output_msgs[0]['content']['name'], 'stderr')
+        self.assertEqual(output_msgs[0]['content']['text'], 'oops')
 
 
 class XCppTests3(jupyter_kernel_test.KernelTests):
@@ -147,9 +149,11 @@ class XCppTests3(jupyter_kernel_test.KernelTests):
 
     # language_info.name in a kernel_info_reply should match this
     language_name = 'C++'
+
+    code_page_something = "?std::vector"
     
     def test_xcpp_stdcout(self):
-        reply_cout, output_msgs = self.execute_helper(code='#include <iostream>\nstd::cout << "hello, world" << std::endl;')
+        reply, output_msgs = self.execute_helper(code='#include <iostream>\nstd::cout << "hello, world" << std::endl;')
         self.assertEqual(output_msgs[0]['msg_type'], 'stream')
         self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
         self.assertEqual(output_msgs[0]['content']['text'], 'hello, world\n')
