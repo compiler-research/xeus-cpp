@@ -140,7 +140,7 @@ class XCppTests4(jupyter_kernel_test.KernelTests):
         reply, output_msgs = self.execute_helper(code='#include <iostream>\nstd::cerr << "oops" << std::endl;')
         self.assertEqual(output_msgs[0]['msg_type'], 'stream')
         self.assertEqual(output_msgs[0]['content']['name'], 'stderr')
-        self.assertEqual(output_msgs[0]['content']['text'], 'oops')
+        self.assertEqual(output_msgs[0]['content']['text'], 'oops\n')
 
 
 class XCppTests3(jupyter_kernel_test.KernelTests):
