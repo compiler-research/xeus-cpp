@@ -140,10 +140,10 @@ class XCppTests4(jupyter_kernel_test.KernelTests):
     language_name = 'C++'
 
     # Code that should write the exact string `hello, world` to STDOUT
-    code_hello_world = '#include <iostream>\r\nstd::cout << "hello, world" << std::endl;'
+    code_hello_world = '#include <iostream>\r\n std::cout << "hello, world" << std::endl;'
 
     # Code that should cause (any) text to be written to STDERR
-    code_stderr = '#include <iostream>\r\nstd::cerr << "oops" << std::endl;'
+    code_stderr = '#include <iostream>\r\n std::cerr << "oops" << std::endl;'
 
     # Pager: code that should display something (anything) in the pager
     code_page_something = "?std::vector"
