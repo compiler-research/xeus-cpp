@@ -6,7 +6,7 @@
 # The full license is in the file LICENSE, distributed with this software.  #
 #############################################################################
 
-cmake_minimum_required(VERSION 3.4.3)
+cmake_minimum_required(VERSION 3.24)
 project(xeus-cpp)
 
 enable_language(CXX)
@@ -159,11 +159,11 @@ function(configure_kernel kernel)
 endfunction()
 
 message("Configure kernels: ...")
-configure_kernel("/share/jupyter/kernels/xcpp/")
-configure_kernel("/share/jupyter/kernels/xcpp11/")
-configure_kernel("/share/jupyter/kernels/xcpp14/")
-configure_kernel("/share/jupyter/kernels/xcpp17/")
-configure_kernel("/share/jupyter/kernels/xcpp20/")
+
+configure_kernel("share/jupyter/kernels/xcpp11")
+configure_kernel("share/jupyter/kernels/xcpp14")
+configure_kernel("share/jupyter/kernels/xcpp17")
+configure_kernel("share/jupyter/kernels/xcpp20")
 
 # Source files
 # ============
