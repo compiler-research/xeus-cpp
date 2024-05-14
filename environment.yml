@@ -1,5 +1,6 @@
 name: xeus-cpp
 channels:
+  - emscripten-forge
   - conda-forge
 dependencies:
   - xeus-cpp
