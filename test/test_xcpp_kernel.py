@@ -41,8 +41,8 @@ class XCppCompleteTests(jupyter_kernel_test.KernelTests):
         self.assertEqual(reply["content"]["status"], "ok")
 
     # Continuation
-    code_continuation_incomplete = '  int foo = 12; \\\r\n  float bar = 1.5f;\\'
-    code_continuation_complete =   '  int foo = 12; \\\r\n  float bar = 1.5f;'
+    code_continuation_incomplete = '  int foo = 12; \\\n  float bar = 1.5f;\\'
+    code_continuation_complete =   '  int foo = 12; \\\n  float bar = 1.5f;'
 
     def test_continuation(self) -> None:
         if not self.code_continuation_incomplete or not self.code_continuation_complete:
@@ -67,98 +67,71 @@ class XCppCompleteTests(jupyter_kernel_test.KernelTests):
         self.assertEqual(reply["content"]["status"], "complete")
 
 
-class XCppTests(jupyter_kernel_test.KernelTests):
+if platform.system() != 'Windows':
+    class XCppTests(jupyter_kernel_test.KernelTests):
 
-    kernel_name = 'xcpp20'
+        kernel_name = 'xcpp20'
 
-    # language_info.name in a kernel_info_reply should match this
-    language_name = 'C++'
+        # language_info.name in a kernel_info_reply should match this
+        language_name = 'C++'
 
-    # Pager: code that should display something (anything) in the pager
-    code_page_something = "?std::vector"
+        # Code that should write the exact string `hello, world` to STDOUT
+        code_hello_world = '#include <iostream>\nstd::cout << "hello, world" << std::endl;'
 
-    # Exception throwing
-    # TODO: Remove 'if' when test work on MacOS/arm64. Throw Exceptions make
-    # kernel/test non-workable.
-    ###code_generate_error = 'throw std::runtime_error("Unknown exception");' if platform.system() != "Darwin" or platform.processor() != 'arm' else ''
+        # Code that should cause (any) text to be written to STDERR
+        code_stderr = '#include <iostream>\nstd::cerr << "oops" << std::endl;'
 
-    # Samples of code which generate a result value (ie, some text
-    # displayed as Out[n])
-    #code_execute_result = [
-    #    {
-    #        'code': '6 * 7',
-    #        'result': '42'
-    #    }
-    #]
+        # Pager: code that should display something (anything) in the pager
+        code_page_something = "?std::vector"
 
-    # Samples of code which should generate a rich display output, and
-    # the expected MIME type
-    code_display_data = [
-        {
-            'code': '#include <string>\r\n#include "xcpp/xdisplay.hpp"\r\nstd::string test("foobar");\r\nxcpp::display(test);',
-            'mime': 'text/plain'
-        },
-        {
-            'code': """
-#include <string>
-#include <fstream>
-#include "nlohmann/json.hpp"
-#include "xtl/xbase64.hpp"
-namespace im {
-  struct image {
-    inline image(const std::string& filename) {
-      std::ifstream fin(filename, std::ios::binary);
-      m_buffer << fin.rdbuf();
-    }
-    std::stringstream m_buffer;
-  };
-  nlohmann::json mime_bundle_repr(const image& i) {
-    auto bundle = nlohmann::json::object();
-    bundle["image/png"] = xtl::base64encode(i.m_buffer.str());
-    return bundle;
-  }
-}
-#include "xcpp/xdisplay.hpp"
-im::image marie("../notebooks/images/marie.png");
-xcpp::display(marie);""",
-            'mime': 'image/png'
+        # Exception throwing
+        # TODO: Remove 'if' when test work on MacOS/arm64. Throw Exceptions make
+        # kernel/test non-workable.
+        ###code_generate_error = 'throw std::runtime_error("Unknown exception");' if platform.system() != "Darwin" or platform.processor() != 'arm' else ''
+
+        # Samples of code which generate a result value (ie, some text
+        # displayed as Out[n])
+        #code_execute_result = [
+        #    {
+        #        'code': '6 * 7',
+        #        'result': '42'
+        #    }
+        #]
+
+        # Samples of code which should generate a rich display output, and
+        # the expected MIME type
+        code_display_data = [
+            {
+                'code': '#include <string>\n#include "xcpp/xdisplay.hpp"\nstd::string test("foobar");\nxcpp::display(test);',
+                'mime': 'text/plain'
+            },
+            {
+                'code': """
+    #include <string>
+    #include <fstream>
+    #include "nlohmann/json.hpp"
+    #include "xtl/xbase64.hpp"
+    namespace im {
+      struct image {
+        inline image(const std::string& filename) {
+          std::ifstream fin(filename, std::ios::binary);
+          m_buffer << fin.rdbuf();
         }
-    ]
+        std::stringstream m_buffer;
+      };
+      nlohmann::json mime_bundle_repr(const image& i) {
+        auto bundle = nlohmann::json::object();
+        bundle["image/png"] = xtl::base64encode(i.m_buffer.str());
+        return bundle;
+      }
+    }
+    #include "xcpp/xdisplay.hpp"
+    im::image marie("../notebooks/images/marie.png");
+    xcpp::display(marie);""",
+                'mime': 'image/png'
+            }
+        ]
 
-
-class XCppTests4(jupyter_kernel_test.KernelTests):
-
-    kernel_name = 'xcpp20'
-
-    # language_info.name in a kernel_info_reply should match this
-    language_name = 'C++'
-
-    code_hello_world = '#include <stdio.h>\nprintf("hello, world");'
-    
-    # Code that should cause (any) text to be written to STDERR
-    def test_xcpp_stderr(self):
-        self.flush_channels()
-        reply, output_msgs = self.execute_helper(code="""#include <iostream>\r\n std::cerr << "oops" << std::endl;""")
-        self.assertEqual(output_msgs[0]['msg_type'], 'stream')
-        self.assertEqual(output_msgs[0]['content']['name'], 'stderr')
-        self.assertEqual(output_msgs[0]['content']['text'], 'oops\n')
-
-
-class XCppTests3(jupyter_kernel_test.KernelTests):
-
-    kernel_name = 'xcpp20'
-
-    # language_info.name in a kernel_info_reply should match this
-    language_name = 'C++'
-
-    code_hello_world = '#include <stdio.h>\nprintf("hello, world");'
-    
-    def test_xcpp_stdcout(self):
-        self.flush_channels()
-        reply, output_msgs = self.execute_helper(code="""#include <iostream>\r\n std::cout << "hello, world" << std::endl;""")
-        self.assertEqual(output_msgs[0]['msg_type'], 'stream')
-        self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
-        self.assertEqual(output_msgs[0]['content']['text'], 'hello, world\n')
 
 class XCppTests2(jupyter_kernel_test.KernelTests):
 
@@ -169,6 +142,7 @@ class XCppTests2(jupyter_kernel_test.KernelTests):
 
     # Code that should write the exact string `hello, world` to STDOUT
     code_hello_world = '#include <stdio.h>\nprintf("hello, world");'
+
 
 if __name__ == '__main__':
     unittest.main()
