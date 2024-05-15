@@ -234,7 +234,8 @@ jobs:
           pushd build
 
           export EMPACK_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build
-          export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host
+          export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host 
+          echo "PREFIX=$PREFIX" >> $GITHUB_ENV
           export CMAKE_PREFIX_PATH=$PREFIX
           export CMAKE_SYSTEM_PREFIX_PATH=$PREFIX
 
@@ -245,7 +246,15 @@ jobs:
             -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
             -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ON            \
             ..
-          EMCC_CFLAGS='-sERROR_ON_UNDEFINED_SYMBOLS=0' emmake make -j  ${{ env.ncpus }}
+          EMCC_CFLAGS='-sERROR_ON_UNDEFINED_SYMBOLS=0' emmake make -j  ${{ env.ncpus }} install
+
+      - name: Jupyter Lite integration 
+        shell: bash -l {0}
+        run: |
+          micromamba create -n xeus-lite-host jupyterlite-core
+          micromamba activate xeus-lite-host
+          python -m pip install jupyterlite-xeus
+          jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }}
 
       - name: Setup tmate session
         if: ${{ failure() && runner.debug }}
