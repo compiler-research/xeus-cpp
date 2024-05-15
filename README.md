@@ -14,7 +14,7 @@
 `xeus-cpp` is a Jupyter kernel for cpp based on the native implementation of the
 Jupyter protocol [xeus](https://github.com/jupyter-xeus/xeus).
 
-## Installation within a mamba envirnoment
+## Installation within a mamba envirnoment (non wasm build instructions)
 
 To ensure that the installation works, it is preferable to install `xeus-cpp` in a
 fresh environment. It is also needed to use a
@@ -40,9 +40,24 @@ mamba install notebook cmake cxx-compiler xeus-zmq nlohmann_json=3.11.2 cppzmq x
 ```
 Now you can compile the kernel from the source by executing (replace `$CONDA_PREFIX` with a custom installation prefix if need be)
 ```bash
-mkdir build && cd build
+mkdir build
+cd build
 cmake .. -D CMAKE_PREFIX_PATH=$CONDA_PREFIX -D CMAKE_INSTALL_PREFIX=$CONDA_PREFIX -D CMAKE_INSTALL_LIBDIR=lib
-make && make install
+make
+```
+To test the build you execute the following to test the C++ tests
+```bash
+cd test
+./test_xeus_cpp
+```
+and
+```bash
+pytest -sv .
+```
+to perform the python tests. Once the build is passing all the tests you can install it by executing the following from the test folder
+```bash 
+cd ..
+make install
 ```
 
 ## Trying it online

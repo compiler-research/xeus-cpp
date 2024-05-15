@@ -8,7 +8,7 @@ These steps are performed using the GNU Debugger (GDB), so ensure it is installe
 
 .. code-block:: bash
 
-    cmake -D CMAKE_BUILD_TYPE=Debug ..
+    cmake -D CMAKE_BUILD_TYPE=Debug -D CMAKE_PREFIX_PATH=$CONDA_PREFIX -D CMAKE_INSTALL_PREFIX=$CONDA_PREFIX -D CMAKE_INSTALL_LIBDIR=lib ..
 
 In the same folder, run the command and copy the JSON displayed in the terminal.
 
@@ -32,4 +32,7 @@ Open a new terminal, navigate to the build directory, and run GDB to start debug
 Testing
 ========================
 
-The testing code for the source files is located in `test/test_interpreter.cpp`. Write the necessary tests and build the project as described in the repository's README or contributing guidelines. Then, execute `build/test/test_xeus_cpp` to verify if the tests were successful.
+The source code for the c++ tests is located in `test/test_interpreter.cpp`. The source code for the python tests is located in `test/test_xcpp_kernel.py`.
+Write the necessary tests and build the project as described in the repository's README or contributing guidelines. 
+Then, execute `build/test/test_xeus_cpp` from the top level directory to verify if the c++ tests were successful,
+and `pytest -sv build/test/test_xcpp_kernel.py` to execute the python tests.
