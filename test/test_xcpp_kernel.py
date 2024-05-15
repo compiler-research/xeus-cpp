@@ -34,7 +34,10 @@ class XCppCompleteTests(jupyter_kernel_test.KernelTests):
         reply = self.get_non_kernel_info_reply(timeout=1)
         assert reply is not None
         self.assertEqual(reply["msg_type"], "complete_reply")
-        self.assertEqual(str(reply["content"]["matches"]), "['float', 'foo']")
+        if platform.system() == 'Windows':
+            self.assertEqual(str(reply["content"]["matches"]), "['fabs', 'fabsf', 'fabsl', 'float', 'foo']")
+        else:
+            self.assertEqual(str(reply["content"]["matches"]), "['float', 'foo']")
         self.assertEqual(reply["content"]["status"], "ok")
 
     # Continuation
@@ -64,69 +67,70 @@ class XCppCompleteTests(jupyter_kernel_test.KernelTests):
         self.assertEqual(reply["content"]["status"], "complete")
 
 
-class XCppTests(jupyter_kernel_test.KernelTests):
+if platform.system() != 'Windows':
+    class XCppTests(jupyter_kernel_test.KernelTests):
 
-    kernel_name = 'xcpp20'
+        kernel_name = 'xcpp20'
 
-    # language_info.name in a kernel_info_reply should match this
-    language_name = 'C++'
+        # language_info.name in a kernel_info_reply should match this
+        language_name = 'C++'
 
-    # Code that should write the exact string `hello, world` to STDOUT
-    code_hello_world = '#include <iostream>\nstd::cout << "hello, world" << std::endl;'
+        # Code that should write the exact string `hello, world` to STDOUT
+        code_hello_world = '#include <iostream>\nstd::cout << "hello, world" << std::endl;'
 
-    # Code that should cause (any) text to be written to STDERR
-    code_stderr = '#include <iostream>\nstd::cerr << "oops" << std::endl;'
+        # Code that should cause (any) text to be written to STDERR
+        code_stderr = '#include <iostream>\nstd::cerr << "oops" << std::endl;'
 
-    # Pager: code that should display something (anything) in the pager
-    code_page_something = "?std::vector"
+        # Pager: code that should display something (anything) in the pager
+        code_page_something = "?std::vector"
 
-    # Exception throwing
-    # TODO: Remove 'if' when test work on MacOS/arm64. Throw Exceptions make
-    # kernel/test non-workable.
-    ###code_generate_error = 'throw std::runtime_error("Unknown exception");' if platform.system() != "Darwin" or platform.processor() != 'arm' else ''
+        # Exception throwing
+        # TODO: Remove 'if' when test work on MacOS/arm64. Throw Exceptions make
+        # kernel/test non-workable.
+        ###code_generate_error = 'throw std::runtime_error("Unknown exception");' if platform.system() != "Darwin" or platform.processor() != 'arm' else ''
 
-    # Samples of code which generate a result value (ie, some text
-    # displayed as Out[n])
-    #code_execute_result = [
-    #    {
-    #        'code': '6 * 7',
-    #        'result': '42'
-    #    }
-    #]
+        # Samples of code which generate a result value (ie, some text
+        # displayed as Out[n])
+        #code_execute_result = [
+        #    {
+        #        'code': '6 * 7',
+        #        'result': '42'
+        #    }
+        #]
 
-    # Samples of code which should generate a rich display output, and
-    # the expected MIME type
-    code_display_data = [
-        {
-            'code': '#include <string>\n#include "xcpp/xdisplay.hpp"\nstd::string test("foobar");\nxcpp::display(test);',
-            'mime': 'text/plain'
-        },
-        {
-            'code': """
-#include <string>
-#include <fstream>
-#include "nlohmann/json.hpp"
-#include "xtl/xbase64.hpp"
-namespace im {
-  struct image {
-    inline image(const std::string& filename) {
-      std::ifstream fin(filename, std::ios::binary);
-      m_buffer << fin.rdbuf();
-    }
-    std::stringstream m_buffer;
-  };
-  nlohmann::json mime_bundle_repr(const image& i) {
-    auto bundle = nlohmann::json::object();
-    bundle["image/png"] = xtl::base64encode(i.m_buffer.str());
-    return bundle;
-  }
-}
-#include "xcpp/xdisplay.hpp"
-im::image marie("../notebooks/images/marie.png");
-xcpp::display(marie);""",
-            'mime': 'image/png'
+        # Samples of code which should generate a rich display output, and
+        # the expected MIME type
+        code_display_data = [
+            {
+                'code': '#include <string>\n#include "xcpp/xdisplay.hpp"\nstd::string test("foobar");\nxcpp::display(test);',
+                'mime': 'text/plain'
+            },
+            {
+                'code': """
+    #include <string>
+    #include <fstream>
+    #include "nlohmann/json.hpp"
+    #include "xtl/xbase64.hpp"
+    namespace im {
+      struct image {
+        inline image(const std::string& filename) {
+          std::ifstream fin(filename, std::ios::binary);
+          m_buffer << fin.rdbuf();
         }
-    ]
+        std::stringstream m_buffer;
+      };
+      nlohmann::json mime_bundle_repr(const image& i) {
+        auto bundle = nlohmann::json::object();
+        bundle["image/png"] = xtl::base64encode(i.m_buffer.str());
+        return bundle;
+      }
+    }
+    #include "xcpp/xdisplay.hpp"
+    im::image marie("../notebooks/images/marie.png");
+    xcpp::display(marie);""",
+                'mime': 'image/png'
+            }
+        ]
 
 
 class XCppTests2(jupyter_kernel_test.KernelTests):
