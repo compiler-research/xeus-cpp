@@ -130,30 +130,39 @@ function(configure_kernel kernel)
   set(XEUS_CPP_PATH "$ENV{PATH}")
   set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
   set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR})
+  set(XEUS_CPP_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include)
+
+  if (WIN32)
+    string(REPLACE "\\" "/" kernel "${kernel}")
+    string(REPLACE "\\" "/" XEUS_CPP_PATH "${XEUS_CPP_PATH}")
+    string(REPLACE "\\" "/" XEUS_CPP_LD_LIBRARY_PATH "${XEUS_CPP_LD_LIBRARY_PATH}")
+    string(REPLACE "\\" "/" XEUS_CPP_RESOURCE_DIR "${XEUS_CPP_RESOURCE_DIR}")
+    string(REPLACE "\\" "/" XEUS_CPP_INCLUDE_DIR "${XEUS_CPP_INCLUDE_DIR}")
+  endif()
 
   configure_file (
-    "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/kernel.json.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/kernel.json")
+    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}kernel.json.in"
+    "${CMAKE_CURRENT_BINARY_DIR}${kernel}kernel.json")
 
   configure_file (
-    "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/logo-32x32.png"
-    "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
+    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}logo-32x32.png"
+    "${CMAKE_CURRENT_BINARY_DIR}${kernel}"
     COPYONLY)
   configure_file (
-    "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/logo-64x64.png"
-    "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
+    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}logo-64x64.png"
+    "${CMAKE_CURRENT_BINARY_DIR}${kernel}"
     COPYONLY)
   configure_file (
-    "${CMAKE_CURRENT_SOURCE_DIR}/${kernel}/logo-svg.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}/${kernel}/"
+    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}logo-svg.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}${kernel}"
     COPYONLY)
 endfunction()
 
 message("Configure kernels: ...")
-configure_kernel("share/jupyter/kernels/xcpp11")
-configure_kernel("share/jupyter/kernels/xcpp14")
-configure_kernel("share/jupyter/kernels/xcpp17")
-configure_kernel("share/jupyter/kernels/xcpp20")
+configure_kernel("/share/jupyter/kernels/xcpp11/")
+configure_kernel("/share/jupyter/kernels/xcpp14/")
+configure_kernel("/share/jupyter/kernels/xcpp17/")
+configure_kernel("/share/jupyter/kernels/xcpp20/")
 
 # Source files
 # ============
