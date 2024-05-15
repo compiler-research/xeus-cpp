@@ -38,9 +38,10 @@ micromamba activate xeus-cpp
 You are now in a position to install xeus-cpp into this envirnoment. You can do this by executing
 
 ```bash
-mkdir build && cd build
+mkdir build
+cd build
 cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_PREFIX_PATH=$CONDA_PREFIX -D CMAKE_INSTALL_PREFIX=$CONDA_PREFIX -D CMAKE_INSTALL_LIBDIR=lib ..
-make install
+make
 ```
 
 To check that everything is installed correctly you can run the c++ tests by executing the following
@@ -55,4 +56,9 @@ and the python tests by executing
 ```bash
 cd ./test
 pytest -sv .
+```
+Once the build is passing all the tests you can install it by executing the following from the test folder
+```bash 
+cd ..
+make install
 ```
