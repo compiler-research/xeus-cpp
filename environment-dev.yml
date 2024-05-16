@@ -21,3 +21,5 @@ dependencies:
   - nbval
   - pytest-rerunfailures
   - doctest
+  - llvm 
+  - llvm-openmp

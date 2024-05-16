@@ -70,7 +70,7 @@ class XCppCompleteTests(jupyter_kernel_test.KernelTests):
 if platform.system() != 'Windows':
     class XCppTests(jupyter_kernel_test.KernelTests):
 
-        kernel_name = 'xcpp20'
+        kernel_name = 'xcpp20-omp'
 
         # language_info.name in a kernel_info_reply should match this
         language_name = 'C++'
@@ -131,6 +131,29 @@ if platform.system() != 'Windows':
                 'mime': 'image/png'
             }
         ]
+        code_omp="""
+    #include <omp.h>
+    #include <iostream>
+    #include <clang/Interpreter/CppInterOp.h>  
+    #include "llvm/Support/FileSystem.h"
+    #include "llvm/Support/Path.h"
+    std::string BinaryPath = GetExecutablePath(/*Argv0=*/nullptr);
+    llvm::StringRef Dir = llvm::sys::path::parent_path(BinaryPath);
+    Cpp::AddSearchPath(Dir.str().c_str());
+    #ifdef __APPLE__
+      std::string PathToTestSharedLib = Cpp::SearchLibrariesForSymbol("_omp_get_max_threads_", /*system_search=*/false);
+    #else
+      std::string PathToTestSharedLib = Cpp::SearchLibrariesForSymbol("omp_get_max_threads_", /*system_search=*/false);
+    #endif // __APPLE__
+    bool loaded=Cpp::LoadLibrary("PathToTestSharedLib.c_str())");
+    std::cerr<<loaded<<std::endl;
+    """
+        def test_xcpp_omp(self):
+            self.flush_channels()
+            reply, output_msgs = self.execute_helper(code=self.code_omp,timeout=20)
+            self.assertEqual(output_msgs[0]['msg_type'], 'stream')
+            self.assertEqual(output_msgs[0]['content']['name'], 'stderr')
+            self.assertEqual(output_msgs[0]['content']['text'], '2')  
 
 
 class XCppTests2(jupyter_kernel_test.KernelTests):

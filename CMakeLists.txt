@@ -123,7 +123,7 @@ endif()
 
 find_package(argparse REQUIRED)
 find_package(pugixml REQUIRED)
-
+find_package(OpenMP)
 # Configuration
 # =============
 
@@ -135,8 +135,15 @@ function(configure_kernel kernel)
   set(XEUS_CPP_PATH "$ENV{PATH}")
   set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
   set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR})
-  set(XEUS_CPP_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include)
+  set(XEUS_CPP_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include/)
 
+  if(${kernel} MATCHES "omp/$")
+    set(XEUS_CPP_OMP "${OpenMP_CXX_FLAGS}")
+  endif()
+
+  message(Configure_Kernel "${kernel}")
+  message(CPP_OMP_FLAG "${XEUS_CPP_OMP}")
+  message(CPP_INCLUDE_DIR "${XEUS_CPP_INCLUDE_DIR}")
   if (WIN32)
     string(REPLACE "\\" "/" kernel "${kernel}")
     string(REPLACE "\\" "/" XEUS_CPP_PATH "${XEUS_CPP_PATH}")
@@ -167,7 +174,9 @@ message("Configure kernels: ...")
 configure_kernel("/share/jupyter/kernels/xcpp11/")
 configure_kernel("/share/jupyter/kernels/xcpp14/")
 configure_kernel("/share/jupyter/kernels/xcpp17/")
+configure_kernel("/share/jupyter/kernels/xcpp17-omp/")
 configure_kernel("/share/jupyter/kernels/xcpp20/")
+configure_kernel("/share/jupyter/kernels/xcpp20-omp/")
 
 # Source files
 # ============
