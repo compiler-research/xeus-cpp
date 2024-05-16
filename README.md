@@ -14,7 +14,7 @@
 `xeus-cpp` is a Jupyter kernel for cpp based on the native implementation of the
 Jupyter protocol [xeus](https://github.com/jupyter-xeus/xeus).
 
-## Installation within a mamba envirnoment (non wasm build instructions)
+## Installation within a mamba environment (non wasm build instructions)
 
 To ensure that the installation works, it is preferable to install `xeus-cpp` in a
 fresh environment. It is also needed to use a
@@ -58,6 +58,55 @@ to perform the python tests. Once the build is passing all the tests you can ins
 ```bash 
 cd ..
 make install
+```
+
+## Installation within a mamba environment (wasm build instructions)
+
+First clone the repository, and move into that directory
+```bash
+git clone --depth=1 https://github.com/compiler-research/xeus-cpp.git
+cd ./xeus-cpp
+```
+
+Now you'll want to create a clean mamba environment containing the tools you'll need to do a wasm build. This can be done by executing 
+the following
+```bash
+micromamba create -n "xeus-cpp-wasm-build" -y environment-wasm-build.yml
+```
+
+You'll now want to make sure you're using emsdk version "3.1.45" and activate it. You can get this by executing the following
+```bash
+emsdk install 3.1.45
+emsdk activate 3.1.45
+source $CONDA_EMSDK_DIR/emsdk_env.sh
+```
+
+You are now in a position to build the xeus-cpp kernel. You build it by executing the following
+```bash
+micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
+mkdir build
+pushd build
+export EMPACK_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build
+export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host 
+export CMAKE_PREFIX_PATH=$PREFIX
+export CMAKE_SYSTEM_PREFIX_PATH=$PREFIX
+
+emcmake cmake \
+        -DCMAKE_BUILD_TYPE=Release                        \
+        -DCMAKE_PREFIX_PATH=$PREFIX                       \
+        -DCMAKE_INSTALL_PREFIX=$PREFIX                    \
+        -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
+        -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ON            \
+        ..
+EMCC_CFLAGS='-sERROR_ON_UNDEFINED_SYMBOLS=0' emmake make install
+```
+
+To test building Jupyter Lite with this kernel without creating a website you can execute the following
+```bash
+micromamba create -n xeus-lite-host jupyterlite-core
+micromamba activate xeus-lite-host
+python -m pip install jupyterlite-xeus
+jupyter lite build --XeusAddon.prefix=$PREFIX
 ```
 
 ## Trying it online
