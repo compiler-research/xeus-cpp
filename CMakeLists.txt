@@ -79,13 +79,20 @@ endif()
 # ============
 
 set(xtl_REQUIRED_VERSION 0.7.0)
-set(xeus_REQUIRED_VERSION 3.0.5)
+set(xeus_REQUIRED_VERSION 3.2.0)
 
 if (NOT TARGET xtl)
     find_package(xtl ${xtl_REQUIRED_VERSION} REQUIRED)
 endif ()
 if (NOT TARGET xeus AND NOT TARGET xeus-static)
-    find_package(xeus ${xeus_REQUIRED_VERSION} REQUIRED)
+    find_package(xeus REQUIRED)
+    if (xeus_FOUND)
+        if (xeus_VERSION VERSION_LESS xeus_REQUIRED_VERSION)
+            message(FATAL_ERROR "xeus version must be >= ${xeus_REQUIRED_VERSION}, found: ${xeus_VERSION}")
+        else ()
+            message(STATUS "Found compatible xeus version: ${xeus_VERSION}")
+        endif ()
+    endif()
 endif ()
 
 set(CppInterOp_REQUIRED_VERSION 1.3.0)

@@ -5,7 +5,7 @@ channels:
 dependencies:
   - nlohmann_json
   - xeus-lite <2.0
-  - xeus >=3.0.5,<4.0
+  - xeus >=3.2.0,<4.0
   - xtl >=0.7,<0.8
   - CppInterOp>=1.3.0
   - cpp-argparse
