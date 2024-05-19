@@ -54,6 +54,25 @@ TEST_SUITE("execute_request")
         REQUIRE(result["found"] == true);
         REQUIRE(result["status"] == "ok");
     }
+
+    TEST_CASE("bad_status")
+    {
+        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+
+        std::string code = "int x = ;";
+        nl::json user_expressions = nl::json::object();
+
+        nl::json result = interpreter.execute_request(
+            code, 
+            false, 
+            false, 
+            user_expressions, 
+            false
+        );
+
+        REQUIRE(result["status"] == "error");
+    }
 }
 
 TEST_SUITE("inspect_request")
