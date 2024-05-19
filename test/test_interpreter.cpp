@@ -56,6 +56,46 @@ TEST_SUITE("execute_request")
     }
 }
 
+TEST_SUITE("inspect_request")
+{
+    TEST_CASE("good_status")
+    {
+        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+
+        std::string code = "std::vector";
+        int cursor_pos = 11;
+
+        nl::json result = interpreter.inspect_request(
+            code, 
+            cursor_pos, 
+            /*detail_level=*/0
+        );
+
+        REQUIRE(result["user_expressions"] == nl::json::object());
+        REQUIRE(result["found"] == true);
+        REQUIRE(result["status"] == "ok");
+    }
+
+    TEST_CASE("bad_status")
+    {
+        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+
+        std::string code = "nonExistentFunction";
+        int cursor_pos = 19;
+
+        nl::json result = interpreter.inspect_request(
+            code, 
+            cursor_pos, 
+            /*detail_level=*/0
+        );
+
+        REQUIRE(result["found"] == false);
+        REQUIRE(result["status"] == "error");
+    }
+}
+
 TEST_SUITE("extract_filename")
 {
     TEST_CASE("extract_filename_basic_test")
@@ -92,6 +132,15 @@ TEST_SUITE("trim"){
     /*Checks if it trims the string which has no characters*/
     TEST_CASE("trim_empty"){
         std::string argument = "  ";
+
+        std::string result = xcpp::trim(argument);
+
+        REQUIRE(result == "");
+    }
+
+    /*Checks if it trims the string is empty*/
+    TEST_CASE("trim_empty"){
+        std::string argument = "";
 
         std::string result = xcpp::trim(argument);
 
