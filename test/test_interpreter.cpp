@@ -57,7 +57,7 @@ TEST_SUITE("execute_request")
 
     TEST_CASE("bad_status")
     {
-        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
+        std::vector<const char*> Args = {"resource-dir"};
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
 
         std::string code = "int x = ;";
