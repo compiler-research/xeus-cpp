@@ -43,7 +43,7 @@ Now you can compile the kernel from the source by executing (replace `$CONDA_PRE
 mkdir build
 cd build
 cmake .. -D CMAKE_PREFIX_PATH=$CONDA_PREFIX -D CMAKE_INSTALL_PREFIX=$CONDA_PREFIX -D CMAKE_INSTALL_LIBDIR=lib
-make
+make install
 ```
 To test the build you execute the following to test the C++ tests
 ```bash
@@ -54,11 +54,7 @@ and
 ```bash
 pytest -sv .
 ```
-to perform the python tests. Once the build is passing all the tests you can install it by executing the following from the test folder
-```bash 
-cd ..
-make install
-```
+to perform the python tests.
 
 ## Installation within a mamba environment (wasm build instructions)
 
