@@ -88,6 +88,8 @@ if (NOT TARGET xeus AND NOT TARGET xeus-static)
     find_package(xeus ${xeus_REQUIRED_VERSION} REQUIRED)
 endif ()
 
+set(CppInterOp_REQUIRED_VERSION 1.3.0)
+
 # Flags
 # =====
 include(CheckCXXCompilerFlag)
@@ -111,7 +113,7 @@ if(EMSCRIPTEN)
     set(EMSCRIPTEN_FEATURES "${EMSCRIPTEN_FEATURES} -s \"EXTRA_EXPORTED_RUNTIME_METHODS=[ENV']\"")
 endif()
 
-find_package(CppInterOp REQUIRED)
+find_package(CppInterOp ${CppInterOp_REQUIRED_VERSION} REQUIRED)
 if(CppInterOp_FOUND)
   message(STATUS "Found CppInterOp: config=${CPPINTEROP_CONFIG} dir=${CPPINTEROP_DIR} (found version=${CPPINTEROP_VERSION} compatible with Clang ${CPPINTEROP_LLVM_VERSION_MAJOR}.x)")
 endif()

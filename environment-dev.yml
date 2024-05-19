@@ -11,7 +11,7 @@ dependencies:
   - nlohmann_json=3.11.2
   - cppzmq
   - xtl
-  - CppInterOp
+  - CppInterOp>=1.3.0
   - pugixml
   - cpp-argparse <3.1
   - zlib
