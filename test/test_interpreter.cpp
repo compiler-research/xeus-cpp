@@ -423,6 +423,6 @@ TEST_SUITE("xotions")
         } catch (const std::exception& e) {
             exceptionThrown = true;
         }
-        CHECK(exceptionThrown);
+        REQUIRE(exceptionThrown);
     }
 }
