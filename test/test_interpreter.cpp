@@ -11,6 +11,7 @@
 #include "xeus-cpp/xholder.hpp"
 #include "xeus-cpp/xmanager.hpp"
 #include "xeus-cpp/xutils.hpp"
+#include "xeus-cpp/xoptions.hpp"
 
 #include "../src/xparser.hpp"
 
@@ -394,5 +395,34 @@ TEST_SUITE("xbuffer")
         null_stream << "Hello, world!";
 
         REQUIRE(null_stream.good() == true);
+    }
+}
+
+TEST_SUITE("xotions")
+{
+    TEST_CASE("good_status") {
+        xcpp::argparser parser("test");
+        parser.add_argument("--verbose").help("increase output verbosity").default_value(false).implicit_value(true);
+        std::string line = "./main --verbose";
+
+        parser.parse(line);
+
+        REQUIRE(parser["--verbose"] == true);
+    } 
+
+    TEST_CASE("bad_status") {
+        xcpp::argparser parser("test");
+        parser.add_argument("--verbose");
+        std::string line = "./main --verbose";
+
+        parser.parse(line);
+
+        bool exceptionThrown = false;
+        try {
+            bool isVerbose = (parser["--verbose"] == false);
+        } catch (const std::exception& e) {
+            exceptionThrown = true;
+        }
+        CHECK(exceptionThrown);
     }
 }
