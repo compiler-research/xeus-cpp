@@ -20,6 +20,7 @@ namespace xcpp
     {
     public:
 
+        XEUS_CPP_API
         virtual void operator()(const std::string& line, const std::string& cell) override;
 
     private:

@@ -14,6 +14,10 @@
 #include "xeus-cpp/xoptions.hpp"
 
 #include "../src/xparser.hpp"
+#include "../src/xsystem.hpp"
+#include "../src/xmagics/os.hpp"
+
+#include <fstream>
 
 TEST_SUITE("execute_request")
 {
@@ -398,7 +402,7 @@ TEST_SUITE("xbuffer")
     }
 }
 
-TEST_SUITE("xotions")
+TEST_SUITE("xoptions")
 {
     TEST_CASE("good_status") {
         xcpp::argparser parser("test");
@@ -424,5 +428,107 @@ TEST_SUITE("xotions")
             exceptionThrown = true;
         }
         REQUIRE(exceptionThrown);
+    }
+}
+
+TEST_SUITE("os")
+{
+    TEST_CASE("write_new_file") {
+        xcpp::writefile wf;
+        std::string line = "filename testfile.txt";
+        std::string cell = "Hello, World!";
+
+        wf(line, cell);
+
+        std::ifstream infile("testfile.txt");
+        REQUIRE(infile.good() == true);
+        infile.close();
+
+        std::remove("testfile.txt");
+    }
+
+    TEST_CASE("overwrite_file") {
+        xcpp::writefile wf;
+        std::string line = "filename testfile.txt";
+        std::string cell = "Hello, World!";
+
+        wf(line, cell);
+
+        std::string overwrite_cell = "Overwrite test";
+        
+        wf(line, overwrite_cell);
+
+        std::ifstream infile("testfile.txt");
+        std::string content;
+        std::getline(infile, content);
+
+        REQUIRE(content == overwrite_cell);
+        infile.close();
+
+        std::remove("testfile.txt");
+    }
+
+    TEST_CASE("append_file") {
+        xcpp::writefile wf;
+        std::string line = "filename testfile.txt";
+        std::string cell = "Hello, World!";
+
+        wf(line, cell);
+
+        std::string append_line = "filename testfile.txt --append";
+        std::string append_cell = "Hello, again!";
+
+        wf(append_line, append_cell);
+
+        std::ifstream infile("testfile.txt");
+        std::vector<std::string> lines;
+        std::string content;
+        while(std::getline(infile, content)) {
+            lines.push_back(content);
+        }
+        
+        REQUIRE(lines[0] == cell);
+        REQUIRE(lines[1] == append_cell);
+        infile.close();
+
+        std::remove("testfile.txt");
+    }
+
+}
+
+TEST_SUITE("xsystem_clone")
+{
+    TEST_CASE("clone_xsystem_not_null")
+    {
+        xcpp::xsystem system;
+
+        xcpp::xpreamble* clone = system.clone();
+
+        REQUIRE(clone != nullptr);
+    }
+
+    TEST_CASE("clone_xsystem_same_type")
+    {
+        xcpp::xsystem system;
+
+        xcpp::xpreamble* clone = system.clone();
+
+        REQUIRE(dynamic_cast<xcpp::xsystem*>(clone) != nullptr);
+
+        delete clone;
+    }
+}
+
+TEST_SUITE("xsystem_apply")
+{
+    TEST_CASE("apply_xsystem")
+    {
+        xcpp::xsystem system;
+        std::string code = "!echo Hello, World!";
+        nl::json kernel_res;
+
+        system.apply(code, kernel_res);
+
+        REQUIRE(kernel_res["status"] == "ok");
     }
 }
