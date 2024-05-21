@@ -23,6 +23,7 @@ namespace xcpp
         using base_type = argparse::ArgumentParser;
         using base_type::ArgumentParser;
 
+        XEUS_CPP_API
         void parse(const std::string& line);
     };
 }
