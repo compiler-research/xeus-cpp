@@ -22,9 +22,7 @@
 #include <unistd.h>
 #endif
 
-
 #include "xeus-cpp/xutils.hpp"
-#include "xeus-cpp/xinterpreter.hpp"
 
 namespace xcpp
 {
