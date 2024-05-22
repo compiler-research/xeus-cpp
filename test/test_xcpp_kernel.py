@@ -142,7 +142,7 @@ if platform.system() != 'Windows':
         // This just needs to be some symbol in the binary; C++ doesn't
         // allow taking the address of ::main however.
         void* MainAddr = (void*) (intptr_t) GetExecutablePath(/*Argv0=*/nullptr);
-        return ;
+        return llvm::sys::fs::getMainExecutable(Argv0, MainAddr);
     }
     std::cerr<<GetExecutablePath(/*Argv0=*/nullptr)<<std::endl;
     """
