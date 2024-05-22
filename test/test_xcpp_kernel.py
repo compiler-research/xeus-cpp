@@ -137,13 +137,15 @@ if platform.system() != 'Windows':
     #include <clang/Interpreter/CppInterOp.h>  
     #include "llvm/Support/FileSystem.h"
     #include "llvm/Support/Path.h"
-    std::string GetExecutablePath(const char* Argv0) {
-        // This just needs to be some symbol in the binary; C++ doesn't
-        // allow taking the address of ::main however.
-        void* MainAddr = (void*) (intptr_t) GetExecutablePath(/*Argv0=*/nullptr);
-        return llvm::sys::fs::getMainExecutable(Argv0, MainAddr);
-    }
-    std::cerr<<GetExecutablePath(/*Argv0=*/nullptr)<<std::endl;
+    llvm::StringRef Dir = llvm::sys::path::parent_path("/home/runner/micromamba/envs/xeus-cpp/");
+    Cpp::AddSearchPath(Dir.str().c_str());
+    #ifdef __APPLE__
+      std::string PathToTestSharedLib = Cpp::SearchLibrariesForSymbol("_omp_get_max_threads_", /*system_search=*/false);
+    #else
+      std::string PathToTestSharedLib = Cpp::SearchLibrariesForSymbol("omp_get_max_threads_", /*system_search=*/false);
+    #endif // __APPLE__
+    bool loaded=Cpp::LoadLibrary("PathToTestSharedLib.c_str())");
+    std::cerr<<loaded<<std::endl;
     """
         def test_xcpp_omp(self):
             self.flush_channels()
