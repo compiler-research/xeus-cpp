@@ -144,7 +144,7 @@ if platform.system() != 'Windows':
     #else
       std::string PathToTestSharedLib = Cpp::SearchLibrariesForSymbol("omp_get_max_threads_", /*system_search=*/false);
     #endif // __APPLE__
-    std::cerr<<Dir<<<<std::endl;
+    std::cerr<<Dir.str().c_str()<<<<std::endl;
     """
         def test_xcpp_omp(self):
             self.flush_channels()
