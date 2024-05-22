@@ -137,6 +137,9 @@ if platform.system() != 'Windows':
     #include <clang/Interpreter/CppInterOp.h>  
     #include "llvm/Support/FileSystem.h"
     #include "llvm/Support/Path.h"
+    std::string BinaryPath = GetExecutablePath(/*Argv0=*/nullptr);
+    llvm::StringRef Dir = llvm::sys::path::parent_path(BinaryPath);
+    Cpp::AddSearchPath(Dir.str().c_str());
     """
         def test_xcpp_omp(self):
             self.flush_channels()
