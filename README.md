@@ -67,7 +67,8 @@ cd ./xeus-cpp
 Now you'll want to create a clean mamba environment containing the tools you'll need to do a wasm build. This can be done by executing 
 the following
 ```bash
-micromamba create -n "xeus-cpp-wasm-build" -y environment-wasm-build.yml
+micromamba create -f environment-wasm-build.yml -y
+micromamba activate xeus-cpp-wasm-build
 ```
 
 You'll now want to make sure you're using emsdk version "3.1.45" and activate it. You can get this by executing the following
