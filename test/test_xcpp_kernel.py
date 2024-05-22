@@ -137,6 +137,12 @@ if platform.system() != 'Windows':
     #include <clang/Interpreter/CppInterOp.h>  
     #include "llvm/Support/FileSystem.h"
     #include "llvm/Support/Path.h"
+    std::string GetExecutablePath(const char* Argv0) {
+        // This just needs to be some symbol in the binary; C++ doesn't
+        // allow taking the address of ::main however.
+        void* MainAddr = (void*)intptr_t(GetExecutablePath);
+        return llvm::sys::fs::getMainExecutable(Argv0, MainAddr);
+    }
     std::string BinaryPath = GetExecutablePath(/*Argv0=*/nullptr);
     std::cerr<<BinaryPath<<std::endl;
     """
