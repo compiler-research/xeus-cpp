@@ -143,7 +143,7 @@ if platform.system() != 'Windows':
         void* MainAddr = (void*)intptr_t(GetExecutablePath);
         return llvm::sys::fs::getMainExecutable(Argv0, MainAddr);
     }
-    std::string BinaryPath = GetExecutablePath(/*Argv0=*/nullptr);
+    std::string Binary_Path = GetExecutablePath(/*Argv0=*/nullptr);
     std::cerr<<BinaryPath<<std::endl;
     """
         def test_xcpp_omp(self):
