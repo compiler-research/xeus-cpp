@@ -134,15 +134,11 @@ endif ()
 function(configure_kernel kernel)
   set(XEUS_CPP_PATH "$ENV{PATH}")
   set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
-  set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR})
-  set(XEUS_CPP_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include)
 
   if (WIN32)
     string(REPLACE "\\" "/" kernel "${kernel}")
     string(REPLACE "\\" "/" XEUS_CPP_PATH "${XEUS_CPP_PATH}")
     string(REPLACE "\\" "/" XEUS_CPP_LD_LIBRARY_PATH "${XEUS_CPP_LD_LIBRARY_PATH}")
-    string(REPLACE "\\" "/" XEUS_CPP_RESOURCE_DIR "${XEUS_CPP_RESOURCE_DIR}")
-    string(REPLACE "\\" "/" XEUS_CPP_INCLUDE_DIR "${XEUS_CPP_INCLUDE_DIR}")
   endif()
 
   configure_file (
