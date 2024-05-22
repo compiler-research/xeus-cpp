@@ -137,13 +137,13 @@ if platform.system() != 'Windows':
     #include <clang/Interpreter/CppInterOp.h>  
     #include "llvm/Support/FileSystem.h"
     #include "llvm/Support/Path.h"
-    std::string Get_Executable_Path(const char* Argv0) {
+    std::string GetExecutablePath(const char* Argv0) {
         // This just needs to be some symbol in the binary; C++ doesn't
         // allow taking the address of ::main however.
-        void* MainAddr = (void*)intptr_t(GetExecutablePath);
-        return llvm::sys::fs::getMainExecutable(Argv0, MainAddr);
+        void* MainAddr = (void*) (intptr_t) GetExecutablePath;
+        return ;
     }
-    std::cerr<<Get_Executable_Path(/*Argv0=*/nullptr)<<std::endl;
+    std::cerr<<GetExecutablePath(nullptr)<<std::endl;
     """
         def test_xcpp_omp(self):
             self.flush_channels()
