@@ -139,7 +139,7 @@ if platform.system() != 'Windows':
     #include "llvm/Support/Path.h"
     llvm::StringRef Dir = llvm::sys::path::parent_path("/home/runner/micromamba/envs/xeus-cpp/");
     Cpp::AddSearchPath(Dir.str().c_str());
-    std::cerr<<Dir<<" "<<Dir.str().c_str()<<std::endl;
+    std::cerr<<Dir<<<<std::endl;
     #ifdef __APPLE__
       std::string PathToTestSharedLib = Cpp::SearchLibrariesForSymbol("_omp_get_max_threads_", /*system_search=*/false);
     #else
