@@ -98,13 +98,18 @@ emcmake cmake \
 EMCC_CFLAGS='-sERROR_ON_UNDEFINED_SYMBOLS=0' emmake make install
 ```
 
-To test building Jupyter Lite with this kernel without creating a website you can execute the following
+To build Jupyter Lite with this kernel without creating a website you can execute the following
 ```bash
 micromamba create -n xeus-lite-host jupyterlite-core
 micromamba activate xeus-lite-host
 python -m pip install jupyterlite-xeus
 jupyter lite build --XeusAddon.prefix=$PREFIX
 ```
+Once the Jupyter Lite site has built you can test the website locally by executing
+```bash
+jupyter lite serve --XeusAddon.prefix=$PREFIX
+```
+
 
 ## Trying it online
 
