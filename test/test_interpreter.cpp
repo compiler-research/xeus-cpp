@@ -18,6 +18,10 @@
 #include "../src/xmagics/os.hpp"
 
 #include <fstream>
+#if defined(__GNUC__) && !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+    #include <sys/wait.h>
+    #include <unistd.h>
+#endif
 
 TEST_SUITE("execute_request")
 {
@@ -117,6 +121,60 @@ TEST_SUITE("inspect_request")
 
         REQUIRE(result["found"] == false);
         REQUIRE(result["status"] == "error");
+    }
+}
+
+TEST_SUITE("kernel_info_request")
+{
+    TEST_CASE("good_status")
+    {
+        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+
+        nl::json result = interpreter.kernel_info_request();
+
+        REQUIRE(result["implementation"] == "xeus-cpp");
+        REQUIRE(result["language_info"]["name"] == "C++");
+        REQUIRE(result["language_info"]["mimetype"] == "text/x-c++src");
+        REQUIRE(result["language_info"]["codemirror_mode"] == "text/x-c++src");
+        REQUIRE(result["language_info"]["file_extension"] == ".cpp");
+        REQUIRE(result["status"] == "ok");
+    }
+
+}
+
+TEST_SUITE("shutdown_request")
+{
+    TEST_CASE("good_status")
+    {
+        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+
+        REQUIRE_NOTHROW(interpreter.shutdown_request());
+    }
+
+}
+
+TEST_SUITE("is_complete_request")
+{
+    TEST_CASE("incomplete_code")
+    {
+        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+
+        std::string code = "int main() \\";
+        nl::json result = interpreter.is_complete_request(code);
+        REQUIRE(result["status"] == "incomplete");
+    }
+
+    TEST_CASE("complete_code")
+    {
+        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+
+        std::string code = "int main() {}";
+        nl::json result = interpreter.is_complete_request(code);
+        REQUIRE(result["status"] == "complete");
     }
 }
 
@@ -435,7 +493,7 @@ TEST_SUITE("os")
 {
     TEST_CASE("write_new_file") {
         xcpp::writefile wf;
-        std::string line = "filename testfile.txt";
+        std::string line = "filename testfile.txt -h";
         std::string cell = "Hello, World!";
 
         wf(line, cell);
@@ -515,7 +573,6 @@ TEST_SUITE("xsystem_clone")
 
         REQUIRE(dynamic_cast<xcpp::xsystem*>(clone) != nullptr);
 
-        delete clone;
     }
 }
 
@@ -532,3 +589,60 @@ TEST_SUITE("xsystem_apply")
         REQUIRE(kernel_res["status"] == "ok");
     }
 }
+
+TEST_SUITE("xmagics_contains"){
+    TEST_CASE("bad_status_cell") {
+        xcpp::xmagics_manager manager;
+        xcpp::xmagic_type magic = xcpp::xmagic_type::cell;
+        // manager.register_magic("my_magic", xcpp::xmagic_type::cell);
+        
+        bool result = manager.contains("my_magic", xcpp::xmagic_type::cell);
+        REQUIRE(result == false);
+    } 
+
+    TEST_CASE("bad_status_line") {
+        xcpp::xmagics_manager manager;
+        xcpp::xmagic_type magic = xcpp::xmagic_type::line;
+        // manager.register_magic("my_magic", xcpp::xmagic_type::cell);
+        
+        bool result = manager.contains("my_magic", xcpp::xmagic_type::line);
+        REQUIRE(result == false);
+    } 
+}
+
+TEST_SUITE("xmagics_apply"){
+    TEST_CASE("bad_status_cell") {
+        xcpp::xmagics_manager manager;
+
+        nl::json kernel_res;
+        manager.apply("%%dummy", kernel_res);
+        REQUIRE(kernel_res["status"] == "error");
+    }
+
+    TEST_CASE("bad_status_line") {
+        xcpp::xmagics_manager manager;
+
+        nl::json kernel_res;
+        manager.apply("%dummy", kernel_res);
+        REQUIRE(kernel_res["status"] == "error");
+    } 
+}
+
+#if defined(__GNUC__) && !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+TEST_SUITE("xutils_handler"){
+    TEST_CASE("handler") {
+        pid_t pid = fork();
+        if (pid == 0) {
+
+            signal(SIGSEGV, xcpp::handler);
+            exit(0);  
+
+        } else {
+            
+            int status;
+            REQUIRE(WEXITSTATUS(status) == 0);
+            
+        }
+    }
+}
+#endif
