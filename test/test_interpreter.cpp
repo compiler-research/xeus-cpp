@@ -646,3 +646,31 @@ TEST_SUITE("xutils_handler"){
     }
 }
 #endif
+
+TEST_SUITE("complete_request")
+{
+    TEST_CASE("completion_test")
+    {
+        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+
+        nl::json execute = interpreter.execute_request("#include <iostream>", false, false, nl::json::object(), false);
+
+        REQUIRE(execute["status"] == "ok");
+
+        std::string code = "st";
+        int cursor_pos = 2;
+        nl::json result = interpreter.complete_request(code, cursor_pos);
+
+        REQUIRE(result["cursor_start"] == 0);
+        REQUIRE(result["cursor_end"] == 2);
+        REQUIRE(result["status"] == "ok");
+        size_t found = 0;
+        for (auto& r : result["matches"]) {
+            if (r == "static" || r == "struct") {
+                found++;
+            }
+        }
+        REQUIRE(found == 2);
+    }
+}
