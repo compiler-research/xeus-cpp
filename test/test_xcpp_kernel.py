@@ -148,10 +148,12 @@ if platform.system() == 'Windows':
         
         def test_xcpp_err(self):
             self.flush_channels()
-            reply, output_msgs = self.execute_helper(code=self.code_err,timeout=5)
-            self.assertEqual(output_msgs[0]['msg_type'], 'stream')
-            self.assertEqual(output_msgs[0]['content']['name'], 'stderr')
-            self.assertEqual(output_msgs[0]['content']['text'], 'oops\n')  
+            msg_id = self.kc.complete(self.code_complete_sample, len(self.code_complete_sample))
+            reply = self.get_non_kernel_info_reply(timeout=1)
+            print(reply)
+            self.assertEqual(reply['msg_type'], 'stream')
+            self.assertEqual(reply['content']['name'], 'stderr')
+            self.assertEqual(replt['content']['text'], 'oops\n')  
 
 class XCppTests2(jupyter_kernel_test.KernelTests):
 
