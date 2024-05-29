@@ -6,6 +6,8 @@
  * The full license is in the file LICENSE, distributed with this software.
  ****************************************************************************/
 
+#include <future>
+
 #include "doctest/doctest.h"
 #include "xeus-cpp/xinterpreter.hpp"
 #include "xeus-cpp/xholder.hpp"
@@ -67,13 +69,28 @@ TEST_SUITE("execute_request")
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
         std::string code = "#include <vector>";
         nl::json user_expressions = nl::json::object();
-        nl::json result = interpreter.execute_request(
+        xeus::execute_request_config config;
+        config.silent = false;
+        config.store_history = false;
+        config.allow_stdin = false;
+        nl::json header = nl::json::object();
+        xeus::xrequest_context::guid_list id = {};
+        xeus::xrequest_context context(header, id);
+
+        std::promise<nl::json> promise;
+        std::future<nl::json> future = promise.get_future();
+        auto callback = [&promise](nl::json result) {
+            promise.set_value(result);
+        };
+
+        interpreter.execute_request(
+            std::move(context),
+            std::move(callback),
             code,
-            /*silent=*/false,
-            /*store_history=*/false,
-            user_expressions,
-            /*allow_stdin=*/false
+            std::move(config),
+            user_expressions
         );
+        nl::json result = future.get();
         REQUIRE(result["status"] == "ok");
     }
 
@@ -85,15 +102,28 @@ TEST_SUITE("execute_request")
         std::string code = "?std::vector";
         std::string inspect_result = "https://en.cppreference.com/w/cpp/container/vector";
         nl::json user_expressions = nl::json::object();
+        xeus::execute_request_config config;
+        config.silent = false;
+        config.store_history = false;
+        config.allow_stdin = false;
+        nl::json header = nl::json::object();
+        xeus::xrequest_context::guid_list id = {};
+        xeus::xrequest_context context(header, id);
 
-        nl::json result = interpreter.execute_request(
-            code, 
-            false, 
-            false, 
-            user_expressions, 
-            false
+        std::promise<nl::json> promise;
+        std::future<nl::json> future = promise.get_future();
+        auto callback = [&promise](nl::json result) {
+            promise.set_value(result);
+        };
+
+        interpreter.execute_request(
+            std::move(context),
+            std::move(callback),
+            code,
+            std::move(config),
+            user_expressions
         );
-
+        nl::json result = future.get();
         REQUIRE(result["payload"][0]["data"]["text/plain"] == inspect_result);
         REQUIRE(result["user_expressions"] == nl::json::object());
         REQUIRE(result["found"] == true);
@@ -107,15 +137,28 @@ TEST_SUITE("execute_request")
 
         std::string code = "int x = ;";
         nl::json user_expressions = nl::json::object();
+        xeus::execute_request_config config;
+        config.silent = false;
+        config.store_history = false;
+        config.allow_stdin = false;
+        nl::json header = nl::json::object();
+        xeus::xrequest_context::guid_list id = {};
+        xeus::xrequest_context context(header, id);
 
-        nl::json result = interpreter.execute_request(
-            code, 
-            false, 
-            false, 
-            user_expressions, 
-            false
+        std::promise<nl::json> promise;
+        std::future<nl::json> future = promise.get_future();
+        auto callback = [&promise](nl::json result) {
+            promise.set_value(result);
+        };
+
+        interpreter.execute_request(
+            std::move(context),
+            std::move(callback),
+            code,
+            std::move(config),
+            user_expressions
         );
-
+        nl::json result = future.get();
         REQUIRE(result["status"] == "error");
     }
 }
@@ -745,14 +788,36 @@ TEST_SUITE("complete_request")
     {
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
+        std::string code1 = "#include <iostream>";
+        nl::json user_expressions = nl::json::object();
+        xeus::execute_request_config config;
+        config.silent = false;
+        config.store_history = false;
+        config.allow_stdin = false;
+        nl::json header = nl::json::object();
+        xeus::xrequest_context::guid_list id = {};
+        xeus::xrequest_context context(header, id);
 
-        nl::json execute = interpreter.execute_request("#include <iostream>", false, false, nl::json::object(), false);
+        std::promise<nl::json> promise;
+        std::future<nl::json> future = promise.get_future();
+        auto callback = [&promise](nl::json result) {
+            promise.set_value(result);
+        };
+
+        interpreter.execute_request(
+            std::move(context),
+            std::move(callback),
+            code1,
+            std::move(config),
+            user_expressions
+        );
+        nl::json execute = future.get();
 
         REQUIRE(execute["status"] == "ok");
 
-        std::string code = "st";
+        std::string code2 = "st";
         int cursor_pos = 2;
-        nl::json result = interpreter.complete_request(code, cursor_pos);
+        nl::json result = interpreter.complete_request(code2, cursor_pos);
 
         REQUIRE(result["cursor_start"] == 0);
         REQUIRE(result["cursor_end"] == 2);

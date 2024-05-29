@@ -15,8 +15,6 @@
 
 #include <pugixml.hpp>
 
-#include <xtl/xsystem.hpp>
-
 #include "xeus-cpp/xbuffer.hpp"
 #include "xeus-cpp/xpreamble.hpp"
 
