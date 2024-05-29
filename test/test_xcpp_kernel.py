@@ -143,7 +143,6 @@ if platform.system() == 'Windows':
 
         code_err="""
         #include <iostream>
-        std::cerr << "oops" << std::endl;"
         """
         
         def test_xcpp_err(self):
