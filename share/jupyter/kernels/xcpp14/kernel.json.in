@@ -8,8 +8,6 @@
       "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
       "-f",
       "{connection_file}",
-      "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
-      "-I", "@XEUS_CPP_INCLUDE_DIR@",
       "-std=c++14",
       "-fno-exceptions",
       "-O2",
