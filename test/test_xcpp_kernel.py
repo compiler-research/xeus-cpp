@@ -110,7 +110,7 @@ if platform.system() != 'Windows':
     #include <string>
     #include <fstream>
     #include "nlohmann/json.hpp"
-    #include "xtl/xbase64.hpp"
+    #include "xeus/xbase64.hpp"
     namespace im {
       struct image {
         inline image(const std::string& filename) {
@@ -121,7 +121,7 @@ if platform.system() != 'Windows':
       };
       nlohmann::json mime_bundle_repr(const image& i) {
         auto bundle = nlohmann::json::object();
-        bundle["image/png"] = xtl::base64encode(i.m_buffer.str());
+        bundle["image/png"] = xeus::base64encode(i.m_buffer.str());
         return bundle;
       }
     }

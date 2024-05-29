@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-#include <xtl/xsystem.hpp>
+#include "xeus/xsystem.hpp"
 
 #include <xeus/xhelper.hpp>
 
@@ -127,19 +127,18 @@ __get_cxx_version ()
         restore_output();
     }
 
-    nl::json interpreter::execute_request_impl(
-        int /*execution_counter*/,
+    void interpreter::execute_request_impl(
+        send_reply_callback cb,
+        int /*execution_count*/,
         const std::string& code,
-        bool silent,
-        bool /*store_history*/,
-        nl::json /*user_expressions*/,
-        bool allow_stdin
+        xeus::execute_request_config config,
+        nl::json /*user_expressions*/
     )
     {
         nl::json kernel_res;
 
 
-        auto input_guard = input_redirection(allow_stdin);
+        auto input_guard = input_redirection(config.allow_stdin);
 
         // Check for magics
         for (auto& pre : preamble_manager.preamble)
@@ -147,7 +146,8 @@ __get_cxx_version ()
             if (pre.second.is_match(code))
             {
                 pre.second.apply(code, kernel_res);
-                return kernel_res;
+                cb(kernel_res);
+                return;
             }
         }
 
@@ -162,7 +162,7 @@ __get_cxx_version ()
         auto cout_strbuf = std::cout.rdbuf();
         auto cerr_strbuf = std::cerr.rdbuf();
 
-        if (silent)
+        if (config.silent)
         {
             auto null = xnull();
             std::cout.rdbuf(&null);
@@ -202,7 +202,7 @@ __get_cxx_version ()
         std::cerr << std::flush;
 
         // Reset non-silent output buffers
-        if (silent)
+        if (config.silent)
         {
             std::cout.rdbuf(cout_strbuf);
             std::cerr.rdbuf(cerr_strbuf);
@@ -221,7 +221,7 @@ __get_cxx_version ()
                 ename = " ";
             }
             std::vector<std::string> traceback({ename  + evalue});
-            if (!silent)
+            if (!config.silent)
             {
                 publish_execution_error(ename, evalue, traceback);
             }
@@ -237,7 +237,7 @@ __get_cxx_version ()
             /*
                 // Publish a mime bundle for the last return value if
                 // the semicolon was omitted.
-                if (!silent && output.hasValue() && trim(code).back() != ';')
+                if (!config.silent && output.hasValue() && trim(code).back() != ';')
                 {
                     nl::json pub_data = mime_repr(output);
                     publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
@@ -248,7 +248,7 @@ __get_cxx_version ()
             kernel_res["payload"] = nl::json::array();
             kernel_res["user_expressions"] = nl::json::object();
         }
-        return kernel_res;
+        cb(kernel_res);
     }
 
     nl::json interpreter::complete_request_impl(const std::string& code, int cursor_pos)
@@ -387,7 +387,7 @@ __get_cxx_version ()
 
     void interpreter::init_includes()
     {
-        Cpp::AddIncludePath((xtl::prefix_path() + "/include/").c_str());
+        Cpp::AddIncludePath((xeus::prefix_path() + "/include/").c_str());
     }
 
     void interpreter::init_preamble()

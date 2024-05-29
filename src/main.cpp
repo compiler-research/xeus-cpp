@@ -23,6 +23,7 @@
 #include <xeus/xkernel.hpp>
 #include <xeus/xkernel_configuration.hpp>
 
+#include "xeus-zmq/xzmq_context.hpp"
 #include <xeus-zmq/xserver_zmq.hpp>
 
 #include "xeus-cpp/xeus_cpp_config.hpp"
@@ -61,18 +62,20 @@ int main(int argc, char* argv[])
 
     interpreter_ptr interpreter = xcpp::build_interpreter(argc, argv);
 
-    auto context = xeus::make_context<zmq::context_t>();
+    // auto context = xeus::make_context<zmq::context_t>();
+    std::unique_ptr<xeus::xcontext> context = xeus::make_zmq_context();
 
     if (!file_name.empty())
     {
         xeus::xconfiguration config = xeus::load_configuration(file_name);
 
+        std::clog << "Instantiating kernel" << std::endl;
         xeus::xkernel kernel(
             config,
             xeus::get_user_name(),
             std::move(context),
             std::move(interpreter),
-            xeus::make_xserver_zmq,
+            xeus::make_xserver_default,
             xeus::make_in_memory_history_manager(),
             xeus::make_console_logger(
                 xeus::xlogger::msg_type,
@@ -94,7 +97,7 @@ int main(int argc, char* argv[])
             xeus::get_user_name(),
             std::move(context),
             std::move(interpreter),
-            xeus::make_xserver_zmq,
+            xeus::make_xserver_default,
             xeus::make_in_memory_history_manager(),
             xeus::make_console_logger(
                 xeus::xlogger::msg_type,
@@ -102,6 +105,7 @@ int main(int argc, char* argv[])
             )
         );
 
+        std::cout << "Getting config" << std::endl;
         const auto& config = kernel.get_config();
         std::clog << "Starting xcpp kernel...\n\n"
                      "If you want to connect to this kernel from an other client, just copy"
