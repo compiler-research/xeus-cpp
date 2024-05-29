@@ -13,7 +13,7 @@
       "-std=c++14",
       "-fno-exceptions",
       "-O2",
-      "-v"@XEUS_CPP_OMP@
+      "-v","@XEUS_CPP_OMP@"
   ],
   "language": "cpp",
   "metadata": {"debugger": false}
