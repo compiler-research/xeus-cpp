@@ -148,7 +148,7 @@ if platform.system() == 'Windows':
         
         def test_xcpp_err(self):
             self.flush_channels()
-            msg_id = self.kc.complete(self.code_complete_sample, len(self.code_complete_sample))
+            msg_id = self.kc.complete(self.code_err)
             reply = self.get_non_kernel_info_reply(timeout=1)
             print(reply)
             self.assertEqual(reply['msg_type'], 'stream')
