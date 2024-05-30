@@ -164,8 +164,6 @@ function(configure_kernel kernel)
 endfunction()
 
 message("Configure kernels: ...")
-configure_kernel("/share/jupyter/kernels/xcpp11/")
-configure_kernel("/share/jupyter/kernels/xcpp14/")
 configure_kernel("/share/jupyter/kernels/xcpp17/")
 configure_kernel("/share/jupyter/kernels/xcpp20/")
 
