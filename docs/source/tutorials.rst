@@ -7,7 +7,7 @@ on Jupyter kernels.
 
 1. Install the xeus-cpp from source using conda-forge for fetching dependencies.
 
-2. Launch the Jupyter Notebook with C++-11, C++-14, C++-17 kernels available.
+2. Launch the Jupyter Notebook with either the C++17 or C++20 kernel available.
 
 3. In a code cell, write the C++ code.
 
