@@ -55,5 +55,5 @@ and the python tests by executing
 
 ```bash
 cd ./test
-pytest -sv .
+pytest -sv test_xcpp_kernel.py
 ```
