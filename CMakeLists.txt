@@ -80,6 +80,7 @@ endif()
 
 set(xtl_REQUIRED_VERSION 0.7.0)
 set(xeus_REQUIRED_VERSION 3.2.0)
+set(xeus_zmq_REQUIRED_VERSION 1.0.2)
 
 if (NOT TARGET xtl)
     find_package(xtl ${xtl_REQUIRED_VERSION} REQUIRED)
@@ -355,7 +356,7 @@ endif ()
 # ====
 
 if (XEUS_CPP_BUILD_EXECUTABLE)
-    find_package(xeus-zmq 1.0.2 REQUIRED)
+    find_package(xeus-zmq ${xeus_zmq_REQUIRED_VERSION} REQUIRED)
     add_executable(xcpp ${XEUS_CPP_MAIN_SRC})
     target_compile_features(xcpp PRIVATE cxx_std_17)
     xeus_cpp_set_common_options(xcpp)
