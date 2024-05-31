@@ -2,11 +2,12 @@
 Before submitting an issue please confirm you have checked the follow
 - [ ] This issue is not a duplicate of one already open
 - [ ] The title of the issue is clear
+- [ ] This issue is not described in the documentation
 
 # System information
 * xeus-cpp version:
 * Operating System:
-* CPU architechture:
+* CPU architecture (x86,arm,etc):
 
 ## Description of issue
 Please tick the boxes which apply to your issue
