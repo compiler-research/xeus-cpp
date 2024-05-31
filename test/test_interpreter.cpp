@@ -17,6 +17,8 @@
 #include "../src/xsystem.hpp"
 #include "../src/xmagics/os.hpp"
 
+#include <iostream>
+
 #include <fstream>
 #if defined(__GNUC__) && !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
     #include <sys/wait.h>
@@ -610,6 +612,20 @@ TEST_SUITE("xmagics_contains"){
     } 
 }
 
+class MyMagicLine : public xcpp::xmagic_line {
+public:
+    virtual void operator()(const std::string& line) override{
+        std::cout << line << std::endl;
+    }
+};
+
+class MyMagicCell : public xcpp::xmagic_cell {
+public:
+    virtual void operator()(const std::string& line, const std::string& cell) override{
+        std::cout << line << cell << std::endl;
+    }
+};
+
 TEST_SUITE("xmagics_apply"){
     TEST_CASE("bad_status_cell") {
         xcpp::xmagics_manager manager;
@@ -626,6 +642,52 @@ TEST_SUITE("xmagics_apply"){
         manager.apply("%dummy", kernel_res);
         REQUIRE(kernel_res["status"] == "error");
     } 
+
+    TEST_CASE("good_status_line") {
+
+        xcpp::xpreamble_manager preamble_manager;
+
+        preamble_manager.register_preamble("magics", new xcpp::xmagics_manager());
+
+        preamble_manager["magics"].get_cast<xcpp::xmagics_manager>().register_magic("magic2", MyMagicCell());
+
+        nl::json kernel_res;
+
+        preamble_manager["magics"].get_cast<xcpp::xmagics_manager>().apply("%%magic2 qwerty", kernel_res);
+
+        REQUIRE(kernel_res["status"] == "ok");
+    } 
+
+    TEST_CASE("good_status_cell") {
+
+        xcpp::xpreamble_manager preamble_manager;
+
+        preamble_manager.register_preamble("magics", new xcpp::xmagics_manager());
+
+        preamble_manager["magics"].get_cast<xcpp::xmagics_manager>().register_magic("magic1", MyMagicLine());
+
+        nl::json kernel_res;
+
+        preamble_manager["magics"].get_cast<xcpp::xmagics_manager>().apply("%magic1 qwerty", kernel_res);
+
+        REQUIRE(kernel_res["status"] == "ok");
+    } 
+
+    TEST_CASE("cell magic with empty cell body") {
+        xcpp::xmagics_manager manager;
+
+        std::stringstream ss;
+        auto cerr_buff = std::cerr.rdbuf();
+        std::cerr.rdbuf(ss.rdbuf());
+
+        manager.apply("test", "line", "");
+
+        std::cerr.rdbuf(cerr_buff);
+        REQUIRE(ss.str() == "UsageError: %%test is a cell magic, but the cell body is empty.\n"
+                      "If you only intend to display %%test help, please use a double line break to fill in the cell body.\n");
+
+    }
+
 }
 
 #if defined(__GNUC__) && !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
@@ -646,3 +708,31 @@ TEST_SUITE("xutils_handler"){
     }
 }
 #endif
+
+TEST_SUITE("complete_request")
+{
+    TEST_CASE("completion_test")
+    {
+        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+
+        nl::json execute = interpreter.execute_request("#include <iostream>", false, false, nl::json::object(), false);
+
+        REQUIRE(execute["status"] == "ok");
+
+        std::string code = "st";
+        int cursor_pos = 2;
+        nl::json result = interpreter.complete_request(code, cursor_pos);
+
+        REQUIRE(result["cursor_start"] == 0);
+        REQUIRE(result["cursor_end"] == 2);
+        REQUIRE(result["status"] == "ok");
+        size_t found = 0;
+        for (auto& r : result["matches"]) {
+            if (r == "static" || r == "struct") {
+                found++;
+            }
+        }
+        REQUIRE(found == 2);
+    }
+}
