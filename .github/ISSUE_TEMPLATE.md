@@ -1,14 +1,29 @@
-* xeus-cookiecutter version:
+# Checklist
+Before submitting an issue please confirm you have checked the follow
+- [ ] This issue is not a duplicate of one already open
+- [ ] The title of the issue is clear
+
+# System information
+* xeus-cpp version:
 * Operating System:
+* CPU architechture:
 
-### Description
+## Description of issue
+Please tick the boxes which apply to your issue
+- [ ] Bug in xeus-cpp
+- [ ] Request for new feature to be added
+- [ ] Issue with documentation
+- [ ] Other (please state below)
 
-Describe what you were trying to get done.
-Tell us what happened, what went wrong, and what you expected to happen.
+### Expected Result
 
-### What I Did
+### Result I am getting
+
+### What I did which shows issue
 
 ```
 Paste the command(s) you ran and the output.
 If there was a crash, please include the traceback here.
 ```
+
+### Any other information you believe is relevant
