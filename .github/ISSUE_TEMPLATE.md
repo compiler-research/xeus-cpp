@@ -10,21 +10,15 @@ Before submitting an issue please confirm you have checked the follow
 * CPU architecture (x86,arm,etc):
 
 ## Description of issue
-Please tick the boxes which apply to your issue
-- [ ] Bug in xeus-cpp
-- [ ] Request for new feature to be added
-- [ ] Issue with documentation
-- [ ] Other (please state below)
+Please provide a description of the issue (fill out subsequent sections if your issue corresponds to a xeus-cpp not working as expected)
 
-### Expected Result
-
-### Result I am getting
-
-### What I did which shows issue
+### Commands or code executed
 
 ```
-Paste the command(s) you ran and the output.
+Paste the command(s) or code you executed and the output.
 If there was a crash, please include the traceback here.
 ```
+
+### Expected Result
 
 ### Any other information you believe is relevant
