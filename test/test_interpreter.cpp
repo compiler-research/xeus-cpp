@@ -17,11 +17,47 @@
 #include "../src/xsystem.hpp"
 #include "../src/xmagics/os.hpp"
 
+#include <iostream>
+
 #include <fstream>
 #if defined(__GNUC__) && !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
     #include <sys/wait.h>
     #include <unistd.h>
 #endif
+
+
+/// A RAII class to redirect a stream to a stringstream.
+///
+/// This class redirects the output of a given std::ostream to a std::stringstream.
+/// The original stream is restored when the object is destroyed.
+class StreamRedirectRAII {
+    public:
+
+        /// Constructor that starts redirecting the given stream.
+        StreamRedirectRAII(std::ostream& stream) : old_stream_buff(stream.rdbuf()), stream_to_redirect(stream) {
+            stream_to_redirect.rdbuf(ss.rdbuf());
+        }
+
+        /// Destructor that restores the original stream.
+        ~StreamRedirectRAII() {
+            stream_to_redirect.rdbuf(old_stream_buff);
+        }
+
+        /// Get the output that was written to the stream.
+        std::string getCaptured() {
+            return ss.str();
+        }
+
+    private:
+        /// The original buffer of the stream.
+        std::streambuf* old_stream_buff;
+
+        /// The stream that is being redirected.
+        std::ostream& stream_to_redirect;
+
+        /// The stringstream that the stream is redirected to.
+        std::stringstream ss;
+};
 
 TEST_SUITE("execute_request")
 {
@@ -610,6 +646,20 @@ TEST_SUITE("xmagics_contains"){
     } 
 }
 
+class MyMagicLine : public xcpp::xmagic_line {
+public:
+    virtual void operator()(const std::string& line) override{
+        std::cout << line << std::endl;
+    }
+};
+
+class MyMagicCell : public xcpp::xmagic_cell {
+public:
+    virtual void operator()(const std::string& line, const std::string& cell) override{
+        std::cout << line << cell << std::endl;
+    }
+};
+
 TEST_SUITE("xmagics_apply"){
     TEST_CASE("bad_status_cell") {
         xcpp::xmagics_manager manager;
@@ -626,6 +676,48 @@ TEST_SUITE("xmagics_apply"){
         manager.apply("%dummy", kernel_res);
         REQUIRE(kernel_res["status"] == "error");
     } 
+
+    TEST_CASE("good_status_line") {
+
+        xcpp::xpreamble_manager preamble_manager;
+
+        preamble_manager.register_preamble("magics", new xcpp::xmagics_manager());
+
+        preamble_manager["magics"].get_cast<xcpp::xmagics_manager>().register_magic("magic2", MyMagicCell());
+
+        nl::json kernel_res;
+
+        preamble_manager["magics"].get_cast<xcpp::xmagics_manager>().apply("%%magic2 qwerty", kernel_res);
+
+        REQUIRE(kernel_res["status"] == "ok");
+    } 
+
+    TEST_CASE("good_status_cell") {
+
+        xcpp::xpreamble_manager preamble_manager;
+
+        preamble_manager.register_preamble("magics", new xcpp::xmagics_manager());
+
+        preamble_manager["magics"].get_cast<xcpp::xmagics_manager>().register_magic("magic1", MyMagicLine());
+
+        nl::json kernel_res;
+
+        preamble_manager["magics"].get_cast<xcpp::xmagics_manager>().apply("%magic1 qwerty", kernel_res);
+
+        REQUIRE(kernel_res["status"] == "ok");
+    } 
+
+    TEST_CASE("cell magic with empty cell body") {
+
+        xcpp::xmagics_manager manager;
+
+        StreamRedirectRAII redirect(std::cerr);
+
+        manager.apply("test", "line", "");
+
+        REQUIRE(redirect.getCaptured() == "UsageError: %%test is a cell magic, but the cell body is empty.\n"
+                    "If you only intend to display %%test help, please use a double line break to fill in the cell body.\n");
+    }
 }
 
 #if defined(__GNUC__) && !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
