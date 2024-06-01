@@ -25,42 +25,38 @@
     #include <unistd.h>
 #endif
 
-/**
- * @class StreamRedirectRAII
- * @brief A RAII class to redirect a stream to a stringstream.
- *
- * This class redirects the output of a given std::ostream to a std::stringstream.
- * The original stream is restored when the object is destroyed.
- */
+
+/// A RAII class to redirect a stream to a stringstream.
+///
+/// This class redirects the output of a given std::ostream to a std::stringstream.
+/// The original stream is restored when the object is destroyed.
 class StreamRedirectRAII {
-public:
-    /**
-     * @brief Constructor that starts redirecting the given stream.
-     * @param stream The stream to redirect.
-     */
-    StreamRedirectRAII(std::ostream& stream) : old_stream_buff(stream.rdbuf()), stream_to_redirect(stream) {
-        stream_to_redirect.rdbuf(ss.rdbuf());
-    }
+    public:
 
-    /**
-     * @brief Destructor that restores the original stream.
-     */
-    ~StreamRedirectRAII() {
-        stream_to_redirect.rdbuf(old_stream_buff);
-    }
+        /// Constructor that starts redirecting the given stream.
+        StreamRedirectRAII(std::ostream& stream) : old_stream_buff(stream.rdbuf()), stream_to_redirect(stream) {
+            stream_to_redirect.rdbuf(ss.rdbuf());
+        }
 
-    /**
-     * @brief Get the output that was written to the stream.
-     * @return A string containing the output that was written to the stream.
-     */
-    std::string getCaptured() {
-        return ss.str();
-    }
+        /// Destructor that restores the original stream.
+        ~StreamRedirectRAII() {
+            stream_to_redirect.rdbuf(old_stream_buff);
+        }
 
-private:
-    std::streambuf* old_stream_buff; ///< The original buffer of the stream.
-    std::ostream& stream_to_redirect; ///< The stream that is being redirected.
-    std::stringstream ss; ///< The stringstream that the stream is redirected to.
+        /// Get the output that was written to the stream.
+        std::string getCaptured() {
+            return ss.str();
+        }
+
+    private:
+        /// The original buffer of the stream.
+        std::streambuf* old_stream_buff;
+
+        /// The stream that is being redirected.
+        std::ostream& stream_to_redirect;
+
+        /// The stringstream that the stream is redirected to.
+        std::stringstream ss;
 };
 
 TEST_SUITE("execute_request")
