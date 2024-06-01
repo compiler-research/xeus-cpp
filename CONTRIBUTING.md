@@ -54,6 +54,6 @@ cd ./test
 and the python tests by executing
 
 ```bash
-cd ./test
-pytest -sv .
+cd ../../test
+pytest -sv test_xcpp_kernel.py
 ```

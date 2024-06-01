@@ -52,7 +52,8 @@ cd test
 ```
 and
 ```bash
-pytest -sv .
+cd ../../test
+pytest -sv test_xcpp_kernel.py
 ```
 to perform the python tests.
 
