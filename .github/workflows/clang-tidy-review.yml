@@ -25,9 +25,9 @@ jobs:
           python-version: "3.11"
             
       - name: Install LLVM and Clang
-        uses: KyleMayes/install-llvm-action@v2.0.2
+        uses: KyleMayes/install-llvm-action@v2.0.3
         with:
-          version: "16.0.0"
+          version: "17.0.6"
 
       - name: Run clang-tidy
         uses: ZedThree/clang-tidy-review@v0.18.0
@@ -37,6 +37,7 @@ jobs:
           apt_packages: libxml2,libxml2-dev,libtinfo-dev,zlib1g-dev,libzstd-dev,curl
           exclude: "test/*,unittests/*,benchmark/*,demos/*"
           split_workflow: true
+          config_file: .clang-tidy
           cmake_command: >
             cmake . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=On || true && 
             rm -rf build && 
@@ -50,7 +51,7 @@ jobs:
             micromamba activate xeus-cpp && 
             cd .. && 
             git config --global --add safe.directory /github/workspace && 
-            cmake . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=On
+            cmake . -B build -DCMAKE_C_COMPILER="$GITHUB_WORKSPACE/llvm/bin/clang" -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/llvm/bin/clang++" -DCMAKE_EXPORT_COMPILE_COMMANDS=On
             
       - name: Upload artifacts
         uses: ZedThree/clang-tidy-review/upload@v0.18.0
