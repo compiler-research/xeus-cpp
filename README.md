@@ -138,8 +138,9 @@ http://xeus-cpp.readthedocs.io
 | `xeus-cpp` | `xeus-zmq`      | `CppInterOp` | `pugixml` | `cppzmq` | `cpp-argparse`| `nlohmann_json` |
 |------------|-----------------|--------------|-----------|----------|---------------|-----------------|
 |  main      |  >=3.0.0,<4.0.0 | >=1.3.0      | ~1.8.1    | ~4.3.0   | <3.1          | >=3.11.3,<4.0   |
+|  0.5.0     |  >=3.0.0,<4.0.0 | >=1.3.0      | ~1.8.1    | ~4.3.0   | <3.1          | >=3.11.3,<4.0   |
 
-Versions prior to `main` have an additional dependency on [xtl](https://github.com/xtensor-stack/xtl) & [clang](https://github.com/llvm/llvm-project/).
+Versions prior to `0.5.0` have an additional dependency on [xtl](https://github.com/xtensor-stack/xtl) & [clang](https://github.com/llvm/llvm-project/).
 
 | `xeus-cpp` | `xeus-zmq`      | `xtl`           | `clang`   | `pugixml` | `cppzmq` | `cpp-argparse`| `nlohmann_json` |
 |------------|-----------------|-----------------|-----------|-----------|----------|---------------|-----------------|

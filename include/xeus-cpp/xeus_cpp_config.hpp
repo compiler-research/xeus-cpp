@@ -11,7 +11,7 @@
 
 // Project version
 #define XEUS_CPP_VERSION_MAJOR 0
-#define XEUS_CPP_VERSION_MINOR 4
+#define XEUS_CPP_VERSION_MINOR 5
 #define XEUS_CPP_VERSION_PATCH 0
 
 // Composing the version string from major, minor and patch
