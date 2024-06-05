@@ -31,7 +31,7 @@ or miniconda installed cd into the xeus-cpp directory and set setup your environ
 
 ```bash
 cd xeus-cpp
-micromamba create -n xeus-cpp -f environment-dev.yml
+micromamba create -f environment-dev.yml -y
 micromamba activate xeus-cpp
 ```
 
