@@ -22,7 +22,6 @@
 
 #include "xeus-cpp/xbuffer.hpp"
 #include "xeus-cpp/xeus_cpp_config.hpp"
-
 #include "xeus-cpp/xinterpreter.hpp"
 #include "xeus-cpp/xmagics.hpp"
 

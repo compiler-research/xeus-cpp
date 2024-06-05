@@ -14,13 +14,16 @@
 #include "xeus-cpp/xmanager.hpp"
 #include "xeus-cpp/xutils.hpp"
 #include "xeus-cpp/xoptions.hpp"
+#include "xeus-cpp/xeus_cpp_config.hpp"
 
 #include "../src/xparser.hpp"
 #include "../src/xsystem.hpp"
 #include "../src/xmagics/os.hpp"
+#include "../src/xinspect.hpp"
+
 
 #include <iostream>
-
+#include <pugixml.hpp>
 #include <fstream>
 #if defined(__GNUC__) && !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
     #include <sys/wait.h>
@@ -829,5 +832,59 @@ TEST_SUITE("complete_request")
             }
         }
         REQUIRE(found == 2);
+    }
+}
+
+TEST_SUITE("xinspect"){
+    TEST_CASE("class_member_predicate_get_filename"){
+        xcpp::class_member_predicate cmp;
+        cmp.class_name = "TestClass";
+        cmp.kind = "public";
+        cmp.child_value = "testMethod";
+
+        pugi::xml_document doc;
+        pugi::xml_node node = doc.append_child("node");
+        node.append_attribute("kind") = "class";
+        pugi::xml_node name = node.append_child("name");
+        name.append_child(pugi::node_pcdata).set_value("TestClass");
+        pugi::xml_node child = node.append_child("node");
+        child.append_attribute("kind") = "public";
+        pugi::xml_node child_name = child.append_child("name");
+        child_name.append_child(pugi::node_pcdata).set_value("testMethod");
+        pugi::xml_node anchorfile = child.append_child("anchorfile");
+        anchorfile.append_child(pugi::node_pcdata).set_value("testfile.cpp");
+
+        REQUIRE(cmp.get_filename(node) == "testfile.cpp");
+    
+        cmp.child_value = "nonexistentMethod";
+        REQUIRE(cmp.get_filename(node) == "");
+    }
+
+    TEST_CASE("class_member_predicate_operator"){
+        xcpp::class_member_predicate cmp;
+        cmp.class_name = "TestClass";
+        cmp.kind = "public";
+        cmp.child_value = "testMethod";
+
+        pugi::xml_document doc;
+        pugi::xml_node node = doc.append_child("node");
+        node.append_attribute("kind") = "class";
+        pugi::xml_node name = node.append_child("name");
+        name.append_child(pugi::node_pcdata).set_value("TestClass");
+        pugi::xml_node child = node.append_child("node");
+        child.append_attribute("kind") = "public";
+        pugi::xml_node child_name = child.append_child("name");
+        child_name.append_child(pugi::node_pcdata).set_value("testMethod");
+
+    
+        REQUIRE(cmp(node) == true);
+        node.attribute("kind").set_value("struct");
+        REQUIRE(cmp(node) == true);
+        cmp.class_name = "NonexistentClass";
+        REQUIRE(cmp(node) == false);
+        cmp.kind = "private";
+        REQUIRE(cmp(node) == false);
+        cmp.child_value = "nonexistentMethod";
+        REQUIRE(cmp(node) == false);
     }
 }
