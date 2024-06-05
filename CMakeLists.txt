@@ -24,10 +24,10 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH}")
 set(XEUS_CPP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # xeus-cpp tag files
-set(XEUS_CPP_DATA_DIR "share/xeus-cpp" CACHE STRING "xeus-cpp data directory")
+set(XEUS_CPP_DATA_DIR "share/xeus-cpp")
 set(XCPP_TAGFILES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/share/xeus-cpp/tagfiles)
 
-set(XEUS_CPP_CONF_DIR "etc/xeus-cpp"   CACHE STRING "xeus-cpp configuration directory")
+set(XEUS_CPP_CONF_DIR "etc/xeus-cpp")
 set(XCPP_TAGCONFS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/etc/xeus-cpp/tags.d)
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/include/xeus-cpp/xeus_cpp_config.hpp.in" 
