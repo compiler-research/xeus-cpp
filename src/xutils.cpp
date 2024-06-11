@@ -106,11 +106,11 @@ namespace xcpp
 
         std::string prefix = xeus::prefix_path();
 
-        #if defined (_WIN32)
-            const char separator = '\\';
-        #else
-            const char separator = '/';
-        #endif
+#if defined(_WIN32)
+        const char separator = '\\';
+#else
+        const char separator = '/';
+#endif
 
         return prefix + separator + "etc" + separator + "xeus-cpp" + separator + "tags.d";
     }
@@ -125,11 +125,11 @@ namespace xcpp
 
         std::string prefix = xeus::prefix_path();
 
-        #if defined (_WIN32)
-            const char separator = '\\';
-        #else
-            const char separator = '/';
-        #endif
+#if defined(_WIN32)
+        const char separator = '\\';
+#else
+        const char separator = '/';
+#endif
 
         return prefix + separator + "share" + separator + "xeus-cpp" + separator + "tagfiles";
     }
