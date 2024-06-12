@@ -11,7 +11,15 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Github-page
+            os: ubuntu-24.04
+            emsdk_ver: "3.1.45"
     steps:
       - uses: actions/checkout@v4
         with:
