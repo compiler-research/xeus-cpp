@@ -14,6 +14,10 @@
 `xeus-cpp` is a Jupyter kernel for cpp based on the native implementation of the
 Jupyter protocol [xeus](https://github.com/jupyter-xeus/xeus).
 
+Try Jupyter Lite demo by clicking below
+
+[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://compiler-research.github.io/xeus-cpp/lab/index.html)
+
 ## Installation within a mamba environment (non wasm build instructions)
 
 To ensure that the installation works, it is preferable to install `xeus-cpp` in a
