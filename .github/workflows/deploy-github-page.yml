@@ -86,7 +86,9 @@ jobs:
           micromamba create -n xeus-lite-host jupyterlite-core
           micromamba activate xeus-lite-host
           python -m pip install jupyterlite-xeus
-          jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }} --contents README.md --output-dir dist
+          mv $GITHUB_WORKSPACE/notebooks dist
+          mv $GITHUB_WORKSPACE/README.md dist
+          jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }} --output-dir dist
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
