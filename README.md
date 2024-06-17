@@ -40,7 +40,7 @@ source activate  "xeus-cpp"
 ```
 We will now install the dependencies needed to compile xeux-cpp from source within this environment by executing the following
 ```bash
-mamba install notebook cmake cxx-compiler xeus-zmq nlohmann_json=3.11.2 cppzmq xtl jupyterlab CppInterOp cpp-argparse<3.1 pugixml doctest -c conda-forge
+mamba install notebook cmake cxx-compiler xeus-zmq nlohmann_json=3.11.3 jupyterlab CppInterOp cpp-argparse<3.1 pugixml doctest -c conda-forge
 ```
 Now you can compile the kernel from the source by executing (replace `$CONDA_PREFIX` with a custom installation prefix if need be)
 ```bash
@@ -135,16 +135,15 @@ http://xeus-cpp.readthedocs.io
 
 - [xeus-zmq](https://github.com/jupyter-xeus/xeus-zmq)
 - [nlohmann_json](https://github.com/nlohmann/json)
-- [cppzmq](https://github.com/zeromq/cppzmq)
 - [argparse](https://github.com/p-ranav/argparse)
 - [CppInterOp](https://github.com/compiler-research/CppInterOp)
 
-| `xeus-cpp` | `xeus-zmq`      | `CppInterOp` | `pugixml` | `cppzmq` | `cpp-argparse`| `nlohmann_json` |
-|------------|-----------------|--------------|-----------|----------|---------------|-----------------|
-|  main      |  >=3.0.0,<4.0.0 | >=1.3.0      | ~1.8.1    | ~4.3.0   | <3.1          | >=3.11.3,<4.0   |
-|  0.5.0     |  >=3.0.0,<4.0.0 | >=1.3.0      | ~1.8.1    | ~4.3.0   | <3.1          | >=3.11.3,<4.0   |
+| `xeus-cpp` | `xeus-zmq`      | `CppInterOp` | `pugixml` | `cpp-argparse`| `nlohmann_json` |
+|------------|-----------------|--------------|-----------|---------------|-----------------|
+|  main      |  >=3.0.0,<4.0.0 | >=1.3.0      | ~1.8.1    | <3.1          | >=3.11.3,<4.0   |
+|  0.5.0     |  >=3.0.0,<4.0.0 | >=1.3.0      | ~1.8.1    | <3.1          | >=3.11.3,<4.0   |
 
-Versions prior to `0.5.0` have an additional dependency on [xtl](https://github.com/xtensor-stack/xtl) & [clang](https://github.com/llvm/llvm-project/).
+Versions prior to `0.5.0` have an additional dependency on [xtl](https://github.com/xtensor-stack/xtl), [clang](https://github.com/llvm/llvm-project/) & [cppzmq](https://github.com/zeromq/cppzmq)
 
 | `xeus-cpp` | `xeus-zmq`      | `xtl`           | `clang`   | `pugixml` | `cppzmq` | `cpp-argparse`| `nlohmann_json` |
 |------------|-----------------|-----------------|-----------|-----------|----------|---------------|-----------------|

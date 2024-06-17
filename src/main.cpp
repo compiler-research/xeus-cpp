@@ -62,7 +62,6 @@ int main(int argc, char* argv[])
 
     interpreter_ptr interpreter = xcpp::build_interpreter(argc, argv);
 
-    // auto context = xeus::make_context<zmq::context_t>();
     std::unique_ptr<xeus::xcontext> context = xeus::make_zmq_context();
 
     if (!file_name.empty())
