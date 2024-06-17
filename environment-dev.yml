@@ -10,7 +10,6 @@ dependencies:
   - xeus>=5.0.0
   - xeus-zmq>=3.0,<4.0
   - nlohmann_json=3.11.3
-  - cppzmq
   - CppInterOp>=1.3.0
   - pugixml
   - cpp-argparse <3.1
