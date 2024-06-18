@@ -67,7 +67,7 @@ namespace xcpp
             }
         }
 
-        virtual std::unique_ptr<xpreamble> clone() const override
+        std::unique_ptr<xpreamble> clone() const override
         {
             return std::make_unique<xsystem>(*this);
         }
