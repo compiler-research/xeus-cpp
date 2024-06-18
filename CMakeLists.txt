@@ -37,14 +37,14 @@ file(COPY "${XCPP_TAGCONFS_DIR}" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/etc/xe
 # ===========
 
 file(STRINGS "${XEUS_CPP_INCLUDE_DIR}/xeus-cpp/xeus_cpp_config.hpp" version_defines
-     REGEX "#define XEUS_CPP_VERSION_(MAJOR|MINOR|PATCH)")
+     REGEX "#define XEUS_CPP_VERSION_(MAJOR|MINOR|PATCH|LABEL)")
 foreach (ver ${version_defines})
-    if (ver MATCHES "#define XEUS_CPP_VERSION_(MAJOR|MINOR|PATCH) +([^ ]+)$")
+    if (ver MATCHES "#define XEUS_CPP_VERSION_(MAJOR|MINOR|PATCH|LABEL) +([^ ]+)$")
         set(XEUS_CPP_VERSION_${CMAKE_MATCH_1} "${CMAKE_MATCH_2}" CACHE INTERNAL "")
     endif ()
 endforeach ()
 set(${PROJECT_NAME}_VERSION
-    ${XEUS_CPP_VERSION_MAJOR}.${XEUS_CPP_VERSION_MINOR}.${XEUS_CPP_VERSION_PATCH})
+    ${XEUS_CPP_VERSION_MAJOR}.${XEUS_CPP_VERSION_MINOR}.${XEUS_CPP_VERSION_PATCH}${XEUS_CPP_VERSION_LABEL})
 message(STATUS "Building xeus-cpp v${${PROJECT_NAME}_VERSION}")
 
 # Build options
