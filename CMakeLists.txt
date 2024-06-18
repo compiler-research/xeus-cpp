@@ -30,9 +30,6 @@ set(XCPP_TAGFILES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/share/xeus-cpp/tagfiles)
 set(XEUS_CPP_CONF_DIR "etc/xeus-cpp")
 set(XCPP_TAGCONFS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/etc/xeus-cpp/tags.d)
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/include/xeus-cpp/xeus_cpp_config.hpp.in" 
-                "${CMAKE_CURRENT_SOURCE_DIR}/include/xeus-cpp/xeus_cpp_config.hpp")
-
 file(COPY "${XCPP_TAGFILES_DIR}" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/share/xeus-cpp")
 file(COPY "${XCPP_TAGCONFS_DIR}" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/etc/xeus-cpp")
 
@@ -40,14 +37,14 @@ file(COPY "${XCPP_TAGCONFS_DIR}" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/etc/xe
 # ===========
 
 file(STRINGS "${XEUS_CPP_INCLUDE_DIR}/xeus-cpp/xeus_cpp_config.hpp" version_defines
-     REGEX "#define XEUS_CPP_VERSION_(MAJOR|MINOR|PATCH|LABEL)")
+     REGEX "#define XEUS_CPP_VERSION_(MAJOR|MINOR|PATCH)")
 foreach (ver ${version_defines})
-    if (ver MATCHES "#define XEUS_CPP_VERSION_(MAJOR|MINOR|PATCH|LABEL) +([^ ]+)$")
+    if (ver MATCHES "#define XEUS_CPP_VERSION_(MAJOR|MINOR|PATCH) +([^ ]+)$")
         set(XEUS_CPP_VERSION_${CMAKE_MATCH_1} "${CMAKE_MATCH_2}" CACHE INTERNAL "")
     endif ()
 endforeach ()
 set(${PROJECT_NAME}_VERSION
-    ${XEUS_CPP_VERSION_MAJOR}.${XEUS_CPP_VERSION_MINOR}.${XEUS_CPP_VERSION_PATCH}${XEUS_CPP_VERSION_LABEL})
+    ${XEUS_CPP_VERSION_MAJOR}.${XEUS_CPP_VERSION_MINOR}.${XEUS_CPP_VERSION_PATCH})
 message(STATUS "Building xeus-cpp v${${PROJECT_NAME}_VERSION}")
 
 # Build options
