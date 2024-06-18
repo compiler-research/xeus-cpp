@@ -15,9 +15,6 @@
 #define XEUS_CPP_VERSION_PATCH 0
 #define XEUS_CPP_VERSION_LABEL dev
 
-#define XCPP_TAGFILES_DIR "@XCPP_TAGFILES_DIR@"
-#define XCPP_TAGCONFS_DIR "@XCPP_TAGCONFS_DIR@"
-
 // Composing the version string from major, minor and patch
 #define XEUS_CPP_CONCATENATE(A, B) XEUS_CPP_CONCATENATE_IMPL(A, B)
 #define XEUS_CPP_CONCATENATE_IMPL(A, B) A##B
