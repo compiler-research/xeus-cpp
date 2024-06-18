@@ -407,7 +407,7 @@ TEST_SUITE("clone_magics_manager")
     {
         xcpp::xmagics_manager manager;
 
-        xcpp::xpreamble* clone = manager.clone();
+        std::unique_ptr<xcpp::xpreamble> clone = manager.clone();
 
         REQUIRE(clone != nullptr);
     }
@@ -419,11 +419,9 @@ TEST_SUITE("clone_magics_manager")
     {
         xcpp::xmagics_manager manager;
 
-        xcpp::xpreamble* clone = manager.clone();
+        std::unique_ptr<xcpp::xpreamble> clone = manager.clone();
 
-        REQUIRE(dynamic_cast<xcpp::xmagics_manager*>(clone) != nullptr);
-
-        delete clone;
+        REQUIRE(clone.get() != nullptr);
     }
 }
 
@@ -436,12 +434,13 @@ TEST_SUITE("xpreamble_manager_operator")
     {
         std::string name = "test";
         xcpp::xpreamble_manager manager;
-        xcpp::xmagics_manager* magics = new xcpp::xmagics_manager();
-        manager.register_preamble(name, magics);
+        std::unique_ptr<xcpp::xmagics_manager> magics = std::make_unique<xcpp::xmagics_manager>();
+        auto* raw_ptr = magics.get();
+        manager.register_preamble(name, std::move(magics));
 
         xcpp::xholder_preamble& result = manager.operator[](name);
 
-        REQUIRE(&(result.get_cast<xcpp::xmagics_manager>()) == magics);
+        REQUIRE(&(result.get_cast<xcpp::xmagics_manager>()) == raw_ptr);
     }
 }
 
@@ -642,7 +641,7 @@ TEST_SUITE("xsystem_clone")
     {
         xcpp::xsystem system;
 
-        xcpp::xpreamble* clone = system.clone();
+        std::unique_ptr<xcpp::xpreamble> clone = system.clone();
 
         REQUIRE(clone != nullptr);
     }
@@ -651,9 +650,9 @@ TEST_SUITE("xsystem_clone")
     {
         xcpp::xsystem system;
 
-        xcpp::xpreamble* clone = system.clone();
+        std::unique_ptr<xcpp::xpreamble> clone = system.clone();
 
-        REQUIRE(dynamic_cast<xcpp::xsystem*>(clone) != nullptr);
+        REQUIRE(clone.get() != nullptr);
 
     }
 }
@@ -727,7 +726,7 @@ TEST_SUITE("xmagics_apply"){
 
         xcpp::xpreamble_manager preamble_manager;
 
-        preamble_manager.register_preamble("magics", new xcpp::xmagics_manager());
+        preamble_manager.register_preamble("magics", std::make_unique<xcpp::xmagics_manager>());
 
         preamble_manager["magics"].get_cast<xcpp::xmagics_manager>().register_magic("magic2", MyMagicCell());
 
@@ -742,7 +741,7 @@ TEST_SUITE("xmagics_apply"){
 
         xcpp::xpreamble_manager preamble_manager;
 
-        preamble_manager.register_preamble("magics", new xcpp::xmagics_manager());
+        preamble_manager.register_preamble("magics", std::make_unique<xcpp::xmagics_manager>());
 
         preamble_manager["magics"].get_cast<xcpp::xmagics_manager>().register_magic("magic1", MyMagicLine());
 

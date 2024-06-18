@@ -30,12 +30,12 @@ namespace xcpp
         ~xholder_preamble();
         xholder_preamble(const xholder_preamble& rhs);
         xholder_preamble(xholder_preamble&& rhs);
-        xholder_preamble(xpreamble* holder);
+        xholder_preamble(std::unique_ptr<xpreamble> holder);
 
         xholder_preamble& operator=(const xholder_preamble& rhs);
         xholder_preamble& operator=(xholder_preamble&& rhs);
 
-        xholder_preamble& operator=(xpreamble* holder);
+        xholder_preamble& operator=(std::unique_ptr<xpreamble> holder);
 
         void swap(xholder_preamble& rhs)
         {
@@ -53,7 +53,7 @@ namespace xcpp
 
     private:
 
-        xpreamble* p_holder;
+        std::unique_ptr<xpreamble> p_holder;
     };
 }
 #endif

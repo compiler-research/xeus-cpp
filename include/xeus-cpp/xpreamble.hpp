@@ -30,7 +30,7 @@ namespace xcpp
         }
 
         virtual void apply(const std::string& s, nl::json& kernel_res) = 0;
-        virtual xpreamble* clone() const = 0;
+        virtual std::unique_ptr<xpreamble> clone() const = 0;
         virtual ~xpreamble(){};
     };
 }

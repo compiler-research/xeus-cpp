@@ -31,9 +31,9 @@ namespace xcpp
         std::map<std::string, xholder_preamble> preamble;
 
         template <typename preamble_type>
-        void register_preamble(const std::string& name, preamble_type* pre)
+        void register_preamble(const std::string& name, std::unique_ptr<preamble_type> pre)
         {
-            preamble[name] = xholder_preamble(pre);
+            preamble[name] = xholder_preamble(std::move(pre));
         }
 
         void unregister_preamble(const std::string& name)
@@ -186,9 +186,9 @@ namespace xcpp
             }
         }
 
-        virtual xpreamble* clone() const override
+        [[nodiscard]] std::unique_ptr<xpreamble> clone() const override
         {
-            return new xmagics_manager(*this);
+            return std::make_unique<xmagics_manager>(*this);
         }
 
     private:
