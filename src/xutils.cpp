@@ -22,6 +22,7 @@
 #include <unistd.h>
 #endif
 
+#include "xeus/xsystem.hpp"
 
 #include "xeus-cpp/xutils.hpp"
 #include "xeus-cpp/xinterpreter.hpp"
@@ -95,4 +96,41 @@ namespace xcpp
         return interp_ptr;
     }
 
+    std::string retrieve_tagconf_dir()
+    {
+        const char* tagconf_dir_env = std::getenv("XCPP_TAGCONFS_DIR");
+        if (tagconf_dir_env != nullptr)
+        {
+            return tagconf_dir_env;
+        }
+
+        std::string prefix = xeus::prefix_path();
+
+#if defined(_WIN32)
+        const char separator = '\\';
+#else
+        const char separator = '/';
+#endif
+
+        return prefix + separator + "etc" + separator + "xeus-cpp" + separator + "tags.d";
+    }
+
+    std::string retrieve_tagfile_dir()
+    {
+        const char* tagfile_dir_env = std::getenv("XCPP_TAGFILES_DIR");
+        if (tagfile_dir_env != nullptr)
+        {
+            return tagfile_dir_env;
+        }
+
+        std::string prefix = xeus::prefix_path();
+
+#if defined(_WIN32)
+        const char separator = '\\';
+#else
+        const char separator = '/';
+#endif
+
+        return prefix + separator + "share" + separator + "xeus-cpp" + separator + "tagfiles";
+    }
 }
