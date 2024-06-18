@@ -186,7 +186,7 @@ namespace xcpp
             }
         }
 
-        std::unique_ptr<xpreamble> clone() const override
+        [[nodiscard]] std::unique_ptr<xpreamble> clone() const override
         {
             return std::make_unique<xmagics_manager>(*this);
         }

@@ -279,7 +279,7 @@ namespace xcpp
             inspect(to_inspect[1], kernel_res);
         }
 
-        std::unique_ptr<xpreamble> clone() const override
+        [[nodiscard]] std::unique_ptr<xpreamble> clone() const override
         {
             return std::make_unique<xintrospection>(*this);
         }
