@@ -24,23 +24,22 @@ namespace xcpp
     {
     }
 
-    xholder_preamble::xholder_preamble(xpreamble* holder)
-        : p_holder(holder)
+    xholder_preamble::xholder_preamble(std::unique_ptr<xpreamble> holder)
+        : p_holder(std::move(holder))
     {
     }
 
     xholder_preamble::~xholder_preamble()
     {
-        delete p_holder;
     }
 
     xholder_preamble::xholder_preamble(const xholder_preamble& rhs)
-        : p_holder(rhs.p_holder ? rhs.p_holder->clone() : nullptr)
+        : p_holder(rhs.p_holder ? std::move(rhs.p_holder->clone()) : nullptr)
     {
     }
 
     xholder_preamble::xholder_preamble(xholder_preamble&& rhs)
-        : p_holder(rhs.p_holder)
+        : p_holder(std::move(rhs.p_holder))
     {
         rhs.p_holder = nullptr;
     }
@@ -59,10 +58,9 @@ namespace xcpp
         return *this;
     }
 
-    xholder_preamble& xholder_preamble::operator=(xpreamble* holder)
+    xholder_preamble& xholder_preamble::operator=(std::unique_ptr<xpreamble> holder)
     {
-        delete p_holder;
-        p_holder = holder;
+        p_holder = std::move(holder);
         return *this;
     }
 

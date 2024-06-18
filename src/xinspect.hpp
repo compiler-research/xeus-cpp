@@ -279,9 +279,9 @@ namespace xcpp
             inspect(to_inspect[1], kernel_res);
         }
 
-        virtual xpreamble* clone() const override
+        virtual std::unique_ptr<xpreamble> clone() const override
         {
-            return new xintrospection(*this);
+            return std::make_unique<xintrospection>(*this);
         }
     };
 

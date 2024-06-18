@@ -391,11 +391,10 @@ __get_cxx_version ()
 
     void interpreter::init_preamble()
     {
-        // FIXME: Make register_preamble take a unique_ptr.
         //NOLINTBEGIN(cppcoreguidelines-owning-memory)
-        preamble_manager.register_preamble("introspection", new xintrospection());
-        preamble_manager.register_preamble("magics", new xmagics_manager());
-        preamble_manager.register_preamble("shell", new xsystem());
+        preamble_manager.register_preamble("introspection", std::make_unique<xintrospection>());
+        preamble_manager.register_preamble("magics", std::make_unique<xmagics_manager>());
+        preamble_manager.register_preamble("shell", std::make_unique<xsystem>());
         //NOLINTEND(cppcoreguidelines-owning-memory)
     }
 
