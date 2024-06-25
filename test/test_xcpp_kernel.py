@@ -141,7 +141,7 @@ if platform.system() != 'Windows':
             # Add more notebook names as needed
         ]
 
-        def test_notebooks(self) -> None:
+        def test_notebooks(self):
             for name in self.notebook_names:
 
                 inp = f'Notebooks/{name}.ipynb'
