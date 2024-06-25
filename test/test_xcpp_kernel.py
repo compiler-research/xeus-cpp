@@ -150,13 +150,16 @@ if platform.system() != 'Windows':
                 with open(inp) as f:
                     input_nb = nbformat.read(f, as_version=4)
 
-                # Execute the notebook
-                executed_notebook = pm.execute_notebook(
-                    inp,
-                    out,
-                    log_output=True,
-                    kernel_name='xcpp20'
-                )
+                try:
+                    # Execute the notebook
+                    executed_notebook = pm.execute_notebook(
+                        inp,
+                        out,
+                        log_output=True,
+                        kernel_name='xcpp20'
+                    )
+                except Exception as e:
+                    self.fail(f"Notebook {name} failed to execute: {e}")
 
                 with open(out) as f:
                     output_nb = nbformat.read(f, as_version=4)
