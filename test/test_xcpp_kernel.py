@@ -158,6 +158,8 @@ if platform.system() != 'Windows':
                         log_output=True,
                         kernel_name='xcpp20'
                     )
+                    if executed_notebook is None:  # Explicit check for None or any other condition
+                        self.fail(f"Execution of notebook {name} returned None")
                 except Exception as e:
                     self.fail(f"Notebook {name} failed to execute: {e}")
 
