@@ -28,6 +28,7 @@
 #include "xinput.hpp"
 #include "xinspect.hpp"
 #include "xmagics/os.hpp"
+#include "xmime_internal.hpp"
 #include "xparser.hpp"
 #include "xsystem.hpp"
 
@@ -128,16 +129,13 @@ __get_cxx_version ()
 
     void interpreter::execute_request_impl(
         send_reply_callback cb,
-        int /*execution_count*/,
+        int execution_counter,
         const std::string& code,
         xeus::execute_request_config config,
         nl::json /*user_expressions*/
     )
     {
         nl::json kernel_res;
-
-
-        auto input_guard = input_redirection(config.allow_stdin);
 
         // Check for magics
         for (auto& pre : preamble_manager.preamble)
@@ -150,10 +148,15 @@ __get_cxx_version ()
             }
         }
 
+        // Split code from includes
+        auto blocks = split_from_includes(code);
+
         auto errorlevel = 0;
+
         std::string ename;
         std::string evalue;
-        bool compilation_result = false;
+        intptr_t output_value = 0;
+        bool hadError = false;
 
         // If silent is set to true, temporarily dismiss all std::cerr and
         // std::cout outputs resulting from `process_code`.
@@ -170,30 +173,36 @@ __get_cxx_version ()
 
         std::string err;
 
-        // Attempt normal evaluation
-        try
-        {
-            StreamRedirectRAII R(err);
-            compilation_result = Cpp::Process(code.c_str());
-        }
-        catch (std::exception& e)
-        {
-            errorlevel = 1;
-            ename = "Standard Exception: ";
-            evalue = e.what();
-        }
-        catch (...)
-        {
-            errorlevel = 1;
-            ename = "Error: ";
-        }
+        // Scope guard performing the temporary redirection of input requests.
+        auto input_guard = input_redirection(config.allow_stdin);
 
-        if (compilation_result)
+        for (const auto& block : blocks)
         {
-            errorlevel = 1;
-            ename = "Error: ";
-            evalue = "Compilation error! " + err;
-            std::cerr << err;
+            // Attempt normal evaluation
+            try
+            {
+                StreamRedirectRAII R(err);
+                output_value = Cpp::Evaluate(block.c_str(), &hadError);
+            }
+            catch (std::exception& e)
+            {
+                errorlevel = 1;
+                ename = "Standard Exception: ";
+                evalue = e.what();
+            }
+            catch (...)
+            {
+                errorlevel = 1;
+                ename = "Error: ";
+            }
+
+            if (hadError)
+            {
+                errorlevel = 1;
+                ename = "Error: ";
+                evalue = "Compilation error! " + err;
+                std::cerr << err;
+            }
         }
 
         // Flush streams
@@ -233,15 +242,13 @@ __get_cxx_version ()
         }
         else
         {
-            /*
-                // Publish a mime bundle for the last return value if
-                // the semicolon was omitted.
-                if (!config.silent && output.hasValue() && trim(code).back() != ';')
-                {
-                    nl::json pub_data = mime_repr(output);
-                    publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
-                }
-                */
+            // Publish a mime bundle for the last return value if
+            // the semicolon was omitted.
+            if (!config.silent && output_value != 0 && trim(blocks.back()).back() != ';')
+            {
+                nl::json pub_data = mime_repr(output_value);
+                publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
+            }
             // Compose execute_reply message.
             kernel_res["status"] = "ok";
             kernel_res["payload"] = nl::json::array();
