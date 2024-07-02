@@ -8,6 +8,7 @@
  ************************************************************************************/
 #include "xassist.hpp"
 
+#define CURL_STATICLIB
 #include <curl/curl.h>
 #include <fstream>
 #include <iostream>
