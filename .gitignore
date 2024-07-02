@@ -38,3 +38,6 @@ __pycache__/
 build/
 
 bld
+
+# API Keys for LLM
+*_api_key.txt

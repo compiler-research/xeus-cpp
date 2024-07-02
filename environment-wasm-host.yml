@@ -9,3 +9,4 @@ dependencies:
   - CppInterOp>=1.3.0
   - cpp-argparse
   - pugixml
+  - libcurl-dev
