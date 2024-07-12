@@ -22,5 +22,11 @@ namespace xcpp
 
     XEUS_CPP_API std::vector<std::string>
     split_line(const std::string& input, const std::string& delims, std::size_t cursor_pos);
+
+    XEUS_CPP_API
+    std::vector<std::string> get_lines(const std::string& input);
+
+    XEUS_CPP_API
+    std::vector<std::string> split_from_includes(const std::string& input);
 }
 #endif
