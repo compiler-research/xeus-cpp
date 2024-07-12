@@ -9,7 +9,8 @@
 import unittest
 import jupyter_kernel_test
 import platform
-
+import nbformat
+import papermill as pm
 
 class XCppCompleteTests(jupyter_kernel_test.KernelTests):
 
@@ -131,6 +132,52 @@ if platform.system() != 'Windows':
                 'mime': 'image/png'
             }
         ]
+
+    # Tests for Notebooks
+    class XCppNotebookTests(unittest.TestCase):
+
+        notebook_names = [
+            'xeus-cpp'
+            # Add more notebook names as needed
+        ]
+
+        def test_notebooks(self):
+            for name in self.notebook_names:
+
+                inp = f'Notebooks/{name}.ipynb'
+                out = f'Notebooks/{name}_output.ipynb'
+
+                with open(inp) as f:
+                    input_nb = nbformat.read(f, as_version=4)
+
+                try:
+                    # Execute the notebook
+                    executed_notebook = pm.execute_notebook( 
+                        inp, 
+                        out,
+                        log_output=True,
+                        kernel_name='xcpp20'
+                    )
+
+                    if executed_notebook is None:  # Explicit check for None or any other condition
+                        self.fail(f"Execution of notebook {name} returned None")
+                except Exception as e:
+                    self.fail(f"Notebook {name} failed to execute: {e}")
+
+                with open(out) as f:
+                    output_nb = nbformat.read(f, as_version=4)
+
+                check = True
+
+                # Iterate over the cells in the input and output notebooks
+                for i, (input_cell, output_cell) in enumerate(zip(input_nb.cells, output_nb.cells)):
+                    if input_cell.cell_type == 'code' and output_cell.cell_type == 'code':
+                        # If one cell has output and the other doesn't, set check to False
+                        if bool(input_cell.outputs) != bool(output_cell.outputs):
+                            self.fail(f"Cell {i} in notebook {name} has mismatched output presence")
+                        else:
+                            if input_cell.outputs != output_cell.outputs:
+                                self.fail(f"{input_output.get('text')} != {output_output.get('text')} Cell {i} in notebook {name} has mismatched output type")
 
 
 class XCppTests2(jupyter_kernel_test.KernelTests):

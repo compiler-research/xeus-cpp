@@ -139,7 +139,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cd test
-          pytest -sv .  --reruns 5
+          pytest -sv .
   
       - name: Python tests Windows Systems
         if: ${{ runner.os == 'windows' }}
