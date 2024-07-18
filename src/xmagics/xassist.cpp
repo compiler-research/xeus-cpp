@@ -14,6 +14,7 @@
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <string>
+#include <sys/stat.h>
 #include <unordered_set>
 
 using json = nlohmann::json;
@@ -55,6 +56,78 @@ namespace xcpp
 
             std::cerr << "Failed to open file for reading API key for model " << model << std::endl;
             return "";
+        }
+    };
+
+    class ChatHistory
+    {
+    public:
+        static std::string chat(const std::string& model, const std::string& user, const std::string& cell)
+        {
+            return appendAndReadBack(model, user, "\"" + cell + "\"");
+        }
+
+        static std::string chat(const std::string& model, const std::string& user, const nlohmann::json& cell)
+        {
+            return appendAndReadBack(model, user, cell.dump());
+        }
+
+        static void refresh(const std::string& model)
+        {
+            std::string chatHistoryFilePath = model + "_chat_history.txt";
+            std::ofstream out(chatHistoryFilePath, std::ios::out);
+        }
+
+    private:
+
+        static std::string appendAndReadBack(const std::string& model, const std::string& user, const std::string& serializedCell)
+        {   
+            std::string chatHistoryFilePath = model + "_chat_history.txt";
+            std::ofstream out;
+            bool isEmpty = isFileEmpty(chatHistoryFilePath);
+
+            out.open(chatHistoryFilePath, std::ios::app);
+            if (!out)
+            {
+                std::cerr << "Failed to open file for writing chat history for model " << model << std::endl;
+                return "";
+            }
+
+            if (!isEmpty)
+            {
+                out << ", ";
+            }
+
+            if(model == "gemini")
+            {
+                out << "{ \"role\": \"" << user << "\", \"parts\": [ { \"text\": " << serializedCell << "}]}\n";
+            }
+            else
+            {
+                out << "{ \"role\": \"" << user << "\", \"content\": " << serializedCell << "}\n";
+            }
+
+            out.close();
+
+            return readFileContent(chatHistoryFilePath);
+        }
+
+        static bool isFileEmpty(const std::string& filePath)
+        {
+            std::ifstream file(filePath, std::ios::ate); // Open the file at the end
+            if (!file) // If the file cannot be opened, it might not exist
+            {
+                return true; // Consider non-existent files as empty
+            }
+            return file.tellg() == 0;
+        }
+
+        static std::string readFileContent(const std::string& filePath)
+        {
+            std::ifstream in(filePath);
+            std::stringstream bufferStream;
+            bufferStream << in.rdbuf();
+            return bufferStream.str();
         }
     };
 
@@ -132,9 +205,10 @@ namespace xcpp
     std::string gemini(const std::string& cell, const std::string& key)
     {
         CurlHelper curlHelper;
+        const std::string chatMessage = xcpp::ChatHistory::chat("gemini", "user", cell);
         const std::string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key="
                                 + key;
-        const std::string postData = R"({"contents": [{"parts":[{"text": ")" + cell + R"("}]}]})";
+        const std::string postData = R"({"contents": [ )" + chatMessage + R"(]})";
 
         std::string response = curlHelper.performRequest(url, postData);
 
@@ -145,6 +219,8 @@ namespace xcpp
             return "";
         }
 
+        const std::string chat = xcpp::ChatHistory::chat("gemini", "model", j["candidates"][0]["content"]["parts"][0]["text"]);
+
         return j["candidates"][0]["content"]["parts"][0]["text"];
     }
 
@@ -152,12 +228,12 @@ namespace xcpp
     {
         CurlHelper curlHelper;
         const std::string url = "https://api.openai.com/v1/chat/completions";
+        const std::string chatMessage = xcpp::ChatHistory::chat("openai", "user", cell);
         const std::string postData = R"({
-            "model": "gpt-3.5-turbo-16k",
-            "messages": [{"role": "user", "content": ")"
-                                     + cell + R"("}],
-            "temperature": 0.7
-        })";
+                    "model": "gpt-3.5-turbo-16k",
+                    "messages": [)" + chatMessage + R"(],
+                    "temperature": 0.7
+                })";
         std::string authHeader = "Authorization: Bearer " + key;
 
         std::string response = curlHelper.performRequest(url, postData, authHeader);
@@ -169,6 +245,8 @@ namespace xcpp
             std::cerr << "Error: " << j["error"]["message"] << std::endl;
             return "";
         }
+
+        const std::string chat = xcpp::ChatHistory::chat("openai", "assistant", j["choices"][0]["message"]["content"]);
 
         return j["choices"][0]["message"]["content"];
     }
@@ -192,10 +270,14 @@ namespace xcpp
                 return;
             }
 
-            APIKeyManager api;
             if (tokens[2] == "--save-key")
             {
                 xcpp::APIKeyManager::saveApiKey(model, cell);
+                return;
+            } 
+            else if (tokens[2] == "--refresh")
+            {
+                xcpp::ChatHistory::refresh(model);
                 return;
             }
 

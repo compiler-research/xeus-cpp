@@ -39,5 +39,6 @@ build/
 
 bld
 
-# API Keys for LLM
+# LLM Implementation
 *_api_key.txt
+*_chat_history.txt
