@@ -62,6 +62,7 @@ namespace xcpp
     class ChatHistory
     {
     public:
+
         static std::string chat(const std::string& model, const std::string& user, const std::string& cell)
         {
             return appendAndReadBack(model, user, "\"" + cell + "\"");
@@ -80,8 +81,9 @@ namespace xcpp
 
     private:
 
-        static std::string appendAndReadBack(const std::string& model, const std::string& user, const std::string& serializedCell)
-        {   
+        static std::string
+        appendAndReadBack(const std::string& model, const std::string& user, const std::string& serializedCell)
+        {
             std::string chatHistoryFilePath = model + "_chat_history.txt";
             std::ofstream out;
             bool isEmpty = isFileEmpty(chatHistoryFilePath);
@@ -98,13 +100,13 @@ namespace xcpp
                 out << ", ";
             }
 
-            if(model == "gemini")
+            if (model == "gemini")
             {
-                out << "{ \"role\": \"" << user << "\", \"parts\": [ { \"text\": " << serializedCell << "}]}\n";
+                out << "{ \"role\": \"" << user << R"(", "parts": [ { "text": )" << serializedCell << "}]}\n";
             }
             else
             {
-                out << "{ \"role\": \"" << user << "\", \"content\": " << serializedCell << "}\n";
+                out << "{ \"role\": \"" << user << R"(", "content": )" << serializedCell << "}\n";
             }
 
             out.close();
@@ -114,10 +116,10 @@ namespace xcpp
 
         static bool isFileEmpty(const std::string& filePath)
         {
-            std::ifstream file(filePath, std::ios::ate); // Open the file at the end
-            if (!file) // If the file cannot be opened, it might not exist
+            std::ifstream file(filePath, std::ios::ate);  // Open the file at the end
+            if (!file)                                    // If the file cannot be opened, it might not exist
             {
-                return true; // Consider non-existent files as empty
+                return true;  // Consider non-existent files as empty
             }
             return file.tellg() == 0;
         }
@@ -219,7 +221,11 @@ namespace xcpp
             return "";
         }
 
-        const std::string chat = xcpp::ChatHistory::chat("gemini", "model", j["candidates"][0]["content"]["parts"][0]["text"]);
+        const std::string chat = xcpp::ChatHistory::chat(
+            "gemini",
+            "model",
+            j["candidates"][0]["content"]["parts"][0]["text"]
+        );
 
         return j["candidates"][0]["content"]["parts"][0]["text"];
     }
@@ -231,7 +237,8 @@ namespace xcpp
         const std::string chatMessage = xcpp::ChatHistory::chat("openai", "user", cell);
         const std::string postData = R"({
                     "model": "gpt-3.5-turbo-16k",
-                    "messages": [)" + chatMessage + R"(],
+                    "messages": [)" + chatMessage
+                                     + R"(],
                     "temperature": 0.7
                 })";
         std::string authHeader = "Authorization: Bearer " + key;
@@ -246,7 +253,11 @@ namespace xcpp
             return "";
         }
 
-        const std::string chat = xcpp::ChatHistory::chat("openai", "assistant", j["choices"][0]["message"]["content"]);
+        const std::string chat = xcpp::ChatHistory::chat(
+            "openai",
+            "assistant",
+            j["choices"][0]["message"]["content"]
+        );
 
         return j["choices"][0]["message"]["content"];
     }
@@ -274,8 +285,9 @@ namespace xcpp
             {
                 xcpp::APIKeyManager::saveApiKey(model, cell);
                 return;
-            } 
-            else if (tokens[2] == "--refresh")
+            }
+
+            if (tokens[2] == "--refresh")
             {
                 xcpp::ChatHistory::refresh(model);
                 return;

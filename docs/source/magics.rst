@@ -28,6 +28,12 @@ Leverage the large language models to assist in your development process. Curren
     %%xassist model
     prompt
 
+- Reset model and clear chat history
+
+.. code::
+
+    %%xassist model --refresh
+
 - Example
 
 .. image:: gemini.png
