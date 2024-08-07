@@ -281,16 +281,19 @@ namespace xcpp
                 return;
             }
 
-            if (tokens[2] == "--save-key")
+            if (tokens.size() > 2)
             {
-                xcpp::APIKeyManager::saveApiKey(model, cell);
-                return;
-            }
+                if (tokens[2] == "--save-key")
+                {
+                    xcpp::APIKeyManager::saveApiKey(model, cell);
+                    return;
+                }
 
-            if (tokens[2] == "--refresh")
-            {
-                xcpp::ChatHistory::refresh(model);
-                return;
+                if (tokens[2] == "--refresh")
+                {
+                    xcpp::ChatHistory::refresh(model);
+                    return;
+                }
             }
 
             std::string key = xcpp::APIKeyManager::loadApiKey(model);
