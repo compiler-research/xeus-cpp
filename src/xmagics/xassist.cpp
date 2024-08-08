@@ -19,6 +19,8 @@
 
 using json = nlohmann::json;
 
+// TODO: Implement xplugin to seperate the magics from the main code.
+// TODO: Add support for open-source models.
 namespace xcpp
 {
     class APIKeyManager

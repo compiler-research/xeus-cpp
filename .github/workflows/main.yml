@@ -74,12 +74,6 @@ jobs:
         run: |
           micromamba shell hook -s cmd.exe -p C:\Users\runneradmin\micromamba-root
 
-      - name: activate environment
-        if: ${{ runner.os != 'windows' }}
-        shell: bash -l {0}
-        run: |
-          micromamba activate xeus-cpp
-
       - name: install cxx compiler
         if: ${{ runner.os != 'windows' }}
         shell: bash -l {0}
@@ -124,17 +118,13 @@ jobs:
           cd build
           make install -j ${{ env.ncpus }}
 
-      # - name: Setup tmate session
-      #   if: ${{ runner.os != 'windows' }}
-      #   uses: mxschmitt/action-tmate@v3
-
       - name: Test xeus-cpp C++ Unix Systems
         if: ${{ runner.os != 'windows' }}
         shell: bash -l {0}
         run: |
           cd build/test
           ./test_xeus_cpp
-        timeout-minutes: 30
+        timeout-minutes: 4
 
       - name: Test xeus-cpp C++ Windows Systems
         if: ${{ runner.os == 'windows' }}

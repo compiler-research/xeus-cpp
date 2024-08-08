@@ -312,6 +312,7 @@ macro(xeus_cpp_create_target target_name linkage output_name)
         set(XEUS_CPP_XEUS_TARGET xeus-static)
     endif ()
     
+    #This is a workaround for the issue with the libcurl target on Windows specifically for xassist
     if(WIN32)
         # Set the MSVC runtime library
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
@@ -338,6 +339,7 @@ macro(xeus_cpp_create_target target_name linkage output_name)
             target_compile_options(${target_name} PRIVATE "/MD$<$<CONFIG:Debug>:d>")
         endif()
     else()
+        # Curl initialised specifically for xassist
         target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse curl)
     endif()
     
