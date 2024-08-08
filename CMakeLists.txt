@@ -203,6 +203,8 @@ set(XEUS_CPP_SRC
     src/xoptions.cpp
     src/xparser.cpp
     src/xutils.cpp
+    src/xmagics/xassist.hpp
+    src/xmagics/xassist.cpp
 )
 
 if(EMSCRIPTEN)
@@ -309,9 +311,38 @@ macro(xeus_cpp_create_target target_name linkage output_name)
     else ()
         set(XEUS_CPP_XEUS_TARGET xeus-static)
     endif ()
+    
+    #This is a workaround for the issue with the libcurl target on Windows specifically for xassist
+    if(WIN32)
+        # Set the MSVC runtime library
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 
-    target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse)
+        # Find libcurl
+        find_package(CURL REQUIRED)
 
+        # Add CURL_STATICLIB definition if linking statically
+        if (CURL_STATICLIB)
+            target_compile_definitions(${target_name} PUBLIC CURL_STATICLIB)
+        endif()
+
+        # Link against the correct libcurl target
+        if (CURL_FOUND)
+            target_include_directories(${target_name} PRIVATE ${CURL_INCLUDE_DIRS})
+            target_link_libraries(${target_name} PRIVATE ${CURL_LIBRARIES})
+        endif()
+
+        # Existing target_link_libraries call, adjusted for clarity
+        target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse)
+
+        # Ensure all linked libraries use the same runtime library
+        if (MSVC)
+            target_compile_options(${target_name} PRIVATE "/MD$<$<CONFIG:Debug>:d>")
+        endif()
+    else()
+        # Curl initialised specifically for xassist
+        target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse curl)
+    endif()
+    
     if (WIN32 OR CYGWIN)
         #
     elseif (APPLE)

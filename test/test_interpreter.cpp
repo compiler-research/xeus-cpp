@@ -19,6 +19,7 @@
 #include "../src/xparser.hpp"
 #include "../src/xsystem.hpp"
 #include "../src/xmagics/os.hpp"
+#include "../src/xmagics/xassist.hpp"
 #include "../src/xinspect.hpp"
 
 
@@ -886,4 +887,79 @@ TEST_SUITE("xinspect"){
         cmp.child_value = "nonexistentMethod";
         REQUIRE(cmp(node) == false);
     }
+}
+
+TEST_SUITE("xassist"){
+
+    TEST_CASE("model_not_found"){
+        xcpp::xassist assist;
+        std::string line = "%%xassist testModel";
+        std::string cell = "test input";
+
+        StreamRedirectRAII redirect(std::cerr);
+
+        assist(line, cell);
+
+        REQUIRE(redirect.getCaptured() == "Model not found.\n");
+
+    }
+
+    TEST_CASE("gemini_save"){
+        xcpp::xassist assist;
+        std::string line = "%%xassist gemini --save-key";
+        std::string cell = "1234";
+
+        assist(line, cell);
+
+        std::ifstream infile("gemini_api_key.txt");
+        std::string content;
+        std::getline(infile, content);
+
+        REQUIRE(content == "1234");
+        infile.close();
+
+        StreamRedirectRAII redirect(std::cerr);
+        
+        assist("%%xassist gemini", "hello");
+
+        REQUIRE(!redirect.getCaptured().empty());
+
+        std::remove("gemini_api_key.txt");
+    }
+
+    TEST_CASE("gemini"){
+        xcpp::xassist assist;
+        std::string line = "%%xassist gemini";
+        std::string cell = "hello";
+
+        StreamRedirectRAII redirect(std::cerr);
+
+        assist(line, cell);
+
+        REQUIRE(!redirect.getCaptured().empty());
+    }
+
+    TEST_CASE("openai"){
+        xcpp::xassist assist;
+        std::string line = "%%xassist openai --save-key";
+        std::string cell = "1234";
+
+        assist(line, cell);
+
+        std::ifstream infile("openai_api_key.txt");
+        std::string content;
+        std::getline(infile, content);
+
+        REQUIRE(content == "1234");
+        infile.close();
+
+        StreamRedirectRAII redirect(std::cerr);
+        
+        assist("%%xassist openai", "hello");
+
+        REQUIRE(!redirect.getCaptured().empty());
+
+        std::remove("openai_api_key.txt");
+    }
+
 }
