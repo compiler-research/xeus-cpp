@@ -72,7 +72,7 @@ jobs:
         if: ${{ runner.os == 'windows' }}
         shell: powershell
         run: |
-          micromamba shell hook -s cmd.exe -p C:\Users\runneradmin\micromamba-root
+          micromamba shell hook -s cmd.exe --root-prefix C:\Users\runneradmin\micromamba-root
 
       - name: install cxx compiler
         if: ${{ runner.os != 'windows' }}
