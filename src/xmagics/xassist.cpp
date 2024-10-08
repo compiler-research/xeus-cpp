@@ -60,6 +60,80 @@ namespace xcpp
         }
     };
 
+    class model_manager
+    {
+    public:
+
+        static void save_model(const std::string& model, const std::string& model_name)
+        {
+            std::string model_file_path = model + "_model.txt";
+            std::ofstream out(model_file_path);
+            if (out)
+            {
+                out << model_name;
+                out.close();
+                std::cout << "Model saved for model " << model << std::endl;
+            }
+            else
+            {
+                std::cerr << "Failed to open file for writing model for model " << model << std::endl;
+            }
+        }
+
+        static std::string load_model(const std::string& model)
+        {
+            std::string model_file_path = model + "_model.txt";
+            std::ifstream in(model_file_path);
+            std::string model_name;
+            if (in)
+            {
+                std::getline(in, model_name);
+                in.close();
+                return model_name;
+            }
+
+            std::cerr << "Failed to open file for reading model for model " << model << std::endl;
+            return "";
+        }
+    };
+
+    class url_manager
+    {
+    public:
+
+        static void save_url(const std::string& model, const std::string& url)
+        {
+            std::string url_file_path = model + "_url.txt";
+            std::ofstream out(url_file_path);
+            if (out)
+            {
+                out << url;
+                out.close();
+                std::cout << "URL saved for model " << model << std::endl;
+            }
+            else
+            {
+                std::cerr << "Failed to open file for writing URL for model " << model << std::endl;
+            }
+        }
+
+        static std::string load_url(const std::string& model)
+        {
+            std::string url_file_path = model + "_url.txt";
+            std::ifstream in(url_file_path);
+            std::string url;
+            if (in)
+            {
+                std::getline(in, url);
+                in.close();
+                return url;
+            }
+
+            std::cerr << "Failed to open file for reading URL for model " << model << std::endl;
+            return "";
+        }
+    };
+
     class chat_history
     {
     public:
@@ -209,8 +283,16 @@ namespace xcpp
     {
         curl_helper curl_helper;
         const std::string chat_message = xcpp::chat_history::chat("gemini", "user", cell);
-        const std::string url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key="
-                                + key;
+        const std::string model = xcpp::model_manager::load_model("gemini");
+
+        if (model.empty())
+        {
+            std::cerr << "Model not found." << std::endl;
+            return "";
+        }
+
+        const std::string url = "https://generativelanguage.googleapis.com/v1beta/models/" + model
+                                + ":generateContent?key=" + key;
         const std::string post_data = R"({"contents": [ )" + chat_message + R"(]})";
 
         std::string response = curl_helper.perform_request(url, post_data);
@@ -231,13 +313,64 @@ namespace xcpp
         return j["candidates"][0]["content"]["parts"][0]["text"];
     }
 
+    std::string ollama(const std::string& cell)
+    {
+        curl_helper curl_helper;
+        const std::string url = xcpp::url_manager::load_url("ollama");
+        const std::string chat_message = xcpp::chat_history::chat("ollama", "user", cell);
+        const std::string model = xcpp::model_manager::load_model("ollama");
+
+        if (model.empty())
+        {
+            std::cerr << "Model not found." << std::endl;
+            return "";
+        }
+
+        if (url.empty())
+        {
+            std::cerr << "URL not found." << std::endl;
+            return "";
+        }
+
+        const std::string post_data = R"({
+                    "model": ")" + model
+                                      + R"(",
+                    "messages": [)" + chat_message
+                                      + R"(],
+                    "stream": false
+                })";
+
+        std::string response = curl_helper.perform_request(url, post_data);
+
+        json j = json::parse(response);
+
+        if (j.find("error") != j.end())
+        {
+            std::cerr << "Error: " << j["error"]["message"] << std::endl;
+            return "";
+        }
+
+        const std::string chat = xcpp::chat_history::chat("ollama", "assistant", j["message"]["content"]);
+
+        return j["message"]["content"];
+    }
+
     std::string openai(const std::string& cell, const std::string& key)
     {
         curl_helper curl_helper;
         const std::string url = "https://api.openai.com/v1/chat/completions";
         const std::string chat_message = xcpp::chat_history::chat("openai", "user", cell);
+        const std::string model = xcpp::model_manager::load_model("openai");
+
+        if (model.empty())
+        {
+            std::cerr << "Model not found." << std::endl;
+            return "";
+        }
+
         const std::string post_data = R"({
-                    "model": "gpt-3.5-turbo-16k",
+                    "model": [)" + model
+                                      + R"(],
                     "messages": [)" + chat_message
                                       + R"(],
                     "temperature": 0.7
@@ -273,7 +406,7 @@ namespace xcpp
                 std::istream_iterator<std::string>()
             );
 
-            std::vector<std::string> models = {"gemini", "openai"};
+            std::vector<std::string> models = {"gemini", "openai", "ollama"};
             std::string model = tokens[1];
 
             if (std::find(models.begin(), models.end(), model) == models.end())
@@ -295,13 +428,29 @@ namespace xcpp
                     xcpp::chat_history::refresh(model);
                     return;
                 }
+
+                if (tokens[2] == "--save-model")
+                {
+                    xcpp::model_manager::save_model(model, cell);
+                    return;
+                }
+
+                if (tokens[2] == "--set-url" && model == "ollama")
+                {
+                    xcpp::url_manager::save_url(model, cell);
+                    return;
+                }
             }
 
-            std::string key = xcpp::api_key_manager::load_api_key(model);
-            if (key.empty())
+            std::string key;
+            if (model != "ollama")
             {
-                std::cerr << "API key for model " << model << " is not available." << std::endl;
-                return;
+                key = xcpp::api_key_manager::load_api_key(model);
+                if (key.empty())
+                {
+                    std::cerr << "API key for model " << model << " is not available." << std::endl;
+                    return;
+                }
             }
 
             std::string response;
@@ -312,6 +461,10 @@ namespace xcpp
             else if (model == "openai")
             {
                 response = openai(cell, key);
+            }
+            else if (model == "ollama")
+            {
+                response = ollama(cell);
             }
 
             std::cout << response;

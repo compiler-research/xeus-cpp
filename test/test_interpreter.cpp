@@ -962,4 +962,39 @@ TEST_SUITE("xassist"){
         std::remove("openai_api_key.txt");
     }
 
+    TEST_CASE("ollama"){
+        xcpp::xassist assist;
+        std::string line = "%%xassist ollama --set-url";
+        std::string cell = "1234";
+
+        assist(line, cell);
+
+        std::ifstream infile("ollama_url.txt");
+        std::string content;
+        std::getline(infile, content);
+
+        REQUIRE(content == "1234");
+        infile.close();
+
+        line = "%%xassist ollama --save-model";
+        cell = "1234";
+
+        assist(line, cell);
+
+        std::ifstream infile_model("ollama_model.txt");
+        std::string content_model;
+        std::getline(infile_model, content_model);
+
+        REQUIRE(content_model == "1234");
+        infile_model.close();
+
+        StreamRedirectRAII redirect(std::cerr);
+        
+        assist("%%xassist openai", "hello");
+
+        REQUIRE(!redirect.getCaptured().empty());
+
+        std::remove("openai_api_key.txt");
+    }
+
 }
