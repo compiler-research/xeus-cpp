@@ -25,12 +25,6 @@ namespace xcpp
     void stop_handler(int sig);
 
     XEUS_CPP_API
-    bool should_print_version(int argc, char* argv[]);
-
-    XEUS_CPP_API
-    std::string extract_filename(int &argc, char* argv[]);
-
-    XEUS_CPP_API
     interpreter_ptr build_interpreter(int argc, char** argv);
 
     XEUS_CPP_API
