@@ -29,29 +29,32 @@ jobs:
         with:
           version: "17.0.6"
 
+      - name: install mamba
+        uses: mamba-org/setup-micromamba@main
+        with:
+          environment-file: environment-dev.yml
+          init-shell: bash
+          environment-name: xeus-cpp
+
+      - name: Configure Git
+        run: |
+          git config --global --add safe.directory /github/workspace
+
       - name: Run clang-tidy
         uses: ZedThree/clang-tidy-review@v0.18.0
         id: review
         with:
           build_dir: build
-          apt_packages: libxml2,libxml2-dev,libtinfo-dev,zlib1g-dev,libzstd-dev,curl
+          apt_packages: cmake,libxml2,libxml2-dev,libtinfo-dev,zlib1g-dev,libzstd-dev,curl
           exclude: "test/*,unittests/*,benchmark/*,demos/*"
           split_workflow: true
           config_file: .clang-tidy
           cmake_command: >
-            cmake . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=On || true && 
-            rm -rf build && 
-            set -x && 
-            mkdir micromamba && 
-            cd micromamba && 
-            curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba && 
-            export MAMBA_ROOT_PREFIX=$GITHUB_WORKSPACE/micromamba && 
-            eval "$(./bin/micromamba shell hook -s posix)" && 
-            micromamba create -n xeus-cpp -y --log-level warning -f $GITHUB_WORKSPACE/environment-dev.yml && 
-            micromamba activate xeus-cpp && 
-            cd .. && 
-            git config --global --add safe.directory /github/workspace && 
-            cmake . -B build -DCMAKE_C_COMPILER="$GITHUB_WORKSPACE/llvm/bin/clang" -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/llvm/bin/clang++" -DCMAKE_EXPORT_COMPILE_COMMANDS=On
+            CC=$GITHUB_WORKSPACE/llvm/bin/clang CXX=$GITHUB_WORKSPACE/llvm/bin/clang++
+            cmake . -B build
+            -DXeus_DIR="$MAMBA_ROOT_PREFIX/envs/xeus-cpp/lib/cmake/xeus" \
+            -DCMAKE_BUILD_TYPE="Release" \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=On
             
       - name: Upload artifacts
         uses: ZedThree/clang-tidy-review/upload@v0.18.0
