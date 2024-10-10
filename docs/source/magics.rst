@@ -12,13 +12,27 @@ Here are the magics available in xeus-cpp.
 %%xassist 
 ========================
 
-Leverage the large language models to assist in your development process. Currently supported models are Gemini - gemini-1.5-flash, OpenAI - gpt-3.5-turbo-16k.
+Leverage the large language models to assist in your development process. Currently supported models are Gemini, OpenAI, Ollama.
 
-- Save the api key
+- Save the api key (for OpenAI and Gemini) 
 
 .. code::
 
     %%xassist model --save-key
+    key
+
+- Save the model
+
+- Set the response url (for Ollama)
+
+.. code::
+
+    %%xassist model --set-url
+    key
+
+.. code::
+
+    %%xassist model --save-model
     key
 
 - Use the model
@@ -33,9 +47,10 @@ Leverage the large language models to assist in your development process. Curren
 .. code::
 
     %%xassist model --refresh
+    
 
-- Example
+- Examples
 
 .. image:: gemini.png
 
-A new prompt is sent to the model everytime and the functionality to use previous context will be added soon.
+.. image:: ollama.png
