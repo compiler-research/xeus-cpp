@@ -904,7 +904,7 @@ TEST_SUITE("xassist"){
 
     }
 
-    TEST_CASE("gemini_save"){
+    TEST_CASE("gemini"){
         xcpp::xassist assist;
         std::string line = "%%xassist gemini --save-key";
         std::string cell = "1234";
@@ -918,25 +918,39 @@ TEST_SUITE("xassist"){
         REQUIRE(content == "1234");
         infile.close();
 
+        line = "%%xassist gemini --save-model";
+        cell = "1234";
+
+        assist(line, cell);
+
+        std::ifstream infile_model("gemini_model.txt");
+        std::string content_model;
+        std::getline(infile_model, content_model);
+
+        REQUIRE(content_model == "1234");
+        infile_model.close();
+
         StreamRedirectRAII redirect(std::cerr);
         
         assist("%%xassist gemini", "hello");
 
         REQUIRE(!redirect.getCaptured().empty());
 
-        std::remove("gemini_api_key.txt");
-    }
-
-    TEST_CASE("gemini"){
-        xcpp::xassist assist;
-        std::string line = "%%xassist gemini";
-        std::string cell = "hello";
-
-        StreamRedirectRAII redirect(std::cerr);
+        line = "%%xassist gemini --refresh";
+        cell = "";
 
         assist(line, cell);
 
-        REQUIRE(!redirect.getCaptured().empty());
+        std::ifstream infile_chat("gemini_chat_history.txt");
+        std::string content_chat;
+        std::getline(infile_chat, content_chat);
+
+        REQUIRE(content_chat == "");
+        infile_chat.close();
+
+        std::remove("gemini_api_key.txt");
+        std::remove("gemini_model.txt");
+        std::remove("gemini_chat_history.txt");
     }
 
     TEST_CASE("openai"){
@@ -953,6 +967,18 @@ TEST_SUITE("xassist"){
         REQUIRE(content == "1234");
         infile.close();
 
+         line = "%%xassist openai --save-model";
+        cell = "1234";
+
+        assist(line, cell);
+
+        std::ifstream infile_model("openai_model.txt");
+        std::string content_model;
+        std::getline(infile_model, content_model);
+
+        REQUIRE(content_model == "1234");
+        infile_model.close();
+
         StreamRedirectRAII redirect(std::cerr);
         
         assist("%%xassist openai", "hello");
@@ -960,12 +986,14 @@ TEST_SUITE("xassist"){
         REQUIRE(!redirect.getCaptured().empty());
 
         std::remove("openai_api_key.txt");
+        std::remove("openai_model.txt");
+        std::remove("openai_chat_history.txt");
     }
 
     TEST_CASE("ollama"){
         xcpp::xassist assist;
         std::string line = "%%xassist ollama --set-url";
-        std::string cell = "1234";
+        std::string cell = "https://api.openai.com/v1/chat/completions";
 
         assist(line, cell);
 
@@ -973,7 +1001,7 @@ TEST_SUITE("xassist"){
         std::string content;
         std::getline(infile, content);
 
-        REQUIRE(content == "1234");
+        REQUIRE(content == "https://api.openai.com/v1/chat/completions");
         infile.close();
 
         line = "%%xassist ollama --save-model";
@@ -990,11 +1018,12 @@ TEST_SUITE("xassist"){
 
         StreamRedirectRAII redirect(std::cerr);
         
-        assist("%%xassist openai", "hello");
+        assist("%%xassist ollama", "hello");
 
         REQUIRE(!redirect.getCaptured().empty());
 
-        std::remove("openai_api_key.txt");
+        std::remove("ollama_url.txt");
+        std::remove("ollama_model.txt");
     }
 
 }
