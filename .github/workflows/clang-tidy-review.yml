@@ -34,7 +34,7 @@ jobs:
         id: review
         with:
           build_dir: build
-          apt_packages: libxml2,libxml2-dev,libtinfo-dev,zlib1g-dev,libzstd-dev,curl
+          apt_packages: wget,libxml2,libxml2-dev,libtinfo-dev,zlib1g-dev,libzstd-dev,curl
           exclude: "test/*,unittests/*,benchmark/*,demos/*"
           split_workflow: true
           config_file: .clang-tidy
@@ -42,14 +42,13 @@ jobs:
             cmake . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=On || true && 
             rm -rf build && 
             set -x && 
-            mkdir micromamba && 
-            cd micromamba && 
-            curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba && 
-            export MAMBA_ROOT_PREFIX=$GITHUB_WORKSPACE/micromamba && 
-            eval "$(./bin/micromamba shell hook -s posix)" && 
+            wget https://github.com/mamba-org/micromamba-releases/releases/download/1.5.10-0/micromamba-linux-64 && 
+            mv ./micromamba-linux-64 ./micromamba && 
+            chmod a+x ./micromamba && 
+            export PATH="$PWD:$PATH" && 
+            eval "$(micromamba shell hook -s posix)" && 
             micromamba create -n xeus-cpp -y --log-level warning -f $GITHUB_WORKSPACE/environment-dev.yml && 
             micromamba activate xeus-cpp && 
-            cd .. && 
             git config --global --add safe.directory /github/workspace && 
             cmake . -B build -DCMAKE_C_COMPILER="$GITHUB_WORKSPACE/llvm/bin/clang" -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/llvm/bin/clang++" -DCMAKE_EXPORT_COMPILE_COMMANDS=On
             
