@@ -17,7 +17,6 @@
 #include <vector>
 
 #include "xeus/xsystem.hpp"
-
 #include <xeus/xhelper.hpp>
 
 #include "xeus-cpp/xbuffer.hpp"
