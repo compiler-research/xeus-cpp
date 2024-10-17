@@ -167,8 +167,6 @@ if platform.system() != 'Windows':
                 with open(out) as f:
                     output_nb = nbformat.read(f, as_version=4)
 
-                check = True
-
                 # Iterate over the cells in the input and output notebooks
                 for i, (input_cell, output_cell) in enumerate(zip(input_nb.cells, output_nb.cells)):
                     if input_cell.cell_type == 'code' and output_cell.cell_type == 'code':
