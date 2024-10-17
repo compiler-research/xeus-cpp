@@ -51,15 +51,16 @@ message(STATUS "Building xeus-cpp v${${PROJECT_NAME}_VERSION}")
 # =============
 
 option(XEUS_CPP_BUILD_STATIC "Build xeus-cpp static library" ON)
-OPTION(XEUS_CPP_BUILD_SHARED "Split xcpp build into executable and library" ON)
-OPTION(XEUS_CPP_BUILD_EXECUTABLE "Build the xcpp executable" ON)
+option(XEUS_CPP_BUILD_SHARED "Split xcpp build into executable and library" ON)
+option(XEUS_CPP_BUILD_EXECUTABLE "Build the xcpp executable" ON)
 
-OPTION(XEUS_CPP_USE_SHARED_XEUS "Link xcpp  with the xeus shared library (instead of the static library)" ON)
-OPTION(XEUS_CPP_USE_SHARED_XEUS_CPP "Link xcpp  with the xeus shared library (instead of the static library)" ON)
+option(XEUS_CPP_USE_SHARED_XEUS "Link xcpp  with the xeus shared library (instead of the static library)" ON)
+option(XEUS_CPP_USE_SHARED_XEUS_CPP "Link xcpp  with the xeus shared library (instead of the static library)" ON)
+option(XEUS_CPP_EMSCRIPTEN_WASM_BUILD "Build for wasm with emscripten" OFF)
 
 # Test options
-OPTION(XEUS_CPP_BUILD_TESTS "xeus-cpp test suite" ON)
-OPTION(XEUS_CPP_ENABLE_CODE_COVERAGE "xeus-cpp test suite" OFF)
+option(XEUS_CPP_BUILD_TESTS "xeus-cpp test suite" ON)
+option(XEUS_CPP_ENABLE_CODE_COVERAGE "xeus-cpp test suite" OFF)
 if(XEUS_CPP_ENABLE_CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
   if(NOT uppercase_CMAKE_BUILD_TYPE STREQUAL "DEBUG")
@@ -76,20 +77,22 @@ endif()
 if(EMSCRIPTEN)
     add_compile_definitions(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
     message("Build with emscripten")
-    SET(XEUS_CPP_BUILD_STATIC ON)
-    SET(XEUS_CPP_BUILD_SHARED OFF)
-    SET(XEUS_CPP_BUILD_EXECUTABLE OFF)
-    SET(XEUS_CPP_USE_SHARED_XEUS OFF)
-    SET(XEUS_CPP_USE_SHARED_XEUS_CPP OFF)
-    SET(XEUS_CPP_BUILD_TESTS OFF)
+    set(XEUS_CPP_BUILD_STATIC ON)
+    set(XEUS_CPP_BUILD_SHARED OFF)
+    set(XEUS_CPP_BUILD_EXECUTABLE OFF)
+    set(XEUS_CPP_USE_SHARED_XEUS OFF)
+    set(XEUS_CPP_USE_SHARED_XEUS_CPP OFF)
+    set(XEUS_CPP_BUILD_TESTS OFF)
+    # ENV (https://github.com/emscripten-core/emscripten/commit/6d9681ad04f60b41ef6345ab06c29bbc9eeb84e0)
+    set(EMSCRIPTEN_FEATURES "${EMSCRIPTEN_FEATURES} -s \"EXTRA_EXPORTED_RUNTIME_METHODS=[ENV']\"")
 endif()
-
 
 # Dependencies
 # ============
 
 set(xeus_REQUIRED_VERSION 5.0.0)
 set(xeus_zmq_REQUIRED_VERSION 3.0.0)
+set(CppInterOp_REQUIRED_VERSION 1.3.0)
 
 if (NOT TARGET xeus AND NOT TARGET xeus-static)
     find_package(xeus ${xeus_REQUIRED_VERSION} REQUIRED)
@@ -97,31 +100,6 @@ if (NOT TARGET xeus AND NOT TARGET xeus-static)
         message(STATUS "Found compatible xeus version: ${xeus_VERSION}")
     endif()
 endif ()
-
-set(CppInterOp_REQUIRED_VERSION 1.3.0)
-
-# Flags
-# =====
-include(CheckCXXCompilerFlag)
-
-if (MSVC)
-  add_compile_options(/wd4251 /wd4141)
-  add_compile_options(/wd4018 /wd4267 /wd4715 /wd4146 /wd4129)
-  add_compile_options(/EHsc)
-else()
-  add_compile_options(-fexceptions)
-endif ()
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Intel")
-    if(NOT EMSCRIPTEN)
-        add_compile_options(-Wunused-parameter -Wextra -Wreorder)
-    endif()
-endif ()
-
-if(EMSCRIPTEN)
-    # ENV (https://github.com/emscripten-core/emscripten/commit/6d9681ad04f60b41ef6345ab06c29bbc9eeb84e0)
-    set(EMSCRIPTEN_FEATURES "${EMSCRIPTEN_FEATURES} -s \"EXTRA_EXPORTED_RUNTIME_METHODS=[ENV']\"")
-endif()
 
 find_package(CppInterOp ${CppInterOp_REQUIRED_VERSION} REQUIRED)
 if(CppInterOp_FOUND)
@@ -240,7 +218,11 @@ macro(xeus_cpp_set_common_options target_name)
         CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR
         CMAKE_CXX_COMPILER_ID MATCHES "Intel")
 
-        target_compile_options(${target_name} PUBLIC -Wunused-parameter -Wextra -Wreorder)
+        if (EMSCRIPTEN)
+            target_compile_options(${target_name} PRIVATE -fPIC)
+        else ()
+            target_compile_options(${target_name} PUBLIC -Wunused-parameter -Wextra -Wreorder)
+        endif()
 
         # C++17 flag
         CHECK_CXX_COMPILER_FLAG("-std=c++17" HAS_CPP_17_FLAG)
@@ -505,9 +487,6 @@ if (XEUS_CPP_BUILD_SHARED)
 endif ()
 
 if(EMSCRIPTEN)
-    install(TARGETS xcpp
-            ARCHIVE DESTINATION ${XEUS_CPP_CMAKECONFIG_INSTALL_DIR})
-
     install(FILES
             "$<TARGET_FILE_DIR:xcpp>/xcpp.js"
             "$<TARGET_FILE_DIR:xcpp>/xcpp.wasm"
