@@ -19,9 +19,9 @@
 #include <unistd.h>
 #endif
 
+#include "xeus/xhelper.hpp"
 #include <xeus/xkernel.hpp>
 #include <xeus/xkernel_configuration.hpp>
-#include "xeus/xhelper.hpp"
 
 #include "xeus-zmq/xzmq_context.hpp"
 #include <xeus-zmq/xserver_zmq.hpp>
