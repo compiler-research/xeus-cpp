@@ -212,6 +212,9 @@ macro(xeus_cpp_set_common_options target_name)
     if (MSVC)
         target_compile_options(${target_name} PUBLIC /wd4251 /wd4141)
         target_compile_options(${target_name} PUBLIC /wd4018 /wd4267 /wd4715 /wd4146 /wd4129)
+        target_compile_options(${target_name} PUBLIC /EHsc)
+    else ()
+        target_compile_options(${target_name} PUBLIC -fexceptions)
     endif ()
 
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR
