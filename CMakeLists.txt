@@ -332,7 +332,6 @@ macro(xeus_cpp_create_target target_name linkage output_name)
         # Curl initialised specifically for xassist
         target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse curl)
     else ()
-        # TODO : Add curl support for emscripten
         target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse)
     endif()
     
