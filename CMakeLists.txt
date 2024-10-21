@@ -98,7 +98,7 @@ if (NOT TARGET xeus AND NOT TARGET xeus-static)
     endif()
 endif ()
 
-set(CppInterOp_REQUIRED_VERSION 1.3.0)
+set(CppInterOp_REQUIRED_VERSION 1.4.0)
 
 # Flags
 # =====
