@@ -21,7 +21,9 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
 @XEUS_CPP_CONFIG_CODE@
 
 include(CMakeFindDependencyMacro)
-find_dependency(xeus-zmq @xeus-zmq_REQUIRED_VERSION@)
+if (NOT @XEUS_CPP_EMSCRIPTEN_WASM_BUILD@)
+    find_dependency(xeus-zmq @xeus-zmq_REQUIRED_VERSION@)
+endif ()
 
 if (NOT TARGET xeus-cpp AND NOT TARGET xeus-cpp-static)
     include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
