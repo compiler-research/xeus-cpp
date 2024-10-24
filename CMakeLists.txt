@@ -103,7 +103,10 @@ endif ()
 
 find_package(CppInterOp ${CppInterOp_REQUIRED_VERSION} REQUIRED)
 if(CppInterOp_FOUND)
-  message(STATUS "Found CppInterOp: config=${CPPINTEROP_CONFIG} dir=${CPPINTEROP_DIR} (found version=${CPPINTEROP_VERSION} compatible with Clang ${CPPINTEROP_LLVM_VERSION_MAJOR}.x)")
+  message(STATUS "Found CppInterOp: compatible with Clang ${CPPINTEROP_LLVM_VERSION_MAJOR}.x")
+  # TODO : Fix after variables are set correctly
+  # Check https://github.com/compiler-research/CppInterOp/pull/336
+  # message(STATUS "Found CppInterOp: config=${CPPINTEROP_CONFIG} dir=${CPPINTEROP_DIR} (found version=${CPPINTEROP_VERSION} compatible with Clang ${CPPINTEROP_LLVM_VERSION_MAJOR}.x)")
 endif()
 
 find_package(argparse REQUIRED)
