@@ -226,19 +226,21 @@ jobs:
       - name: Setup emsdk
         shell: bash -l {0}
         run: |
-          emsdk install ${{matrix.emsdk_ver}}     
+          cd $HOME
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install  ${{ matrix.emsdk_ver }}
 
       - name: Build xeus-cpp
         shell: bash -l {0}
         run: |
-          emsdk activate ${{matrix.emsdk_ver}}
-          source $CONDA_EMSDK_DIR/emsdk_env.sh
+          $HOME/emsdk/emsdk activate ${{matrix.emsdk_ver}}
+          source $HOME/emsdk/emsdk_env.sh
           micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
           
           mkdir build
           pushd build
 
-          export EMPACK_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build
           export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host 
           echo "PREFIX=$PREFIX" >> $GITHUB_ENV
           export CMAKE_PREFIX_PATH=$PREFIX
