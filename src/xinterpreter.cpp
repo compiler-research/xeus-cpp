@@ -39,9 +39,8 @@ void* createInterpreter(const Args &ExtraArgs = {}) {
   Args ClangArgs = {/*"-xc++"*/"-v"}; // ? {"-Xclang", "-emit-llvm-only", "-Xclang", "-diagnostic-log-file", "-Xclang", "-", "-xc++"};
   if (std::find(ExtraArgs.begin(), ExtraArgs.end(), "-resource-dir") == ExtraArgs.end()) {
     std::string resource_dir = Cpp::DetectResourceDir();
-    if (resource_dir.empty()) {
-        std::cerr << "Failed to detect the resource-dir\n";
-    }
+    if (resource_dir.empty())
+      std::cerr << "Failed to detect the resource-dir\n";
     ClangArgs.push_back("-resource-dir");
     ClangArgs.push_back(resource_dir.c_str());
   }
