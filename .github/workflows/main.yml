@@ -74,12 +74,6 @@ jobs:
         run: |
           micromamba shell hook -s cmd.exe --root-prefix C:\Users\runneradmin\micromamba-root
 
-      - name: install cxx compiler
-        if: ${{ runner.os != 'windows' }}
-        shell: bash -l {0}
-        run: |
-          $HOME/micromamba-bin/micromamba install cxx-compiler -c conda-forge -y
-
       - name: cmake configure
         if: ${{ runner.os == 'windows' }}
         shell: cmd /C call {0}
