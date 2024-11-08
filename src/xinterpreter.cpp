@@ -37,7 +37,7 @@ using Args = std::vector<const char*>;
 
 void* createInterpreter(const Args &ExtraArgs = {}) {
   Args ClangArgs = {/*"-xc++"*/"-v"}; // ? {"-Xclang", "-emit-llvm-only", "-Xclang", "-diagnostic-log-file", "-Xclang", "-", "-xc++"};
-  if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](std::string s) {
+  if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
     return s == "-resource-dir";}) == ExtraArgs.end()) {
     std::string resource_dir = Cpp::DetectResourceDir();
     if (resource_dir.empty())
