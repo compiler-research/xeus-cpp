@@ -112,6 +112,13 @@ find_package(pugixml REQUIRED)
 # Configuration
 # =============
 
+if (CPPINTEROP_LLVM_VERSION_MAJOR VERSION_GREATER ${CMAKE_CXX_COMPILER_VERSION})
+    message(WARNING "The resource directory being used corresponds to clang version ${CMAKE_CXX_COMPILER_VERSION}. \
+        It should be updated to match clang version ${CPPINTEROP_LLVM_VERSION_MAJOR} once cppinterop \
+        can provide a compatible resource directory.")
+endif()
+string(REGEX MATCH "^([0-9]+)" CXX_MAJOR_VERSION ${CMAKE_CXX_COMPILER_VERSION})
+
 if (NOT DEFINED XEUS_CPP_KERNELSPEC_PATH)
     set(XEUS_CPP_KERNELSPEC_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/")
 endif ()
@@ -119,7 +126,7 @@ endif ()
 function(configure_kernel kernel)
   set(XEUS_CPP_PATH "$ENV{PATH}")
   set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
-  set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR})
+  set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CXX_MAJOR_VERSION})
   set(XEUS_CPP_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include)
 
   if (WIN32)
