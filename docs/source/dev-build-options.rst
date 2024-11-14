@@ -34,5 +34,5 @@ If ``XEUS_CPP_USE_SHARED_XEUS_CPP`` is disabled, xcpp  will be linked statically
 Building the Tests
 ~~~~~~~~~~~~~~~~~~
 
-- ``XEUS_CPP_BUILD_TESTS ``: enables the tests  **Disabled by default**.
+- ``XEUS_CPP_BUILD_TESTS``: enables the tests  **Disabled by default**.
 
