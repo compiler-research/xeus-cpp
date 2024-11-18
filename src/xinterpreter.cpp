@@ -372,11 +372,11 @@ __get_cxx_version ()
     void interpreter::init_magic()
     {
         // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("executable", executable(m_interpreter));
-        // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("file", writefile());
         // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("timeit", timeit(&m_interpreter));
         // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("python", pythonexec());
 #ifndef EMSCRIPTEN
         preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("xassist", xassist());
+        preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("file", writefile());
 #endif
     }
 }
