@@ -19,7 +19,6 @@
 #include "xeus-cpp/xpreamble.hpp"
 #include "xeus-cpp/xutils.hpp"
 
-#include "xdemangle.hpp"
 #include "xparser.hpp"
 
 #include "clang/Interpreter/CppInterOp.h"
