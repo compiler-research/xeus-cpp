@@ -1027,3 +1027,62 @@ TEST_SUITE("xassist"){
     }
 
 }
+
+
+TEST_SUITE("file") {
+    TEST_CASE("Write") {
+        xcpp::writefile wf;
+        std::string line = "%%file testfile.txt";
+        std::string cell = "Hello, World!";
+
+        wf(line, cell);
+
+        std::ifstream infile("testfile.txt");
+        std::string content;
+        std::getline(infile, content);
+
+        REQUIRE(content == "Hello, World!");
+        infile.close();
+    }
+    TEST_CASE("Overwrite") {
+        xcpp::writefile wf;
+        std::string line = "%%file testfile.txt";
+        std::string cell = "Hello, World!";
+
+        wf(line, cell);
+
+        std::string overwrite_cell = "Overwrite test";
+
+        wf(line, overwrite_cell);
+
+        std::ifstream infile("testfile.txt");
+        std::string content;
+        std::getline(infile, content);
+
+        REQUIRE(content == overwrite_cell);
+        infile.close();
+    }
+    TEST_CASE("Append") {
+        xcpp::writefile wf;
+        std::string line = "%%file testfile.txt";
+        std::string cell = "Hello, World!";
+
+        wf(line, cell);
+
+        std::string append_line = "%%file -a testfile.txt";
+        std::string append_cell = "Hello, again!";
+
+        wf(append_line, append_cell);
+
+        std::ifstream infile("testfile.txt");
+        std::vector<std::string> lines;
+        std::string content;
+        while(std::getline(infile, content)) {
+            lines.push_back(content);
+        }
+
+        REQUIRE(lines[0] == "Hello, World!");
+        REQUIRE(lines[1] == "Hello, again!");
+        infile.close();
+    }
+}
