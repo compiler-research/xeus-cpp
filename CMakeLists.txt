@@ -166,7 +166,6 @@ set(XEUS_CPP_HEADERS
     include/xeus-cpp/xmagics.hpp
     include/xeus-cpp/xoptions.hpp
     include/xeus-cpp/xpreamble.hpp
-    #src/xdemangle.hpp
     #src/xinspect.hpp
     #src/xsystem.hpp
     #src/xparser.hpp
