@@ -7,8 +7,8 @@
  * The full license is in the file LICENSE, distributed with this software.         *
  ************************************************************************************/
 
-#include "xeus/xsystem.hpp"
 #include "xeus/xhelper.hpp"
+#include "xeus/xsystem.hpp"
 
 #include "xeus-cpp/xbuffer.hpp"
 #include "xeus-cpp/xeus_cpp_config.hpp"
