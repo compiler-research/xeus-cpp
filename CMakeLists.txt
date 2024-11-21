@@ -169,14 +169,12 @@ set(XEUS_CPP_HEADERS
     #src/xinspect.hpp
     #src/xsystem.hpp
     #src/xparser.hpp
-    #src/xmagics/os.hpp
 )
 
 set(XEUS_CPP_SRC
     src/xholder.cpp
     src/xinput.cpp
     src/xinterpreter.cpp
-    src/xmagics/os.cpp
     src/xoptions.cpp
     src/xparser.cpp
     src/xutils.cpp
@@ -184,8 +182,8 @@ set(XEUS_CPP_SRC
 
 if(NOT EMSCRIPTEN)
     list(APPEND XEUS_CPP_SRC
-        src/xmagics/xassist.hpp
         src/xmagics/xassist.cpp
+        src/xmagics/os.cpp
     )
 endif()
 
