@@ -67,3 +67,11 @@ target_link_libraries(test_xeus_cpp xeus-cpp doctest::doctest ${CMAKE_THREAD_LIB
 target_include_directories(test_xeus_cpp PRIVATE ${XEUS_CPP_INCLUDE_DIR})
 
 add_custom_target(xtest COMMAND test_xeus_cpp DEPENDS test_xeus_cpp)
+
+set(XEUS_SEARCH_PATH $<JOIN:$<TARGET_PROPERTY:xeus-cpp,INCLUDE_DIRECTORIES>,:>)
+
+if (NOT EMSCRIPTEN)
+    set(XEUS_SEARCH_PATH "${XEUS_SEARCH_PATH}:${CMAKE_CURRENT_SOURCE_DIR}/src")
+endif()
+
+target_compile_definitions(xeus-cpp PRIVATE "XEUS_SEARCH_PATH=\"${XEUS_SEARCH_PATH}\"")
