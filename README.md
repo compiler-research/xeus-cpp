@@ -78,9 +78,12 @@ micromamba activate xeus-cpp-wasm-build
 
 You'll now want to make sure you're using emsdk version "3.1.45" and activate it. You can get this by executing the following
 ```bash
-emsdk install 3.1.45
-emsdk activate 3.1.45
-source $CONDA_EMSDK_DIR/emsdk_env.sh
+cd $HOME
+git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+./emsdk install 3.1.45
+./emsdk activate 3.1.45
+source $HOME/emsdk/emsdk_env.sh
 ```
 
 You are now in a position to build the xeus-cpp kernel. You build it by executing the following
@@ -88,7 +91,6 @@ You are now in a position to build the xeus-cpp kernel. You build it by executin
 micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
 mkdir build
 pushd build
-export EMPACK_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build
 export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host 
 export CMAKE_PREFIX_PATH=$PREFIX
 export CMAKE_SYSTEM_PREFIX_PATH=$PREFIX
