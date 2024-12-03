@@ -360,10 +360,13 @@ __get_cxx_version ()
         // Add the standard include path
         Cpp::AddIncludePath((xeus::prefix_path() + "/include/").c_str());
 
-        // Add non-standard include paths from XEUS_SEARCH_PATH
-        const char* non_standard_paths = XEUS_SEARCH_PATH;
+        // Get include paths from environment variable
+        const char* non_standard_paths = std::getenv("XEUS_SEARCH_PATH");
+        if (!non_standard_paths) {
+            non_standard_paths = "";
+        }
 
-        if (non_standard_paths && std::strlen(non_standard_paths) > 0)
+        if (std::strlen(non_standard_paths) > 0)
         {
             // Split the paths by colon ':' and add each one
             std::istringstream stream(non_standard_paths);
