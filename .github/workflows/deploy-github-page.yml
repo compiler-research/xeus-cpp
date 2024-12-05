@@ -45,12 +45,7 @@ jobs:
           cd $HOME
           git clone https://github.com/emscripten-core/emsdk.git
           cd emsdk
-          ./emsdk install  ${{ matrix.emsdk_ver }}
-
-      - name: Setup emsdk
-        shell: bash -l {0}
-        run: |
-          emsdk install ${{matrix.emsdk_ver}}     
+          ./emsdk install  ${{ matrix.emsdk_ver }}    
 
       - name: Build xeus-cpp
         shell: bash -l {0}
