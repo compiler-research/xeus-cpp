@@ -37,18 +37,15 @@ jobs:
       - name: Setup default Build Type on *nux
         if: ${{ runner.os != 'windows' }}
         run: |
-          os="${{ matrix.os }}"
-          if [[ "${os}" == "macos"* ]]; then
-            echo "ncpus=$(sysctl -n hw.ncpu)" >> $GITHUB_ENV
-          else
-            echo "ncpus=$(nproc --all)" >> $GITHUB_ENV
-          fi
+          echo "ncpus=$(nproc --all)" >> $GITHUB_ENV
           
-      - name: Setup default Build Type on Windows
-        if: ${{ runner.os == 'windows' }}
+      - name: Setup emsdk
+        shell: bash -l {0}
         run: |
-          $env:ncpus=$([Environment]::ProcessorCount) 
-          echo "ncpus=$env:ncpus" >> $env:GITHUB_ENV
+          cd $HOME
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install  ${{ matrix.emsdk_ver }}
 
       - name: Setup emsdk
         shell: bash -l {0}
@@ -58,14 +55,13 @@ jobs:
       - name: Build xeus-cpp
         shell: bash -l {0}
         run: |
-          emsdk activate ${{matrix.emsdk_ver}}
-          source $CONDA_EMSDK_DIR/emsdk_env.sh
+          $HOME/emsdk/emsdk activate ${{matrix.emsdk_ver}}
+          source $HOME/emsdk/emsdk_env.sh
           micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
           
           mkdir build
           pushd build
 
-          export EMPACK_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build
           export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host 
           echo "PREFIX=$PREFIX" >> $GITHUB_ENV
           export CMAKE_PREFIX_PATH=$PREFIX
@@ -78,7 +74,7 @@ jobs:
             -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
             -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ON            \
             ..
-          EMCC_CFLAGS='-sERROR_ON_UNDEFINED_SYMBOLS=0' emmake make -j  ${{ env.ncpus }} install
+          emmake make -j  ${{ env.ncpus }} install
 
       - name: Jupyter Lite integration 
         shell: bash -l {0}
