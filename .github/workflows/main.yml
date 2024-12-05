@@ -260,7 +260,7 @@ jobs:
             -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
             -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ON            \
             ..
-          EMCC_CFLAGS='-sERROR_ON_UNDEFINED_SYMBOLS=0' emmake make -j  ${{ env.ncpus }} install
+          emmake make -j  ${{ env.ncpus }} install
 
       - name: Jupyter Lite integration 
         shell: bash -l {0}
