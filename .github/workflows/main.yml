@@ -36,6 +36,9 @@ jobs:
           - name: osx14-arm
             os: macos-14
             micromamba_shell_init: bash
+          - name: osx15-arm
+            os: macos-15
+            micromamba_shell_init: bash
           - name: Windows22
             os: windows-2022
             micromamba_shell_init: cmd.exe
@@ -191,6 +194,10 @@ jobs:
             micromamba_shell_init: bash
           - name: osx14-arm
             os: macos-14
+            emsdk_ver: "3.1.45"
+            micromamba_shell_init: bash
+          - name: osx15-arm
+            os: macos-15
             emsdk_ver: "3.1.45"
             micromamba_shell_init: bash
 
