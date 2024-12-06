@@ -102,7 +102,7 @@ emcmake cmake \
         -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
         -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ON            \
         ..
-EMCC_CFLAGS='-sERROR_ON_UNDEFINED_SYMBOLS=0' emmake make install
+emmake make install
 ```
 
 To build Jupyter Lite with this kernel without creating a website you can execute the following
