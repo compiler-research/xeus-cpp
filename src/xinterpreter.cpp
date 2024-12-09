@@ -15,6 +15,10 @@
 #include "xeus-cpp/xinterpreter.hpp"
 #include "xeus-cpp/xmagics.hpp"
 
+#include <cstring>    // for std::strlen
+#include <sstream>    // for std::istringstream
+#include <string>     // for std::getline
+
 #include "xinput.hpp"
 #include "xinspect.hpp"
 #ifndef EMSCRIPTEN
