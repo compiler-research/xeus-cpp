@@ -15,6 +15,11 @@
 #include "xeus-cpp/xinterpreter.hpp"
 #include "xeus-cpp/xmagics.hpp"
 
+#include <cstdlib>    // for std::getenv
+#include <cstring>    // for std::strlen
+#include <sstream>    // for std::istringstream
+#include <string>     // for std::getline
+
 #include "xinput.hpp"
 #include "xinspect.hpp"
 #ifndef EMSCRIPTEN
@@ -357,7 +362,26 @@ __get_cxx_version ()
 
     void interpreter::init_includes()
     {
+        // Add the standard include path
         Cpp::AddIncludePath((xeus::prefix_path() + "/include/").c_str());
+
+        // Get include paths from environment variable and use empty string if not set
+        const char* non_standard_paths = std::getenv("XEUS_SEARCH_PATH");
+        if (!non_standard_paths)
+            non_standard_paths = "";
+
+#ifdef _WIN32
+        const char path_separator = ';';
+#else
+        const char path_separator = ':';
+#endif
+
+        // Split and add each non-empty path
+        std::istringstream stream(non_standard_paths);
+        std::string path;
+        while (std::getline(stream, path, path_separator))
+            if (!path.empty())
+                Cpp::AddIncludePath(path.c_str());
     }
 
     void interpreter::init_preamble()
