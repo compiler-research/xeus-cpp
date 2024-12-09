@@ -68,6 +68,16 @@ target_include_directories(test_xeus_cpp PRIVATE ${XEUS_CPP_INCLUDE_DIR})
 
 add_custom_target(xtest COMMAND test_xeus_cpp DEPENDS test_xeus_cpp)
 
+# Test for non-standard include paths
+add_executable(test_include_paths test_include_paths.cpp)
+target_link_libraries(test_include_paths PRIVATE doctest::doctest)
+target_include_directories(test_include_paths PRIVATE 
+    ${CMAKE_SOURCE_DIR}/test/custom_includes
+    ${DOCTEST_INCLUDE_DIR}
+)
+target_compile_definitions(test_include_paths PRIVATE DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN)
+add_test(NAME test_include_paths COMMAND test_include_paths)
+
 set(XEUS_SEARCH_PATH $<JOIN:$<TARGET_PROPERTY:xeus-cpp,INCLUDE_DIRECTORIES>,:>)
 
 if (NOT EMSCRIPTEN)
