@@ -368,7 +368,9 @@ __get_cxx_version ()
         // Get include paths from environment variable and use empty string if not set
         const char* non_standard_paths = std::getenv("XEUS_SEARCH_PATH");
         if (!non_standard_paths)
+        {
             non_standard_paths = "";
+        }
 
 #ifdef _WIN32
         const char path_separator = ';';
@@ -380,8 +382,12 @@ __get_cxx_version ()
         std::istringstream stream(non_standard_paths);
         std::string path;
         while (std::getline(stream, path, path_separator))
+        {
             if (!path.empty())
+            {
                 Cpp::AddIncludePath(path.c_str());
+            }
+        }
     }
 
     void interpreter::init_preamble()
