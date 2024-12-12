@@ -15,10 +15,10 @@
 #include "xeus-cpp/xinterpreter.hpp"
 #include "xeus-cpp/xmagics.hpp"
 
-#include <cstdlib>    // for std::getenv
-#include <cstring>    // for std::strlen
-#include <sstream>    // for std::istringstream
-#include <string>     // for std::getline
+#include <cstdlib>  // for std::getenv
+#include <cstring>  // for std::strlen
+#include <sstream>  // for std::istringstream
+#include <string>   // for std::getline
 
 #include "xinput.hpp"
 #include "xinspect.hpp"
@@ -382,12 +382,8 @@ __get_cxx_version ()
         std::istringstream stream(non_standard_paths);
         std::string path;
         while (std::getline(stream, path, path_separator))
-        {
             if (!path.empty())
-            {
                 Cpp::AddIncludePath(path.c_str());
-            }
-        }
     }
 
     void interpreter::init_preamble()
