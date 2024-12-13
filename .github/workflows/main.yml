@@ -209,10 +209,8 @@ jobs:
       - name: install mamba
         uses: mamba-org/setup-micromamba@main
         with:
-          environment-file: environment-wasm-build.yml
           init-shell: >-
             ${{ matrix.micromamba_shell_init }}
-          environment-name: xeus-cpp-wasm-build
 
       - name: Setup default Build Type on *nux
         if: ${{ runner.os != 'windows' }}
