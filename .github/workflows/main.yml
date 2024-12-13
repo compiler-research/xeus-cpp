@@ -260,7 +260,7 @@ jobs:
             ..
           emmake make -j  ${{ env.ncpus }} install
 
-      - name: Jupyter Lite integration
+      - name: Jupyter Lite integration 
         shell: bash -l {0}
         run: |
           micromamba create -n xeus-lite-host jupyterlite-core
