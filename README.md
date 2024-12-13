@@ -63,7 +63,7 @@ to perform the python tests.
 
 ## Installation within a mamba environment (wasm build instructions)
 
-First clone the repository, and move into that directory
+These instructions will assume you have cmake installed on your system. First clone the repository, and move into that directory
 ```bash
 git clone --depth=1 https://github.com/compiler-research/xeus-cpp.git
 cd ./xeus-cpp
