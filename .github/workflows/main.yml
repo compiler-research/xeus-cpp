@@ -187,19 +187,15 @@ jobs:
           - name: ubu24
             os: ubuntu-24.04
             emsdk_ver: "3.1.45"
-            micromamba_shell_init: bash
           - name: osx13-x86
             os: macos-13
             emsdk_ver: "3.1.45"
-            micromamba_shell_init: bash
           - name: osx14-arm
             os: macos-14
             emsdk_ver: "3.1.45"
-            micromamba_shell_init: bash
           - name: osx15-arm
             os: macos-15
             emsdk_ver: "3.1.45"
-            micromamba_shell_init: bash
 
     steps:
       - uses: actions/checkout@v4
@@ -208,11 +204,6 @@ jobs:
 
       - name: install mamba
         uses: mamba-org/setup-micromamba@main
-        with:
-          environment-file: environment-wasm-build.yml
-          init-shell: >-
-            ${{ matrix.micromamba_shell_init }}
-          environment-name: xeus-cpp-wasm-build
 
       - name: Setup default Build Type on *nux
         if: ${{ runner.os != 'windows' }}
@@ -231,7 +222,6 @@ jobs:
           echo "ncpus=$env:ncpus" >> $env:GITHUB_ENV
 
       - name: Setup emsdk
-        shell: bash -l {0}
         run: |
           cd $HOME
           git clone https://github.com/emscripten-core/emsdk.git
@@ -239,7 +229,6 @@ jobs:
           ./emsdk install  ${{ matrix.emsdk_ver }}
 
       - name: Build xeus-cpp
-        shell: bash -l {0}
         run: |
           $HOME/emsdk/emsdk activate ${{matrix.emsdk_ver}}
           source $HOME/emsdk/emsdk_env.sh
@@ -263,7 +252,6 @@ jobs:
           emmake make -j  ${{ env.ncpus }} install
 
       - name: Jupyter Lite integration 
-        shell: bash -l {0}
         run: |
           micromamba create -n xeus-lite-host jupyterlite-core
           micromamba activate xeus-lite-host
