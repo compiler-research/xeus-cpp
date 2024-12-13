@@ -29,10 +29,6 @@ jobs:
         
       - name: install mamba
         uses: mamba-org/setup-micromamba@main
-        with:
-          environment-file: environment-wasm-build.yml
-          init-shell: bash
-          environment-name: xeus-cpp-wasm-build
 
       - name: Setup default Build Type on *nux
         if: ${{ runner.os != 'windows' }}
@@ -40,7 +36,6 @@ jobs:
           echo "ncpus=$(nproc --all)" >> $GITHUB_ENV
           
       - name: Setup emsdk
-        shell: bash -l {0}
         run: |
           cd $HOME
           git clone https://github.com/emscripten-core/emsdk.git
@@ -48,7 +43,6 @@ jobs:
           ./emsdk install  ${{ matrix.emsdk_ver }}    
 
       - name: Build xeus-cpp
-        shell: bash -l {0}
         run: |
           $HOME/emsdk/emsdk activate ${{matrix.emsdk_ver}}
           source $HOME/emsdk/emsdk_env.sh
@@ -72,7 +66,6 @@ jobs:
           emmake make -j  ${{ env.ncpus }} install
 
       - name: Jupyter Lite integration 
-        shell: bash -l {0}
         run: |
           micromamba create -n xeus-lite-host jupyterlite-core
           micromamba activate xeus-lite-host
