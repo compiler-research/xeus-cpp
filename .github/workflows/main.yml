@@ -30,6 +30,9 @@ jobs:
             coverage: true
             extra_cmake_flags: -DCMAKE_BUILD_TYPE=Debug
             micromamba_shell_init: bash
+          - name: ubu22
+            os: ubuntu-22.04
+            micromamba_shell_init: bash
           - name: osx13-x86
             os: macos-13
             micromamba_shell_init: bash
@@ -186,6 +189,10 @@ jobs:
         include:
           - name: ubu24
             os: ubuntu-24.04
+            emsdk_ver: "3.1.45"
+            micromamba_shell_init: bash
+          - name: ubu22
+            os: ubuntu-22.04
             emsdk_ver: "3.1.45"
             micromamba_shell_init: bash
           - name: osx13-x86
