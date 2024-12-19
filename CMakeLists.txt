@@ -50,6 +50,8 @@ message(STATUS "Building xeus-cpp v${${PROJECT_NAME}_VERSION}")
 # Build options
 # =============
 
+# Note: XEUS_SEARCH_PATH is now handled at runtime through environment variables
+
 option(XEUS_CPP_BUILD_STATIC "Build xeus-cpp static library" ON)
 option(XEUS_CPP_BUILD_SHARED "Split xcpp build into executable and library" ON)
 option(XEUS_CPP_BUILD_EXECUTABLE "Build the xcpp executable" ON)
@@ -407,6 +409,7 @@ endif()
 # =====
 
 if(XEUS_CPP_BUILD_TESTS)
+    enable_testing()
     add_subdirectory(test)
 endif()
 
