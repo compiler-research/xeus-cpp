@@ -17,8 +17,10 @@
 
 #include "xinput.hpp"
 #include "xinspect.hpp"
+#ifndef EMSCRIPTEN
 #include "xmagics/os.hpp"
 #include "xmagics/xassist.hpp"
+#endif
 #include "xparser.hpp"
 #include "xsystem.hpp"
 
@@ -114,11 +116,9 @@ __get_cxx_version ()
         createInterpreter(Args(argv ? argv + 1 : argv, argv + argc));
         m_version = get_stdopt();
         redirect_output();
-#ifndef EMSCRIPTEN
         init_includes();
         init_preamble();
         init_magic();
-#endif
     }
 
     interpreter::~interpreter()
@@ -363,7 +363,9 @@ __get_cxx_version ()
 
     void interpreter::init_includes()
     {
+#ifndef EMSCRIPTEN
         Cpp::AddIncludePath((xeus::prefix_path() + "/include/").c_str());
+#endif
     }
 
     void interpreter::init_preamble()
@@ -382,7 +384,9 @@ __get_cxx_version ()
         // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("timeit",
         // timeit(&m_interpreter));
         // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("python", pythonexec());
+#ifndef EMSCRIPTEN
         preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("xassist", xassist());
         preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("file", writefile());
+#endif
     }
 }
