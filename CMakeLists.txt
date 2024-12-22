@@ -152,10 +152,7 @@ function(configure_kernel kernel)
 endfunction()
 
 message("Configure kernels: ...")
-if(NOT EMSCRIPTEN)
-    configure_kernel("/share/jupyter/kernels/xcpp17/")
-    configure_kernel("/share/jupyter/kernels/xcpp20/")
-else()
+if(EMSCRIPTEN)
     # TODO: Currently jupyterlite-xeus and xeus-lite do not provide
     # methods to fetch information from the arguments present in the
     # generated emscripten kernel.
@@ -166,6 +163,9 @@ else()
     #    to be able to deal with arguments present in kernel.json
     # 3) Finally we should fetch the C++ version from the kernel.json file and
     #    be able to pass it to our wasm interpreter rather than forcing a version.
+    configure_kernel("/share/jupyter/kernels/xcpp20/")
+else()
+    configure_kernel("/share/jupyter/kernels/xcpp17/")
     configure_kernel("/share/jupyter/kernels/xcpp20/")
 endif()
 
@@ -415,6 +415,8 @@ if(EMSCRIPTEN)
     xeus_cpp_set_kernel_options(xcpp)
     xeus_wasm_compile_options(xcpp)
     xeus_wasm_link_options(xcpp "web,worker")
+    # TODO: Remove the exported runtime methods
+    # after the next xeus release.
     target_link_options(xcpp PUBLIC
         -sEXPORTED_RUNTIME_METHODS=FS,PATH,ERRNO_CODES
         # add sysroot location here
@@ -423,7 +425,7 @@ if(EMSCRIPTEN)
     # TODO: Emscripten supports preloading files just once before it generates
     # the xcpp.data file (containing the binary representation of the file(s) we
     # want to include in our application).
-    # Hence although we are adding supporting for Standard Headers, Libraries etc
+    # Hence although we are adding support for Standard Headers, Libraries etc
     # through emscripten's sysroot for now, we need to do the following:
     # 1) Enable CppInterOp to provide us with a resource dir.
     # 2) If the above cannot be done, we can use the resource dir provided

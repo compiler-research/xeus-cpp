@@ -17,10 +17,8 @@
 
 #include "xinput.hpp"
 #include "xinspect.hpp"
-#ifndef EMSCRIPTEN
 #include "xmagics/os.hpp"
 #include "xmagics/xassist.hpp"
-#endif
 #include "xparser.hpp"
 #include "xsystem.hpp"
 
@@ -28,7 +26,9 @@ using Args = std::vector<const char*>;
 
 void* createInterpreter(const Args &ExtraArgs = {}) {
   Args ClangArgs = {/*"-xc++"*/"-v"}; // ? {"-Xclang", "-emit-llvm-only", "-Xclang", "-diagnostic-log-file", "-Xclang", "-", "-xc++"};
-#ifndef EMSCRIPTEN
+#ifdef EMSCRIPTEN
+  ClangArgs.push_back("-std=c++20");
+#else
   if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
     return s == "-resource-dir";}) == ExtraArgs.end()) {
     std::string resource_dir = Cpp::DetectResourceDir();
@@ -99,8 +99,7 @@ __get_cxx_version ()
         auto cxx_version = Cpp::Evaluate(code);
         return std::to_string(cxx_version);
 #else
-        constexpr int cxx_version = 20;
-        return std::to_string(cxx_version);
+        return "20";
 #endif
     }
 
@@ -115,9 +114,11 @@ __get_cxx_version ()
         createInterpreter(Args(argv ? argv + 1 : argv, argv + argc));
         m_version = get_stdopt();
         redirect_output();
+#ifndef EMSCRIPTEN
         init_includes();
         init_preamble();
         init_magic();
+#endif
     }
 
     interpreter::~interpreter()
@@ -362,9 +363,7 @@ __get_cxx_version ()
 
     void interpreter::init_includes()
     {
-#ifndef EMSCRIPTEN
         Cpp::AddIncludePath((xeus::prefix_path() + "/include/").c_str());
-#endif
     }
 
     void interpreter::init_preamble()
@@ -383,9 +382,7 @@ __get_cxx_version ()
         // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("timeit",
         // timeit(&m_interpreter));
         // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("python", pythonexec());
-#ifndef EMSCRIPTEN
         preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("xassist", xassist());
         preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("file", writefile());
-#endif
     }
 }
