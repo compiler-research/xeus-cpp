@@ -28,6 +28,7 @@ using Args = std::vector<const char*>;
 
 void* createInterpreter(const Args &ExtraArgs = {}) {
   Args ClangArgs = {/*"-xc++"*/"-v"}; // ? {"-Xclang", "-emit-llvm-only", "-Xclang", "-diagnostic-log-file", "-Xclang", "-", "-xc++"};
+#ifndef EMSCRIPTEN
   if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
     return s == "-resource-dir";}) == ExtraArgs.end()) {
     std::string resource_dir = Cpp::DetectResourceDir();
@@ -42,6 +43,7 @@ void* createInterpreter(const Args &ExtraArgs = {}) {
     ClangArgs.push_back("-isystem");
     ClangArgs.push_back(CxxInclude.c_str());
   }
+#endif
   ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
   // FIXME: We should process the kernel input options and conditionally pass
   // the gpu args here.
@@ -73,6 +75,7 @@ namespace xcpp
     static std::string get_stdopt()
     {
         // We need to find what's the C++ version the interpreter runs with.
+#ifndef EMSCRIPTEN
         const char* code = R"(
 int __get_cxx_version () {
 #if __cplusplus > 202302L
@@ -93,11 +96,13 @@ int __get_cxx_version () {
   }
 __get_cxx_version ()
       )";
-
         auto cxx_version = Cpp::Evaluate(code);
         return std::to_string(cxx_version);
+#else
+        constexpr int cxx_version = 20;
+        return std::to_string(cxx_version);
+#endif
     }
-
 
     interpreter::interpreter(int argc, const char* const* argv) :
         xmagics()
@@ -357,7 +362,9 @@ __get_cxx_version ()
 
     void interpreter::init_includes()
     {
+#ifndef EMSCRIPTEN
         Cpp::AddIncludePath((xeus::prefix_path() + "/include/").c_str());
+#endif
     }
 
     void interpreter::init_preamble()

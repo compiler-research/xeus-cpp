@@ -22,6 +22,9 @@ namespace xcpp
         wasm_interpreter();
         virtual ~wasm_interpreter() = default;
 
+    private:
+
+        static std::vector<const char*> create_args();
     };
 }
 

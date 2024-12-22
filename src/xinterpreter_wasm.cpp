@@ -17,7 +17,13 @@ namespace xcpp
 {
 
     wasm_interpreter::wasm_interpreter()
-        : interpreter(0, nullptr)
+        : interpreter(create_args().size(), create_args().data())
     {
+    }
+
+    std::vector<const char*> wasm_interpreter::create_args()
+    {
+        static std::vector<const char*> Args = {"-Xclang", "-std=c++20"};
+        return Args;
     }
 }
