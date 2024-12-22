@@ -520,6 +520,7 @@ if(EMSCRIPTEN)
     install(FILES
             "$<TARGET_FILE_DIR:xcpp>/xcpp.js"
             "$<TARGET_FILE_DIR:xcpp>/xcpp.wasm"
+            "$<TARGET_FILE_DIR:xcpp>/xcpp.data"
             DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
 
