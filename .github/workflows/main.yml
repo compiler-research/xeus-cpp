@@ -276,8 +276,8 @@ jobs:
           micromamba activate xeus-lite-host
           python -m pip install jupyterlite-xeus
           jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }}
-          #cp xcpp.data _output/extensions/@jupyterlite/xeus/static
-          #cp $PREFIX/lib/libclangCppInterOp.so _output/extensions/@jupyterlite/xeus/static
+          cp xcpp.data _output/extensions/@jupyterlite/xeus/static
+          cp $PREFIX/lib/libclangCppInterOp.so _output/extensions/@jupyterlite/xeus/static
 
       - name: Setup tmate session
         if: ${{ failure() && runner.debug }}

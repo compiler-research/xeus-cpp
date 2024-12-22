@@ -78,8 +78,8 @@ jobs:
           micromamba activate xeus-lite-host
           python -m pip install jupyterlite-xeus
           jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }} --output-dir dist
-          #cp xcpp.data dist/extensions/@jupyterlite/xeus/static
-          #cp $PREFIX/lib/libclangCppInterOp.so dist/extensions/@jupyterlite/xeus/static
+          cp xcpp.data dist/extensions/@jupyterlite/xeus/static
+          cp $PREFIX/lib/libclangCppInterOp.so dist/extensions/@jupyterlite/xeus/static
           mkdir -p dist/files
           mv notebooks dist/files
           mv README.md dist/files
