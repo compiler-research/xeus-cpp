@@ -59,6 +59,7 @@ jobs:
           echo "PREFIX=$PREFIX" >> $GITHUB_ENV
           export CMAKE_PREFIX_PATH=$PREFIX
           export CMAKE_SYSTEM_PREFIX_PATH=$PREFIX
+          export SYSROOT_PATH=$HOME/emsdk/upstream/emscripten/cache/sysroot
 
           emcmake cmake \
             -DCMAKE_BUILD_TYPE=Release                        \
@@ -66,6 +67,7 @@ jobs:
             -DCMAKE_INSTALL_PREFIX=$PREFIX                    \
             -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
             -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ON            \
+            -DSYSROOT_PATH=$SYSROOT_PATH                      \
             ..
           emmake make -j  ${{ env.ncpus }} install
 
@@ -76,6 +78,8 @@ jobs:
           micromamba activate xeus-lite-host
           python -m pip install jupyterlite-xeus
           jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }} --output-dir dist
+          cp xcpp.data dist/extensions/@jupyterlite/xeus/static
+          cp $PREFIX/lib/libclangCppInterOp.so dist/extensions/@jupyterlite/xeus/static
           mkdir -p dist/files
           mv notebooks dist/files
           mv README.md dist/files
