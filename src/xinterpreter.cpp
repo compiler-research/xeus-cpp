@@ -116,7 +116,6 @@ __get_cxx_version ()
         createInterpreter(Args(argv ? argv + 1 : argv, argv + argc));
         m_version = get_stdopt();
         redirect_output();
-        init_includes();
         init_preamble();
         init_magic();
     }
@@ -359,13 +358,6 @@ __get_cxx_version ()
     void interpreter::publish_stderr(const std::string& s)
     {
         publish_stream("stderr", s);
-    }
-
-    void interpreter::init_includes()
-    {
-#ifndef EMSCRIPTEN
-        Cpp::AddIncludePath((xeus::prefix_path() + "/include/").c_str());
-#endif
     }
 
     void interpreter::init_preamble()
