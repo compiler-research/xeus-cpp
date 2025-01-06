@@ -71,13 +71,14 @@ You are now in a position to build the xeus-cpp kernel. You build it by executin
     export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host 
     export CMAKE_PREFIX_PATH=$PREFIX
     export CMAKE_SYSTEM_PREFIX_PATH=$PREFIX
-
+    export SYSROOT_PATH=$HOME/emsdk/upstream/emscripten/cache/sysroot
     emcmake cmake \
             -DCMAKE_BUILD_TYPE=Release                        \
             -DCMAKE_PREFIX_PATH=$PREFIX                       \
             -DCMAKE_INSTALL_PREFIX=$PREFIX                    \
             -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
             -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ON            \
+            -DSYSROOT_PATH=$SYSROOT_PATH                      \
             ..
     emmake make install
 
@@ -89,6 +90,14 @@ To build Jupyter Lite with this kernel without creating a website you can execut
     micromamba activate xeus-lite-host
     python -m pip install jupyterlite-xeus
     jupyter lite build --XeusAddon.prefix=$PREFIX
+
+We now need to shift necessary files like `xcpp.data` which contains the binary representation of the file(s)
+we want to include in our application. As of now this would contain all important files like Standard Headers,
+Libraries etc coming out of emscripten's sysroot. Assuming we are still inside build we should do the following
+
+.. code-block:: bash
+    cp $PREFIX/bin/xcpp.data _output/extensions/@jupyterlite/xeus/static
+    cp $PREFIX/lib/libclangCppInterOp.so _output/extensions/@jupyterlite/xeus/static
 
 Once the Jupyter Lite site has built you can test the website locally by executing
 
