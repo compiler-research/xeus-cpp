@@ -77,7 +77,6 @@ namespace xcpp
     static std::string get_stdopt()
     {
         // We need to find what's the C++ version the interpreter runs with.
-#ifndef EMSCRIPTEN
         const char* code = R"(
 int __get_cxx_version () {
 #if __cplusplus > 202302L
@@ -100,9 +99,6 @@ __get_cxx_version ()
       )";
         auto cxx_version = Cpp::Evaluate(code);
         return std::to_string(cxx_version);
-#else
-        return "20";
-#endif
     }
 
     interpreter::interpreter(int argc, const char* const* argv) :
