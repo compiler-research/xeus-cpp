@@ -51,19 +51,18 @@ jobs:
           $HOME/emsdk/emsdk activate ${{matrix.emsdk_ver}}
           source $HOME/emsdk/emsdk_env.sh
           micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
+          micromamba activate xeus-cpp-wasm-host
           
           mkdir build
           pushd build
-
-          export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host 
-          echo "PREFIX=$PREFIX" >> $GITHUB_ENV
+          
           export SYSROOT_PATH=$HOME/emsdk/upstream/emscripten/cache/sysroot
 
           emcmake cmake \
             -DCMAKE_BUILD_TYPE=Release                        \
-            -DCMAKE_INSTALL_PREFIX=$PREFIX                    \
+            -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX              \
             -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
-            -DCMAKE_FIND_ROOT_PATH=$PREFIX                    \
+            -DCMAKE_FIND_ROOT_PATH=$CONDA_PREFIX              \
             -DSYSROOT_PATH=$SYSROOT_PATH                      \
             ..
           emmake make -j  ${{ env.ncpus }} install
@@ -71,12 +70,14 @@ jobs:
       - name: Jupyter Lite integration 
         shell: bash -l {0}
         run: |
+          micromamba activate xeus-cpp-wasm-host
+          export XEUS_CPP_INSTALL_DIR=$CONDA_PREFIX
           micromamba create -n xeus-lite-host jupyterlite-core
           micromamba activate xeus-lite-host
           python -m pip install jupyterlite-xeus jupyter_server notebook
-          jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }} --contents notebooks/xeus-cpp-lite-demo.ipynb --output-dir dist
-          cp $PREFIX/bin/xcpp.data dist/extensions/@jupyterlite/xeus/static
-          cp $PREFIX/lib/libclangCppInterOp.so dist/extensions/@jupyterlite/xeus/static
+          jupyter lite build --XeusAddon.prefix=$XEUS_CPP_INSTALL_DIR --contents notebooks/xeus-cpp-lite-demo.ipynb --output-dir dist
+          cp $XEUS_CPP_INSTALL_DIR/bin/xcpp.data dist/extensions/@jupyterlite/xeus/static
+          cp $XEUS_CPP_INSTALL_DIR/lib/libclangCppInterOp.so dist/extensions/@jupyterlite/xeus/static
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

@@ -82,16 +82,17 @@ source $HOME/emsdk/emsdk_env.sh
 You are now in a position to build the xeus-cpp kernel. You build it by executing the following
 ```bash
 micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
+micromamba activate xeus-cpp-wasm-host
+export XEUS_CPP_INSTALL_DIR=$CONDA_PREFIX
 mkdir build
 pushd build
-export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host 
 export SYSROOT_PATH=$HOME/emsdk/upstream/emscripten/cache/sysroot
 
 emcmake cmake \
         -DCMAKE_BUILD_TYPE=Release                        \
-        -DCMAKE_INSTALL_PREFIX=$PREFIX                    \
+        -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX              \
         -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
-        -DCMAKE_FIND_ROOT_PATH=$PREFIX                    \
+        -DCMAKE_FIND_ROOT_PATH=$CONDA_PREFIX              \
         -DSYSROOT_PATH=$SYSROOT_PATH                      \
         ..
 emmake make install
@@ -102,20 +103,20 @@ To build Jupyter Lite with this kernel without creating a website you can execut
 micromamba create -n xeus-lite-host jupyterlite-core
 micromamba activate xeus-lite-host
 python -m pip install jupyterlite-xeus
-jupyter lite build --XeusAddon.prefix=$PREFIX
+jupyter lite build --XeusAddon.prefix=$XEUS_CPP_INSTALL_DIR
 ```
 
 We now need to shift necessary files like `xcpp.data` which contains the binary representation of the file(s)
 we want to include in our application. As of now this would contain all important files like Standard Headers,
 Libraries etc coming out of emscripten's sysroot. Assuming we are still inside build we should do the following
 ```bash
-cp $PREFIX/bin/xcpp.data _output/extensions/@jupyterlite/xeus/static
-cp $PREFIX/lib/libclangCppInterOp.so _output/extensions/@jupyterlite/xeus/static
+cp $XEUS_CPP_INSTALL_DIR/bin/xcpp.data _output/extensions/@jupyterlite/xeus/static
+cp $XEUS_CPP_INSTALL_DIR/lib/libclangCppInterOp.so _output/extensions/@jupyterlite/xeus/static
 ```
 
 Once the Jupyter Lite site has built you can test the website locally by executing
 ```bash
-jupyter lite serve --XeusAddon.prefix=$PREFIX
+jupyter lite serve --XeusAddon.prefix=$XEUS_CPP_INSTALL_DIR
 ```
 
 ## Trying it online
