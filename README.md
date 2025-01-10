@@ -85,8 +85,6 @@ micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
 mkdir build
 pushd build
 export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host 
-export CMAKE_PREFIX_PATH=$PREFIX
-export CMAKE_SYSTEM_PREFIX_PATH=$PREFIX
 export SYSROOT_PATH=$HOME/emsdk/upstream/emscripten/cache/sysroot
 
 emcmake cmake \
