@@ -85,15 +85,14 @@ micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
 mkdir build
 pushd build
 export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host 
-export CMAKE_PREFIX_PATH=$PREFIX
-export CMAKE_SYSTEM_PREFIX_PATH=$PREFIX
+export SYSROOT_PATH=$HOME/emsdk/upstream/emscripten/cache/sysroot
 
 emcmake cmake \
         -DCMAKE_BUILD_TYPE=Release                        \
-        -DCMAKE_PREFIX_PATH=$PREFIX                       \
         -DCMAKE_INSTALL_PREFIX=$PREFIX                    \
         -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
-        -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ON            \
+        -DCMAKE_FIND_ROOT_PATH=$PREFIX                    \
+        -DSYSROOT_PATH=$SYSROOT_PATH                      \
         ..
 emmake make install
 ```
@@ -105,11 +104,19 @@ micromamba activate xeus-lite-host
 python -m pip install jupyterlite-xeus
 jupyter lite build --XeusAddon.prefix=$PREFIX
 ```
+
+We now need to shift necessary files like `xcpp.data` which contains the binary representation of the file(s)
+we want to include in our application. As of now this would contain all important files like Standard Headers,
+Libraries etc coming out of emscripten's sysroot. Assuming we are still inside build we should do the following
+```bash
+cp $PREFIX/bin/xcpp.data _output/extensions/@jupyterlite/xeus/static
+cp $PREFIX/lib/libclangCppInterOp.so _output/extensions/@jupyterlite/xeus/static
+```
+
 Once the Jupyter Lite site has built you can test the website locally by executing
 ```bash
 jupyter lite serve --XeusAddon.prefix=$PREFIX
 ```
-
 
 ## Trying it online
 
@@ -135,7 +142,7 @@ http://xeus-cpp.readthedocs.io
 
 | `xeus-cpp` | `xeus-zmq`      | `CppInterOp` | `pugixml` | `cpp-argparse`| `nlohmann_json` |
 |------------|-----------------|--------------|-----------|---------------|-----------------|
-|  main      |  >=3.0.0,<4.0.0 | >=1.4.0      | ~1.8.1    | <3.1          | >=3.11.3,<4.0   |
+|  main      |  >=3.0.0,<4.0.0 | >=1.5.0      | ~1.8.1    | <3.1          | >=3.11.3,<4.0   |
 |  0.5.0     |  >=3.0.0,<4.0.0 | >=1.3.0      | ~1.8.1    | <3.1          | >=3.11.3,<4.0   |
 
 Versions prior to `0.5.0` have an additional dependency on [xtl](https://github.com/xtensor-stack/xtl), [clang](https://github.com/llvm/llvm-project/) & [cppzmq](https://github.com/zeromq/cppzmq)
