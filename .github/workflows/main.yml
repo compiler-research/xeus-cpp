@@ -271,7 +271,7 @@ jobs:
         run: |
           micromamba create -n xeus-lite-host jupyterlite-core
           micromamba activate xeus-lite-host
-          python -m pip install jupyterlite-xeus
+          python -m pip install jupyterlite-xeus libarchive-c
           jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }}
           cp $PREFIX/bin/xcpp.data _output/extensions/@jupyterlite/xeus/static
           cp $PREFIX/lib/libclangCppInterOp.so _output/extensions/@jupyterlite/xeus/static
