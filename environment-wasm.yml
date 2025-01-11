@@ -1,0 +1,5 @@
+name: xeus-cpp
+channels:
+  - https://repo.mamba.pm/emscripten-forge
+dependencies:
+  - xeus-cpp
