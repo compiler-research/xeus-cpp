@@ -16,7 +16,7 @@ dependencies:
   - zlib
   # Test dependencies
   - pytest
-  - jupyter_kernel_test>=0.5,<0.6
+  - jupyter_kernel_test>=0.5
   - papermill
   - nbformat
   - nbval
