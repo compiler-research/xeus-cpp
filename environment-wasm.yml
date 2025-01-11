@@ -1,4 +1,4 @@
-name: xeus-cpp
+name: xeus-cpp-wasm
 channels:
   - https://repo.mamba.pm/emscripten-forge
 dependencies:
