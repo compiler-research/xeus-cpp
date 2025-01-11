@@ -86,7 +86,7 @@ To build Jupyter Lite with this kernel without creating a website you can execut
     micromamba create -n xeus-lite-host jupyterlite-core
     micromamba activate xeus-lite-host
     python -m pip install jupyterlite-xeus jupyter_server
-    jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }} --contents ../notebooks/xeus-cpp-lite-demo.ipynb --output-dir dist
+    jupyter lite build --XeusAddon.prefix=$PREFIX --contents ../notebooks/xeus-cpp-lite-demo.ipynb
 
 We now need to shift necessary files like `xcpp.data` which contains the binary representation of the file(s)
 we want to include in our application. As of now this would contain all important files like Standard Headers,
