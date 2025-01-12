@@ -45,6 +45,9 @@ jobs:
           - name: Windows22
             os: windows-2022
             micromamba_shell_init: cmd.exe
+          - name: Windows25
+            os: windows-2025
+            micromamba_shell_init: cmd.exe
 
     steps:
       - uses: actions/checkout@v4
