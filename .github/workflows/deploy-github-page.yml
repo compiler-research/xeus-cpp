@@ -20,7 +20,7 @@ jobs:
       matrix:
         include:
           - name: Github-page
-            os: ubuntu-24.04
+            os: macos-15
             emsdk_ver: "3.1.45"
     steps:
       - uses: actions/checkout@v4
