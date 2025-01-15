@@ -75,8 +75,6 @@ jobs:
           micromamba activate xeus-lite-host
           python -m pip install jupyterlite-xeus jupyter_server notebook
           jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }} --contents notebooks/xeus-cpp-lite-demo.ipynb --output-dir dist
-          cp $PREFIX/bin/xcpp.data dist/extensions/@jupyterlite/xeus/static
-          cp $PREFIX/lib/libclangCppInterOp.so dist/extensions/@jupyterlite/xeus/static
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

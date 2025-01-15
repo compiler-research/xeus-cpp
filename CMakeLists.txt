@@ -116,7 +116,7 @@ if (NOT DEFINED XEUS_CPP_KERNELSPEC_PATH)
     set(XEUS_CPP_KERNELSPEC_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/")
 endif ()
 
-function(configure_kernel kernel)
+function(configure_native_kernel kernel)
   set(XEUS_CPP_PATH "$ENV{PATH}")
   set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
   set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR})
@@ -148,6 +148,30 @@ function(configure_kernel kernel)
     COPYONLY)
 endfunction()
 
+function(configure_wasm_kernel kernel)
+  set(XEUS_CPP_PATH "$ENV{PATH}")
+  set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
+  set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR})
+  set(XEUS_CPP_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include)
+
+  configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}wasm_kernel.json.in"
+    "${CMAKE_CURRENT_BINARY_DIR}${kernel}kernel.json")
+
+  configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}logo-32x32.png"
+    "${CMAKE_CURRENT_BINARY_DIR}${kernel}"
+    COPYONLY)
+  configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}logo-64x64.png"
+    "${CMAKE_CURRENT_BINARY_DIR}${kernel}"
+    COPYONLY)
+  configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}logo-svg.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}${kernel}"
+    COPYONLY)
+endfunction()
+
 message("Configure kernels: ...")
 if(EMSCRIPTEN)
     # TODO: Currently jupyterlite-xeus and xeus-lite do not provide
@@ -160,10 +184,10 @@ if(EMSCRIPTEN)
     #    to be able to deal with arguments present in kernel.json
     # 3) Finally we should fetch the C++ version from the kernel.json file and
     #    be able to pass it to our wasm interpreter rather than forcing a version.
-    configure_kernel("/share/jupyter/kernels/xcpp20/")
+    configure_wasm_kernel("/share/jupyter/kernels/xcpp20/")
 else()
-    configure_kernel("/share/jupyter/kernels/xcpp17/")
-    configure_kernel("/share/jupyter/kernels/xcpp20/")
+    configure_native_kernel("/share/jupyter/kernels/xcpp17/")
+    configure_native_kernel("/share/jupyter/kernels/xcpp20/")
 endif()
 
 # Source files
