@@ -71,9 +71,8 @@ jobs:
       - name: Jupyter Lite integration 
         shell: bash -l {0}
         run: |
-          micromamba create -n xeus-lite-host jupyterlite-core
+          micromamba create -n xeus-lite-host jupyterlite-core jupyterlite-xeus jupyterlite-core jupyterlab notebook
           micromamba activate xeus-lite-host
-          python -m pip install jupyterlite-xeus jupyterlite-core jupyterlab notebook
           jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }} --contents notebooks/xeus-cpp-lite-demo.ipynb --output-dir dist
           cp $PREFIX/bin/xcpp.data dist/extensions/@jupyterlite/xeus/static
           cp $PREFIX/lib/libclangCppInterOp.so dist/extensions/@jupyterlite/xeus/static
