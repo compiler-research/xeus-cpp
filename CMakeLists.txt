@@ -116,7 +116,7 @@ if (NOT DEFINED XEUS_CPP_KERNELSPEC_PATH)
     set(XEUS_CPP_KERNELSPEC_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/")
 endif ()
 
-function(configure_kernel kernel)
+function(configure_native_kernel kernel)
   set(XEUS_CPP_PATH "$ENV{PATH}")
   set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
   set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR})
@@ -148,6 +148,26 @@ function(configure_kernel kernel)
     COPYONLY)
 endfunction()
 
+function(configure_wasm_kernel kernel)
+
+  configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}wasm_kernel.json.in"
+    "${CMAKE_CURRENT_BINARY_DIR}${kernel}kernel.json")
+
+  configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}logo-32x32.png"
+    "${CMAKE_CURRENT_BINARY_DIR}${kernel}"
+    COPYONLY)
+  configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}logo-64x64.png"
+    "${CMAKE_CURRENT_BINARY_DIR}${kernel}"
+    COPYONLY)
+  configure_file (
+    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}logo-svg.svg"
+    "${CMAKE_CURRENT_BINARY_DIR}${kernel}"
+    COPYONLY)
+endfunction()
+
 message("Configure kernels: ...")
 if(EMSCRIPTEN)
     # TODO: Currently jupyterlite-xeus and xeus-lite do not provide
@@ -160,11 +180,11 @@ if(EMSCRIPTEN)
     #    to be able to deal with arguments present in kernel.json
     # 3) Finally we should fetch the C++ version from the kernel.json file and
     #    be able to pass it to our wasm interpreter rather than forcing a version.
-    configure_kernel("/share/jupyter/kernels/xcpp20/")
+    configure_wasm_kernel("/share/jupyter/kernels/xcpp20/")
 else()
-    configure_kernel("/share/jupyter/kernels/xcpp17/")
-    configure_kernel("/share/jupyter/kernels/xcpp20/")
-    configure_kernel("/share/jupyter/kernels/xcpp23/")
+    configure_native_kernel("/share/jupyter/kernels/xcpp17/")
+    configure_native_kernel("/share/jupyter/kernels/xcpp20/")
+    configure_native_kernel("/share/jupyter/kernels/xcpp23/")
 endif()
 
 # Source files
@@ -415,10 +435,10 @@ if(EMSCRIPTEN)
     xeus_wasm_link_options(xcpp "web,worker")
     # TODO: Remove the exported runtime methods
     # after the next xeus release.
-    target_link_options(xcpp PUBLIC
-        -sEXPORTED_RUNTIME_METHODS=FS,PATH,ERRNO_CODES
-        # add sysroot location here
-        --preload-file ${SYSROOT_PATH}/include@/include
+    target_link_options(xcpp
+        PUBLIC "SHELL: -s EXPORTED_RUNTIME_METHODS='[\"FS\",\"PATH\",\"LDSO\",\"loadDynamicLibrary\",\"ERRNO_CODES\"]'"
+        PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
+        PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm_patches/post.js"
     )
     # TODO: Emscripten supports preloading files just once before it generates
     # the xcpp.data file (containing the binary representation of the file(s) we

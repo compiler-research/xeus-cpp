@@ -20,7 +20,7 @@ jobs:
       matrix:
         include:
           - name: Github-page
-            os: ubuntu-24.04
+            os: macos-15
             emsdk_ver: "3.1.45"
     steps:
       - uses: actions/checkout@v4
@@ -41,7 +41,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cd $HOME
-          git clone https://github.com/emscripten-core/emsdk.git
+          git clone --depth=1 https://github.com/emscripten-core/emsdk.git
           cd emsdk
           ./emsdk install  ${{ matrix.emsdk_ver }}    
 
@@ -71,12 +71,14 @@ jobs:
       - name: Jupyter Lite integration 
         shell: bash -l {0}
         run: |
-          micromamba create -n xeus-lite-host jupyterlite-core
+          micromamba create -n xeus-lite-host jupyterlite-core jupyter_server
           micromamba activate xeus-lite-host
-          python -m pip install jupyterlite-xeus jupyter_server notebook
-          jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }} --contents notebooks/xeus-cpp-lite-demo.ipynb --output-dir dist
-          cp $PREFIX/bin/xcpp.data dist/extensions/@jupyterlite/xeus/static
-          cp $PREFIX/lib/libclangCppInterOp.so dist/extensions/@jupyterlite/xeus/static
+          python -m pip install jupyterlite-xeus
+          jupyter lite build \
+              --XeusAddon.prefix=${{ env.PREFIX }} \
+              --contents README.md \
+              --contents notebooks/xeus-cpp-lite-demo.ipynb \
+              --output-dir dist
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

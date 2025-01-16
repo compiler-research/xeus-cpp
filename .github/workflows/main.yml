@@ -45,6 +45,9 @@ jobs:
           - name: Windows22
             os: windows-2022
             micromamba_shell_init: cmd.exe
+          - name: Windows25
+            os: windows-2025
+            micromamba_shell_init: cmd.exe
 
     steps:
       - uses: actions/checkout@v4
@@ -239,7 +242,7 @@ jobs:
         shell: bash -l {0}
         run: |
           cd $HOME
-          git clone https://github.com/emscripten-core/emsdk.git
+          git clone --depth=1 https://github.com/emscripten-core/emsdk.git
           cd emsdk
           ./emsdk install  ${{ matrix.emsdk_ver }}
 
@@ -273,8 +276,6 @@ jobs:
           micromamba activate xeus-lite-host
           python -m pip install jupyterlite-xeus
           jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }}
-          cp $PREFIX/bin/xcpp.data _output/extensions/@jupyterlite/xeus/static
-          cp $PREFIX/lib/libclangCppInterOp.so _output/extensions/@jupyterlite/xeus/static
 
       - name: Setup tmate session
         if: ${{ failure() && runner.debug }}
