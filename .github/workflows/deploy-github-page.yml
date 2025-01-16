@@ -21,7 +21,7 @@ jobs:
         include:
           - name: Github-page
             os: macos-15
-            emsdk_ver: "3.1.45"
+            emsdk_ver: "3.1.73"
     steps:
       - uses: actions/checkout@v4
         with:
