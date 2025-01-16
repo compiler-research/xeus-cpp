@@ -1,0 +1,16 @@
+{
+  "display_name": "C++20",
+  "argv": [
+      "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
+      "-f",
+      "{connection_file}",
+      "-std=c++20"
+  ],
+  "language": "cpp",
+  "metadata": {
+    "debugger": false,
+    "shared": {
+      "libclangCppInterOp.so": "lib/libclangCppInterOp.so"
+    }
+  }
+}

@@ -71,12 +71,14 @@ jobs:
       - name: Jupyter Lite integration 
         shell: bash -l {0}
         run: |
-          micromamba create -n xeus-lite-host jupyterlite-core
+          micromamba create -n xeus-lite-host jupyterlite-core jupyter_server
           micromamba activate xeus-lite-host
-          python -m pip install jupyterlite-xeus jupyter_server notebook
-          jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }} --contents notebooks/xeus-cpp-lite-demo.ipynb --output-dir dist
-          cp $PREFIX/bin/xcpp.data dist/extensions/@jupyterlite/xeus/static
-          cp $PREFIX/lib/libclangCppInterOp.so dist/extensions/@jupyterlite/xeus/static
+          python -m pip install jupyterlite-xeus
+          jupyter lite build \
+              --XeusAddon.prefix=${{ env.PREFIX }} \
+              --contents README.md \
+              --contents notebooks/xeus-cpp-lite-demo.ipynb \
+              --output-dir dist
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
