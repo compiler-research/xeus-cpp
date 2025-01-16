@@ -414,10 +414,10 @@ if(EMSCRIPTEN)
     xeus_wasm_link_options(xcpp "web,worker")
     # TODO: Remove the exported runtime methods
     # after the next xeus release.
-    target_link_options(xcpp PUBLIC
-        -sEXPORTED_RUNTIME_METHODS=FS,PATH,ERRNO_CODES
-        # add sysroot location here
-        --preload-file ${SYSROOT_PATH}/include@/include
+    target_link_options(xcpp
+        PUBLIC "SHELL: -s EXPORTED_RUNTIME_METHODS='[\"FS\",\"PATH\",\"LDSO\",\"loadDynamicLibrary\",\"ERRNO_CODES\"]'"
+        PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
+        PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm_patches/post.js"
     )
     # TODO: Emscripten supports preloading files just once before it generates
     # the xcpp.data file (containing the binary representation of the file(s) we
