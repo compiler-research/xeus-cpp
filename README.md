@@ -69,13 +69,13 @@ git clone --depth=1 https://github.com/compiler-research/xeus-cpp.git
 cd ./xeus-cpp
 ```
 
-You'll now want to make sure you're using emsdk version "3.1.45" and activate it. You can get this by executing the following
+You'll now want to make sure you're using emsdk version "3.1.73" and activate it. You can get this by executing the following
 ```bash
 cd $HOME
 git clone https://github.com/emscripten-core/emsdk.git
 cd emsdk
-./emsdk install 3.1.45
-./emsdk activate 3.1.45
+./emsdk install 3.1.73
+./emsdk activate 3.1.73
 source $HOME/emsdk/emsdk_env.sh
 ```
 
