@@ -57,3 +57,54 @@ and the python tests by executing
 cd ../../test
 pytest -sv test_xcpp_kernel.py
 ```
+
+## Setting up a development environment (wasm instructions)
+
+First, you need to fork the project. After you have done this clone your forked repo. You can do this by 
+executing the folowing
+
+```bash
+git clone https://github.com/<your-github-username>/xeus-cpp.git
+cd ./xeus-cpp
+```
+
+You'll now want to make sure you're using emsdk version "3.1.45" and activate it. You can get this by executing the following
+```bash
+cd $HOME
+git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+./emsdk install 3.1.45
+./emsdk activate 3.1.45
+source $HOME/emsdk/emsdk_env.sh
+```
+
+You are now in a position to build the xeus-cpp kernel. You build it by executing the following
+```bash
+micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
+mkdir build
+pushd build
+export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host 
+export SYSROOT_PATH=$HOME/emsdk/upstream/emscripten/cache/sysroot
+
+emcmake cmake \
+        -DCMAKE_BUILD_TYPE=Release                        \
+        -DCMAKE_INSTALL_PREFIX=$PREFIX                    \
+        -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
+        -DCMAKE_FIND_ROOT_PATH=$PREFIX                    \
+        -DSYSROOT_PATH=$SYSROOT_PATH                      \
+        ..
+emmake make install
+```
+
+To build Jupyter Lite with this kernel without creating a website you can execute the following
+```bash
+micromamba create -n xeus-lite-host jupyterlite-core
+micromamba activate xeus-lite-host
+python -m pip install jupyterlite-xeus
+jupyter lite build --XeusAddon.prefix=$PREFIX
+```
+
+Once the Jupyter Lite site has built you can test the website locally by executing
+```bash
+jupyter lite serve --XeusAddon.prefix=$PREFIX
+```
