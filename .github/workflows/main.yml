@@ -25,6 +25,9 @@ jobs:
           - name: ubu24
             os: ubuntu-24.04
             micromamba_shell_init: bash
+          - name: ubu24-arm
+            os: ubuntu-24.04-arm
+            micromamba_shell_init: bash
           - name: ubu24-analyzers
             os: ubuntu-24.04
             coverage: true
@@ -32,6 +35,9 @@ jobs:
             micromamba_shell_init: bash
           - name: ubu22
             os: ubuntu-22.04
+            micromamba_shell_init: bash
+          - name: ubu22-arm
+            os: ubuntu-22.04-arm
             micromamba_shell_init: bash
           - name: osx13-x86
             os: macos-13
@@ -194,8 +200,15 @@ jobs:
             os: ubuntu-24.04
             emsdk_ver: "3.1.45"
             micromamba_shell_init: bash
+          - name: ubu24-arm
+            os: ubuntu-24.04-arm
+            emsdk_ver: "3.1.45"
+            micromamba_shell_init: bash
           - name: ubu22
             os: ubuntu-22.04
+            emsdk_ver: "3.1.45"
+          - name: ubu22-arm
+            os: ubuntu-22.04-arm
             emsdk_ver: "3.1.45"
             micromamba_shell_init: bash
           - name: osx13-x86
