@@ -78,6 +78,8 @@ jobs:
               --XeusAddon.prefix=${{ env.PREFIX }} \
               --contents README.md \
               --contents notebooks/xeus-cpp-lite-demo.ipynb \
+              --contents notebooks/images/marie.png \
+              --contents notebooks/audio/audio.wav \
               --output-dir dist
 
       - name: Upload artifact
