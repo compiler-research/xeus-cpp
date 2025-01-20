@@ -97,8 +97,8 @@ emmake make install
 
 To build Jupyter Lite with this kernel without creating a website you can execute the following
 ```bash
-micromamba create -n xeus-lite-host jupyterlite-core
-micromamba activate xeus-lite-host -c conda-forge
+micromamba create -n xeus-lite-host jupyterlite-core -c conda-forge
+micromamba activate xeus-lite-host
 python -m pip install jupyterlite-xeus
 jupyter lite build --XeusAddon.prefix=$PREFIX
 ```
