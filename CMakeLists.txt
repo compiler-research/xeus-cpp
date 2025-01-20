@@ -389,7 +389,11 @@ set(XCPP_HEADERS
 add_library(xeus-cpp-headers INTERFACE)
 set_target_properties(xeus-cpp-headers PROPERTIES PUBLIC_HEADER "${XCPP_HEADERS}")
 
-install(TARGETS xeus-cpp-headers PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xcpp)
+if (EMSCRIPTEN)
+    install(TARGETS xeus-cpp-headers PUBLIC_HEADER DESTINATION ${SYSROOT_PATH}/include/xcpp)
+else ()
+    install(TARGETS xeus-cpp-headers PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xcpp)
+endif()
 
 # xeus-cpp
 # ========
