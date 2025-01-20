@@ -58,8 +58,8 @@ You'll now want to make sure you're using emsdk version "3.1.45" and activate it
 .. code-block:: bash
 
     git clone https://github.com/emscripten-core/emsdk.git $HOME/emsdk
-    $HOME/emsdk install 3.1.45
-    $HOME/emsdk activate 3.1.45
+    $HOME/emsdk/emsdk install 3.1.45
+    $HOME/emsdk/emsdk activate 3.1.45
     source $HOME/emsdk/emsdk_env.sh
 
 
