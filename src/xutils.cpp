@@ -112,7 +112,7 @@ namespace xcpp
         const char separator = '/';
 #endif
 
-        return prefix + separator + "etc" + separator + "xeus-cpp" + separator + "tags.d";
+        return prefix + "etc" + separator + "xeus-cpp" + separator + "tags.d";
     }
 
     std::string retrieve_tagfile_dir()
@@ -131,6 +131,6 @@ namespace xcpp
         const char separator = '/';
 #endif
 
-        return prefix + separator + "share" + separator + "xeus-cpp" + separator + "tagfiles";
+        return prefix + "share" + separator + "xeus-cpp" + separator + "tagfiles";
     }
 }
