@@ -390,7 +390,12 @@ add_library(xeus-cpp-headers INTERFACE)
 set_target_properties(xeus-cpp-headers PROPERTIES PUBLIC_HEADER "${XCPP_HEADERS}")
 
 if (EMSCRIPTEN)
-    install(TARGETS xeus-cpp-headers PUBLIC_HEADER DESTINATION ${SYSROOT_PATH}/include/xcpp)
+    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${SYSROOT_PATH}/include/xcpp)
+
+    message(STATUS "Moving headers to ${SYSROOT_PATH}/include/xcpp")
+    foreach(header ${XCPP_HEADERS})
+        file(COPY ${header} DESTINATION ${SYSROOT_PATH}/include/xcpp)
+    endforeach()
 else ()
     install(TARGETS xeus-cpp-headers PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xcpp)
 endif()
