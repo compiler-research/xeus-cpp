@@ -52,18 +52,13 @@ These instructions will assume you have cmake installed on your system. First cl
     git clone --depth=1 https://github.com/compiler-research/xeus-cpp.git
     cd ./xeus-cpp
 
-
-You'll now want to make sure you're using emsdk version "3.1.73" and activate it. You can get this by executing the following
+You'll now want to make sure you are using the same emsdk as the rest of our dependencies. This can be achieved by executing 
+the following
 
 .. code-block:: bash
 
-    cd $HOME
-    git clone https://github.com/emscripten-core/emsdk.git
-    cd emsdk
-    ./emsdk install 3.1.73
-    ./emsdk activate 3.1.73
-    source $HOME/emsdk/emsdk_env.sh
-
+    micromamba create -f environment-wasm-build.yml -y
+    micromamba activate xeus-cpp-wasm-build
 
 You are now in a position to build the xeus-cpp kernel. You build it by executing the following
 
@@ -71,9 +66,10 @@ You are now in a position to build the xeus-cpp kernel. You build it by executin
 
     micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
     mkdir build
-    pushd build
-    export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host 
-    export SYSROOT_PATH=$HOME/emsdk/upstream/emscripten/cache/sysroot
+    cd build
+    export BUILD_TOOLS_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build
+    export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host
+    export SYSROOT_PATH=$BUILD_TOOLS_PREFIX/opt/emsdk/upstream/emscripten/cache/sysroot
     emcmake cmake \
             -DCMAKE_BUILD_TYPE=Release                        \
             -DCMAKE_INSTALL_PREFIX=$PREFIX                    \
@@ -88,7 +84,7 @@ To build Jupyter Lite with this kernel without creating a website you can execut
 
 .. code-block:: bash
 
-    micromamba create -n xeus-lite-host jupyterlite-core
+    micromamba create -n xeus-lite-host jupyterlite-core -c conda-forge
     micromamba activate xeus-lite-host
     python -m pip install jupyterlite-xeus
     jupyter lite build --XeusAddon.prefix=$PREFIX
