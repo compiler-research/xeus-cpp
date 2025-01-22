@@ -53,15 +53,14 @@ These instructions will assume you have cmake installed on your system. First cl
     cd ./xeus-cpp
 
 
-You'll now want to make sure you're using emsdk version "3.1.45" and activate it. You can get this by executing the following
+You'll now want to make sure you are using the same emsdk as the rest of our dependencies. This can be achieved by executing 
+the following
 
 .. code-block:: bash
 
-    git clone https://github.com/emscripten-core/emsdk.git $HOME/emsdk
-    $HOME/emsdk/emsdk install 3.1.45
-    $HOME/emsdk/emsdk activate 3.1.45
-    source $HOME/emsdk/emsdk_env.sh
 
+    micromamba create -f environment-wasm-build.yml -y
+    micromamba activate xeus-cpp-wasm-build
 
 You are now in a position to build the xeus-cpp kernel. You build it by executing the following
 
