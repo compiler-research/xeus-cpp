@@ -21,7 +21,7 @@ jobs:
       matrix:
         include:
           - name: Github-page
-            os: ubuntu-24.04-arm
+            os: ubuntu-24.04
             emsdk_ver: "3.1.45"
     steps:
       - uses: actions/checkout@v4
@@ -91,7 +91,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-24.04
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
