@@ -230,14 +230,6 @@ jobs:
           $env:ncpus=$([Environment]::ProcessorCount) 
           echo "ncpus=$env:ncpus" >> $env:GITHUB_ENV
 
-      - name: Setup emsdk
-        shell: bash -l {0}
-        run: |
-          cd $HOME
-          git clone --depth=1 https://github.com/emscripten-core/emsdk.git
-          cd emsdk
-          ./emsdk install  ${{ matrix.emsdk_ver }}
-
       - name: Build xeus-cpp
         shell: bash -l {0}
         run: |
