@@ -48,9 +48,10 @@ jobs:
           mkdir build
           pushd build
 
+          export BUILD_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build
           export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host 
           echo "PREFIX=$PREFIX" >> $GITHUB_ENV
-          export SYSROOT_PATH=$HOME/emsdk/upstream/emscripten/cache/sysroot
+          export SYSROOT_PATH=$BUILD_PREFIX/opt/emsdk/upstream/emscripten/cache/sysroot
 
           emcmake cmake \
             -DCMAKE_BUILD_TYPE=Release                        \
