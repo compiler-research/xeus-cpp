@@ -203,6 +203,7 @@ jobs:
           - name: ubu22
             os: ubuntu-22.04
             emsdk_ver: "3.1.45"
+            micromamba_shell_init: bash
           - name: osx13-x86
             os: macos-13
             emsdk_ver: "3.1.45"
