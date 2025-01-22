@@ -1,4 +1,4 @@
-name: xeus-r-wasm-build
+name: xeus-cpp-wasm-build
 channels:
   - https://repo.mamba.pm/emscripten-forge
   - conda-forge
