@@ -445,9 +445,8 @@ if(EMSCRIPTEN)
     # TODO: Remove the exported runtime methods
     # after the next xeus release.
     target_link_options(xcpp
-        PUBLIC "SHELL: -s USE_SDL=2"
         PUBLIC "SHELL: -s EXPORTED_RUNTIME_METHODS='[\"FS\",\"PATH\",\"LDSO\",\"loadDynamicLibrary\",\"ERRNO_CODES\"]'"
-        PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/@/"
+        PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
         PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm_patches/post.js"
     )
     # TODO: Emscripten supports preloading files just once before it generates
