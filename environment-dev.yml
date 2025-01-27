@@ -12,7 +12,7 @@ dependencies:
   - nlohmann_json=3.11.3
   - CppInterOp>=1.5.0
   - pugixml
-  - cpp-argparse <3.1
+  - cpp-argparse>=3.0,<4.0
   - zlib
   # Test dependencies
   - pytest
