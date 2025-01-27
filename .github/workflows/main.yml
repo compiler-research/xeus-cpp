@@ -8,6 +8,8 @@ on:
   push:
     branches:
     - main
+  schedule:
+    - cron: '30 20 * * *' # Warning: Timezone dep - 20:00 is 1:00
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
@@ -175,7 +177,7 @@ jobs:
 
       - name: Upload to codecov.io
         if: ${{ success() && (matrix.coverage == true) }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           file: ./coverage.info
           fail_ci_if_error: true

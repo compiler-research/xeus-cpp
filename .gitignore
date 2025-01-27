@@ -31,6 +31,9 @@
 # Jupyter
 .ipynb_checkpoints/
 
+# Default names for Jupyter notebooks
+Untitled*.ipynb
+
 # Python
 __pycache__/
 
