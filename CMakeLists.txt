@@ -377,6 +377,8 @@ macro(xeus_cpp_create_target target_name linkage output_name)
         target_link_libraries(${target_name} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
     endif()
 
+    target_compile_definitions(${target_name} PRIVATE "XEUS_SEARCH_PATH=\"$<JOIN:$<TARGET_PROPERTY:${target_name},INCLUDE_DIRECTORIES>,:>\"")
+
 endmacro()
 
 # xeus-cpp-headers
