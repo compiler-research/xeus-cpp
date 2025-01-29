@@ -1,9 +1,9 @@
 name: xeus-cpp-wasm-host
 channels:
-  - https://repo.mamba.pm/emscripten-forge
+  - https://repo.prefix.dev/emscripten-forge-dev
   - https://repo.mamba.pm/conda-forge
 dependencies:
-  - emscripten-abi==3.1.45
+  - emscripten-abi==3.1.73
   - nlohmann_json
   - xeus-lite
   - xeus
