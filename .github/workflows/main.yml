@@ -199,13 +199,9 @@ jobs:
       matrix:
         include:
           - name: ubu24
-            os: ubuntu-24.04-arm
-            emsdk_ver: "3.1.45"
-            micromamba_shell_init: bash
+            os: ubuntu-24.04
           - name: osx15-arm
             os: macos-15
-            emsdk_ver: "3.1.45"
-            micromamba_shell_init: bash
 
     steps:
       - uses: actions/checkout@v4
@@ -215,8 +211,9 @@ jobs:
       - name: install mamba
         uses: mamba-org/setup-micromamba@main
         with:
-          init-shell: >-
-            ${{ matrix.micromamba_shell_init }}
+          environment-file: environment-wasm-build.yml
+          init-shell: bash
+          environment-name: xeus-cpp-wasm-build
 
       - name: Setup default Build Type on *nux
         if: ${{ runner.os != 'windows' }}
@@ -227,34 +224,19 @@ jobs:
           else
             echo "ncpus=$(nproc --all)" >> $GITHUB_ENV
           fi
-          
-      - name: Setup default Build Type on Windows
-        if: ${{ runner.os == 'windows' }}
-        run: |
-          $env:ncpus=$([Environment]::ProcessorCount) 
-          echo "ncpus=$env:ncpus" >> $env:GITHUB_ENV
-
-      - name: Setup emsdk
-        shell: bash -l {0}
-        run: |
-          cd $HOME
-          git clone --depth=1 https://github.com/emscripten-core/emsdk.git
-          cd emsdk
-          ./emsdk install  ${{ matrix.emsdk_ver }}
 
       - name: Build xeus-cpp
         shell: bash -l {0}
         run: |
-          $HOME/emsdk/emsdk activate ${{matrix.emsdk_ver}}
-          source $HOME/emsdk/emsdk_env.sh
           micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
           
           mkdir build
           pushd build
 
-          export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host 
+          export BUILD_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build
+          export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host
           echo "PREFIX=$PREFIX" >> $GITHUB_ENV
-          export SYSROOT_PATH=$HOME/emsdk/upstream/emscripten/cache/sysroot
+          export SYSROOT_PATH=$BUILD_PREFIX/opt/emsdk/upstream/emscripten/cache/sysroot
 
           emcmake cmake \
             -DCMAKE_BUILD_TYPE=Release                        \
@@ -263,7 +245,7 @@ jobs:
             -DCMAKE_FIND_ROOT_PATH=$PREFIX                    \
             -DSYSROOT_PATH=$SYSROOT_PATH                      \
             ..
-          emmake make -j  ${{ env.ncpus }} install
+          emmake make -j ${{ env.ncpus }} install
 
       - name: Jupyter Lite integration 
         shell: bash -l {0}
