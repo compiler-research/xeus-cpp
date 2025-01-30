@@ -11,3 +11,8 @@ dependencies:
   - cpp-argparse
   - pugixml
   - doctest
+  - python=3.12
+  - bzip2
+  - zlib
+  - libffi
+  - sqlite
