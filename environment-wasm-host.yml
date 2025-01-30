@@ -9,3 +9,8 @@ dependencies:
   - CppInterOp>=1.5.0
   - cpp-argparse
   - pugixml
+  - python=3.11
+  - bzip2
+  - zlib
+  - libffi
+  - sqlite
