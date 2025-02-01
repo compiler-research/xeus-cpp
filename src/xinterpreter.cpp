@@ -46,6 +46,19 @@ void* createInterpreter(const Args &ExtraArgs = {}) {
     ClangArgs.push_back(CxxInclude.c_str());
   }
 #endif
+
+#ifdef XEUS_SEARCH_PATH
+  std::string search_path = XEUS_SEARCH_PATH;
+  std::istringstream iss(search_path);
+  std::string path;
+  while (std::getline(iss, path, ':')) {
+      if (!path.empty()) {
+          ClangArgs.push_back("-I");
+          ClangArgs.push_back(path.c_str());
+      }
+  }
+#endif
+
   ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
   // FIXME: We should process the kernel input options and conditionally pass
   // the gpu args here.
