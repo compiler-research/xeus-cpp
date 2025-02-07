@@ -213,6 +213,9 @@ set(XEUS_CPP_SRC
     src/xoptions.cpp
     src/xparser.cpp
     src/xutils.cpp
+
+    # magics
+    src/xmagics/pythonexec.cpp
 )
 
 if(NOT EMSCRIPTEN)
@@ -377,6 +380,31 @@ macro(xeus_cpp_create_target target_name linkage output_name)
         target_link_libraries(${target_name} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
     endif()
 
+    # Python Stuff
+    if(NOT EMSCRIPTEN)
+        find_package(Python COMPONENTS Interpreter Development)
+
+        target_include_directories(${target_name} PRIVATE ${Python_INCLUDE_DIRS})
+        target_link_libraries(${target_name} PUBLIC ${Python_LIBRARIES})
+        target_compile_options(${target_name} PRIVATE ${Python_CFLAGS_OTHER})
+    else()
+        set(Python_INCLUDE_DIRS
+            "${CMAKE_PREFIX_PATH}/include/python3.11")
+        set(Python_LIBRARIES
+            "python3.11"
+            "m"
+            "bz2"
+            "libz.a"
+            "sqlite3"
+            "ffi"
+            )
+        set(Python_CFLAGS_OTHER "-sUSE_ZLIB=1" "-sUSE_BZIP2=1")
+
+        target_include_directories(${target_name} PRIVATE ${Python_INCLUDE_DIRS})
+        target_link_libraries(${target_name} PUBLIC ${Python_LIBRARIES})
+        target_compile_options(${target_name} PRIVATE ${Python_CFLAGS_OTHER})
+    endif()
+
 endmacro()
 
 # xeus-cpp-headers
@@ -437,6 +465,7 @@ endif()
 if(EMSCRIPTEN)
     include(WasmBuildOptions)
     find_package(xeus-lite REQUIRED)
+    link_directories(BEFORE "${CMAKE_INSTALL_PREFIX}/lib")
     add_executable(xcpp src/main_emscripten_kernel.cpp )
     target_link_libraries(xcpp PRIVATE xeus-lite)
     xeus_cpp_set_kernel_options(xcpp)
@@ -444,11 +473,20 @@ if(EMSCRIPTEN)
     xeus_wasm_link_options(xcpp "web,worker")
     # TODO: Remove the exported runtime methods
     # after the next xeus release.
+    # , \"ffi_call\", \"ffi_closure_alloc\", \"ffi_prep_cif\", \"ffi_prep_cif_var\", \"ffi_prep_closure_loc\", \"ffi_type_double\", \"ffi_type_float\", \"ffi_type_longdouble\", \"ffi_type_pointer\", \"ffi_type_sint16\", \"ffi_type_sint32\", \"ffi_type_sint64\", \"ffi_type_sint8\", \"ffi_type_uint16\", \"ffi_type_uint32\", \"ffi_type_uint64\", \"ffi_type_uint8\", \"ffi_type_void\"
     target_link_options(xcpp
         PUBLIC "SHELL: -s EXPORTED_RUNTIME_METHODS='[\"FS\",\"PATH\",\"LDSO\",\"loadDynamicLibrary\",\"ERRNO_CODES\"]'"
         PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
+        PUBLIC "SHELL: --preload-file ${CPyCppyy_DIR}/include/CPyCppyy@/include/CPyCppyy"
+        PUBLIC "SHELL: --preload-file ${CPyCppyy_BUILD_DIR}/libcppyy.so@/lib/python3.11/site-packages/libcppyy.so"
+        PUBLIC "SHELL: --preload-file ${Cppyy_Backend_DIR}/python/cppyy_backend@/lib/python3.11/site-packages/cppyy_backend"
+        PUBLIC "SHELL: --preload-file ${Cppyy_DIR}/python/cppyy@/lib/python3.11/site-packages/cppyy"
+        PUBLIC "SHELL: --preload-file ${Cppyy_DIR}/python/cppyy_compat@/lib/python3.11/site-packages/cppyy_compat"
+        PUBLIC "SHELL: --preload-file ${CMAKE_PREFIX_PATH}/lib/python3.11@/lib/python3.11"
+        PUBLIC "SHELL: --preload-file ${CMAKE_PREFIX_PATH}/include/clang@/include/clang"
+        PUBLIC "SHELL: --preload-file ${CMAKE_PREFIX_PATH}/include/clang-c@/include/clang-c"
         PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm_patches/post.js"
-    )
+        )
     # TODO: Emscripten supports preloading files just once before it generates
     # the xcpp.data file (containing the binary representation of the file(s) we
     # want to include in our application).
