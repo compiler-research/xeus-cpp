@@ -12,6 +12,7 @@
 #define XEUS_CPP_INTERPRETER_HPP
 
 #include <memory>
+#include <sstream>
 #include <streambuf>
 #include <string>
 #include <vector>
