@@ -360,14 +360,19 @@ __get_cxx_version ()
     void interpreter::init_includes()
     {
         Cpp::AddIncludePath((xeus::prefix_path() + "/include/").c_str());
-        if (const char* paths = std::getenv("XEUS_SEARCH_PATH")) {
+        if (const char* paths = std::getenv("XEUS_SEARCH_PATH"))
+        {
             std::istringstream stream(paths);
             std::string path;
             char delimiter = (std::string(paths).find(';') != std::string::npos) ? ';' : ':';
-            
+
             while (std::getline(stream, path, delimiter))
-                if (!path.empty()) 
+            {
+                if (!path.empty())
+                {
                     Cpp::AddIncludePath(path.c_str());
+                }
+            }
         }
     }
 

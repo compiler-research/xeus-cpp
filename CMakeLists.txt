@@ -468,14 +468,6 @@ if(XEUS_CPP_BUILD_TESTS)
     add_subdirectory(test)
 endif()
 
-set(XEUS_SEARCH_PATH $<JOIN:$<TARGET_PROPERTY:xeus-cpp,INCLUDE_DIRECTORIES>,:>)
-
-if (NOT EMSCRIPTEN)
-    set(XEUS_SEARCH_PATH "${XEUS_SEARCH_PATH}:${CMAKE_CURRENT_SOURCE_DIR}/src")
-endif()
-
-target_compile_definitions(xeus-cpp PRIVATE "XEUS_SEARCH_PATH=\"${XEUS_SEARCH_PATH}\"")
-
 # Installation
 # ============
 include(CMakePackageConfigHelpers)

@@ -78,3 +78,10 @@ target_include_directories(test_include_paths PRIVATE
 target_compile_definitions(test_include_paths PRIVATE DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN)
 add_test(NAME test_include_paths COMMAND test_include_paths)
 
+set(XEUS_SEARCH_PATH $<JOIN:$<TARGET_PROPERTY:xeus-cpp,INCLUDE_DIRECTORIES>,:>)
+
+if (NOT EMSCRIPTEN)
+    set(XEUS_SEARCH_PATH "${XEUS_SEARCH_PATH}:${CMAKE_CURRENT_SOURCE_DIR}/src")
+endif()
+
+target_compile_definitions(xeus-cpp PRIVATE "XEUS_SEARCH_PATH=\"${XEUS_SEARCH_PATH}\"")
