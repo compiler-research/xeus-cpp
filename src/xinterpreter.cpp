@@ -112,6 +112,7 @@ __get_cxx_version ()
         createInterpreter(Args(argv ? argv + 1 : argv, argv + argc));
         m_version = get_stdopt();
         redirect_output();
+        init_includes();
         init_preamble();
         init_magic();
     }
@@ -354,6 +355,24 @@ __get_cxx_version ()
     void interpreter::publish_stderr(const std::string& s)
     {
         publish_stream("stderr", s);
+    }
+
+    void interpreter::init_includes()
+    {
+        if (const char* paths = std::getenv("XEUS_SEARCH_PATH"))
+        {
+            std::istringstream stream(paths);
+            std::string path;
+            char delimiter = (std::string(paths).find(';') != std::string::npos) ? ';' : ':';
+
+            while (std::getline(stream, path, delimiter))
+            {
+                if (!path.empty())
+                {
+                    Cpp::AddIncludePath(path.c_str());
+                }
+            }
+        }
     }
 
     void interpreter::init_preamble()
