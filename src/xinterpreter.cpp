@@ -359,7 +359,6 @@ __get_cxx_version ()
 
     void interpreter::init_includes()
     {
-        Cpp::AddIncludePath((xeus::prefix_path() + "/include/").c_str());
         if (const char* paths = std::getenv("XEUS_SEARCH_PATH"))
         {
             std::istringstream stream(paths);
