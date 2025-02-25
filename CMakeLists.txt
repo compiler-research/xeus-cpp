@@ -447,6 +447,8 @@ if(EMSCRIPTEN)
     target_link_options(xcpp
         PUBLIC "SHELL: -s EXPORTED_RUNTIME_METHODS='[\"FS\",\"PATH\",\"LDSO\",\"loadDynamicLibrary\",\"ERRNO_CODES\"]'"
         PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
+        PUBLIC "SHELL: --preload-file ${XEUS_CPP_DATA_DIR}@/share/xeus-cpp"
+        PUBLIC "SHELL: --preload-file ${XEUS_CPP_CONF_DIR}@/etc/xeus-cpp"
         PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm_patches/post.js"
     )
     # TODO: Emscripten supports preloading files just once before it generates
