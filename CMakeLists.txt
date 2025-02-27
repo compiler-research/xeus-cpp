@@ -215,10 +215,14 @@ set(XEUS_CPP_SRC
     src/xutils.cpp
 )
 
+list(APPEND XEUS_CPP_SRC
+    src/xmagics/os.cpp
+)
+
 if(NOT EMSCRIPTEN)
     list(APPEND XEUS_CPP_SRC
         src/xmagics/xassist.cpp
-        src/xmagics/os.cpp
+
     )
 endif()
 

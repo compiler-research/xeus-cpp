@@ -17,8 +17,8 @@
 
 #include "xinput.hpp"
 #include "xinspect.hpp"
-#ifndef EMSCRIPTEN
 #include "xmagics/os.hpp"
+#ifndef EMSCRIPTEN
 #include "xmagics/xassist.hpp"
 #endif
 #include "xparser.hpp"
@@ -372,9 +372,10 @@ __get_cxx_version ()
         // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("timeit",
         // timeit(&m_interpreter));
         // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("python", pythonexec());
+        preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("file", writefile());
 #ifndef EMSCRIPTEN
         preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("xassist", xassist());
-        preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("file", writefile());
+        
 #endif
     }
 }
