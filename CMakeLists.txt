@@ -213,9 +213,6 @@ set(XEUS_CPP_SRC
     src/xoptions.cpp
     src/xparser.cpp
     src/xutils.cpp
-)
-
-list(APPEND XEUS_CPP_SRC
     src/xmagics/os.cpp
 )
 
