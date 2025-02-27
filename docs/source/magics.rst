@@ -12,7 +12,7 @@ Here are the magics available in xeus-cpp.
 %%xassist 
 ========================
 
-Leverage the large language models to assist in your development process. Currently supported models are Gemini, OpenAI, Ollama.
+Leverage the large language models to assist in your development process. Currently supported models are Gemini, OpenAI, Ollama. This magic command is supported in only xeus-cpp.
 
 - Save the api key (for OpenAI and Gemini) 
 
@@ -54,3 +54,23 @@ Leverage the large language models to assist in your development process. Curren
 .. image:: gemini.png
 
 .. image:: ollama.png
+
+
+%%file
+========================
+
+This magic command copies the content of the cell in a file named `filename`. This magic command is supported in both xeus-cpp and xeus-cpp-lite.
+
+.. code::
+
+    %%file [-a] filename
+
+- Example
+
+.. image:: file_magic.png
+
+- Optional argument:
+
++------------+---------------------------------+
+| -a         | append the content to the file. |
++------------+---------------------------------+
