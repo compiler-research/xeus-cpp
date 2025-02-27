@@ -375,7 +375,6 @@ __get_cxx_version ()
         preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("file", writefile());
 #ifndef EMSCRIPTEN
         preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("xassist", xassist());
-        
 #endif
     }
 }
