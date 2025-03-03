@@ -6,6 +6,6 @@ dependencies:
   - nlohmann_json
   - xeus-lite
   - xeus
-  - CppInterOp>=1.5.0
+  - CppInterOp
   - cpp-argparse
   - pugixml
