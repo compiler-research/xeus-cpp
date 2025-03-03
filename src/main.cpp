@@ -19,6 +19,7 @@
 #include <unistd.h>
 #endif
 
+#include "xeus/xhelper.hpp"
 #include <xeus/xkernel.hpp>
 #include <xeus/xkernel_configuration.hpp>
 
@@ -31,7 +32,7 @@
 
 int main(int argc, char* argv[])
 {
-    if (xcpp::should_print_version(argc, argv))
+    if (xeus::should_print_version(argc, argv))
     {
         std::clog << "xcpp " << XEUS_CPP_VERSION << std::endl;
         return 0;
@@ -57,10 +58,8 @@ int main(int argc, char* argv[])
 #endif
     signal(SIGINT, xcpp::stop_handler);
 
-    std::string file_name = xcpp::extract_filename(argc, argv);
-
+    std::string file_name = xeus::extract_filename(argc, argv);
     interpreter_ptr interpreter = xcpp::build_interpreter(argc, argv);
-
     std::unique_ptr<xeus::xcontext> context = xeus::make_zmq_context();
 
     if (!file_name.empty())

@@ -261,19 +261,6 @@ TEST_SUITE("is_complete_request")
     }
 }
 
-TEST_SUITE("extract_filename")
-{
-    TEST_CASE("extract_filename_basic_test")
-    {
-        const char* arguments[] = {"argument1", "-f", "filename.txt", "argument4"};
-        int argc = sizeof(arguments) / sizeof(arguments[0]);
-
-        std::string result = xcpp::extract_filename(argc, const_cast<char**>(arguments));
-        REQUIRE(result == "filename.txt");
-        REQUIRE(argc == 2);
-    }
-}
-
 TEST_SUITE("trim"){
 
     TEST_CASE("trim_basic_test"){
@@ -312,40 +299,6 @@ TEST_SUITE("trim"){
         REQUIRE(result == "");
     }
 
-}
-
-TEST_SUITE("should_print_version")
-{
-    // This test case checks if the function `should_print_version` correctly identifies
-    // when the "--version" argument is passed. It sets up a scenario where "--version"
-    // is one of the command line arguments and checks if the function returns true.
-    TEST_CASE("should_print_version_with_version_arg")
-    {
-        char arg1[] = "program_name";
-        char arg2[] = "--version";
-        char* argv[] = {arg1, arg2};
-        int argc = 2;
-
-        bool result = xcpp::should_print_version(argc, argv);
-
-        REQUIRE(result == true);
-    }
-
-    // This test case checks if the function `should_print_version` correctly identifies
-    // when the "--version" argument is not passed. It sets up a scenario where "--version"
-    // is not one of the command line arguments and checks if the function returns false.
-    TEST_CASE("should_print_version_without_version_arg")
-    {
-        char arg1[] = "program_name";
-        char arg2[] = "-f";
-        char arg3[] = "filename";
-        char* argv[] = {arg1, arg2, arg3};
-        int argc = 3;
-
-        bool result = xcpp::should_print_version(argc, argv);
-
-        REQUIRE(result == false);
-    }
 }
 
 TEST_SUITE("build_interpreter")

@@ -50,37 +50,6 @@ namespace xcpp
         exit(0);
     }
 
-    bool should_print_version(int argc, char* argv[])
-    {
-        for (int i = 0; i < argc; ++i)
-        {
-            if (std::string(argv[i]) == "--version")
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    std::string extract_filename(int &argc, char* argv[])
-    {
-        std::string res = "";
-        for (int i = 0; i < argc; ++i)
-        {
-            if ((std::string(argv[i]) == "-f") && (i + 1 < argc))
-            {
-                res = argv[i + 1];
-                for (int j = i; j < argc - 2; ++j)
-                {
-                    argv[j] = argv[j + 2];
-                }
-                argc -= 2;
-                break;
-            }
-        }
-        return res;
-    }
-
     interpreter_ptr build_interpreter(int argc, char** argv)
     {
         std::vector<const char*> interpreter_argv(argc);
