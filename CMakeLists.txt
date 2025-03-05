@@ -442,8 +442,6 @@ if(EMSCRIPTEN)
     xeus_cpp_set_kernel_options(xcpp)
     xeus_wasm_compile_options(xcpp)
     xeus_wasm_link_options(xcpp "web,worker")
-    # TODO: Remove the exported runtime methods
-    # after the next xeus release.
     target_link_options(xcpp
         PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
         PUBLIC "SHELL: --preload-file ${XEUS_CPP_DATA_DIR}@/share/xeus-cpp"
