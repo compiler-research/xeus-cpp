@@ -6,11 +6,11 @@
  * The full license is in the file LICENSE, distributed with this software.         *
  ************************************************************************************/
 
-#include <string>
-#include <fstream>
-#include <utility>
 #include <filesystem>
+#include <fstream>
 #include <regex>
+#include <string>
+#include <utility>
 
 #include "xinspect.hpp"
 
