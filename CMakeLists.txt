@@ -551,7 +551,3 @@ if(EMSCRIPTEN)
             "$<TARGET_FILE_DIR:xcpp>/xcpp.data"
             DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
-
-if(XEUS_CPP_INCLUDE_DOCS)
-    add_subdirectory(docs)
-endif()
