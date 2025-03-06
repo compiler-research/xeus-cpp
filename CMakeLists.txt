@@ -33,7 +33,7 @@ set(XCPP_TAGCONFS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/etc/xeus-cpp/tags.d)
 file(COPY "${XCPP_TAGFILES_DIR}" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/share/xeus-cpp")
 file(COPY "${XCPP_TAGCONFS_DIR}" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/etc/xeus-cpp")
 
-# Versionning
+# Versioning
 # ===========
 
 file(STRINGS "${XEUS_CPP_INCLUDE_DIR}/xeus-cpp/xeus_cpp_config.hpp" version_defines
