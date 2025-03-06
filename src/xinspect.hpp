@@ -42,7 +42,7 @@ namespace xcpp
 
     XEUS_CPP_API std::string find_type_slow(const std::string& expression);
 
-    static nl::json read_tagconfs(const char* path);
+    nl::json read_tagconfs(const char* path);
 
     XEUS_CPP_API std::pair<bool, std::smatch> is_inspect_request(const std::string& code, const std::regex& re);
 

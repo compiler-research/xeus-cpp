@@ -71,7 +71,7 @@ namespace xcpp
         return "";
     }
 
-    static nl::json read_tagconfs(const char* path)
+    nl::json read_tagconfs(const char* path)
     {
         nl::json result = nl::json::array();
         for (const auto& entry : std::filesystem::directory_iterator(path))
