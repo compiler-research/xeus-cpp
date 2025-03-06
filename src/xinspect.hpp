@@ -1,6 +1,5 @@
 /************************************************************************************
- * Copyright (c) 2023, xeus-cpp contributors                                        *
- * Copyright (c) 2023, Martin Vassilev                                              *
+ * Copyright (c) 2025, xeus-cpp contributors                                        *
  *                                                                                  *
  * Distributed under the terms of the BSD 3-Clause License.                         *
  *                                                                                  *

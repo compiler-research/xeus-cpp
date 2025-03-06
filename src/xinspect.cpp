@@ -1,10 +1,16 @@
 /************************************************************************************
- * Copyright (c) 2023, xeus-cpp contributors                                        *
+ * Copyright (c) 2025, xeus-cpp contributors                                        *
  *                                                                                  *
  * Distributed under the terms of the BSD 3-Clause License.                         *
  *                                                                                  *
  * The full license is in the file LICENSE, distributed with this software.         *
  ************************************************************************************/
+
+#include <string>
+#include <fstream>
+#include <utility>
+#include <filesystem>
+#include <regex>
 
 #include "xinspect.hpp"
 
@@ -33,9 +39,13 @@ namespace xcpp
 
     bool class_member_predicate::operator()(pugi::xml_node node) const
     {
-        auto parent = (static_cast<std::string>(node.attribute("kind").value()) == "class"
-                       || static_cast<std::string>(node.attribute("kind").value()) == "struct")
-                      && static_cast<std::string>(node.child("name").child_value()) == class_name;
+        std::string node_kind = node.attribute("kind").value();
+        std::string node_name = node.child("name").child_value();
+
+        bool is_class_or_struct = (node_kind == "class" || node_kind == "struct");
+        bool name_matches = (node_name == class_name);
+        bool parent = is_class_or_struct && name_matches;
+
         if (parent)
         {
             for (pugi::xml_node child : node.children())
