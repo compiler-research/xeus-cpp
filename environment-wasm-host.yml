@@ -9,3 +9,4 @@ dependencies:
   - CppInterOp
   - cpp-argparse
   - pugixml
+  - doctest
