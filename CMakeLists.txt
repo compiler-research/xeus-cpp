@@ -209,6 +209,7 @@ set(XEUS_CPP_HEADERS
 set(XEUS_CPP_SRC
     src/xholder.cpp
     src/xinput.cpp
+    src/xinspect.cpp
     src/xinterpreter.cpp
     src/xoptions.cpp
     src/xparser.cpp
