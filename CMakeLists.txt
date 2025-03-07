@@ -53,10 +53,12 @@ message(STATUS "Building xeus-cpp v${${PROJECT_NAME}_VERSION}")
 option(XEUS_CPP_BUILD_STATIC "Build xeus-cpp static library" ON)
 option(XEUS_CPP_BUILD_SHARED "Split xcpp build into executable and library" ON)
 option(XEUS_CPP_BUILD_EXECUTABLE "Build the xcpp executable" ON)
+option(XEUS_CPP_INCLUDE_DOCS "Build the xeus-cpp documentation" OFF)
 
 option(XEUS_CPP_USE_SHARED_XEUS "Link xcpp  with the xeus shared library (instead of the static library)" ON)
 option(XEUS_CPP_USE_SHARED_XEUS_CPP "Link xcpp  with the xeus shared library (instead of the static library)" ON)
 option(XEUS_CPP_EMSCRIPTEN_WASM_BUILD "Build for wasm with emscripten" OFF)
+
 
 # Test options
 option(XEUS_CPP_BUILD_TESTS "xeus-cpp test suite" ON)
