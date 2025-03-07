@@ -25,7 +25,10 @@ include(CheckCXXCompilerFlag)
 string(TOUPPER "${CMAKE_BUILD_TYPE}" U_CMAKE_BUILD_TYPE)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES Clang OR CMAKE_CXX_COMPILER_ID MATCHES GNU OR CMAKE_CXX_COMPILER_ID MATCHES Intel)
-    add_compile_options(-Wunused-parameter -Wextra -Wreorder -Wconversion -Wsign-conversion)
+
+    if(NOT EMSCRIPTEN)
+        add_compile_options(-Wunused-parameter -Wextra -Wreorder -Wconversion -Wsign-conversion)
+    endif()
 
     CHECK_CXX_COMPILER_FLAG(-march=native HAS_MARCH_NATIVE)
     if (HAS_MARCH_NATIVE)
@@ -39,7 +42,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
 endif()
 
 find_package(doctest)
-find_package(Threads)
 
 set(XEUS_CPP_TESTS
     main.cpp
@@ -48,22 +50,54 @@ set(XEUS_CPP_TESTS
 
 add_executable(test_xeus_cpp ${XEUS_CPP_TESTS})
 
-if (APPLE)
-    set_target_properties(test_xeus_cpp PROPERTIES
-        MACOSX_RPATH ON
+if(EMSCRIPTEN)
+    target_link_libraries(test_xeus_cpp PRIVATE xeus-cpp-static doctest::doctest)
+
+    target_compile_options(test_xeus_cpp
+        PUBLIC "SHELL: -fexceptions"
+    )
+
+    target_link_options(test_xeus_cpp
+        PUBLIC "SHELL: -fexceptions"
+        PUBLIC "SHELL: -s MAIN_MODULE=1"
+        PUBLIC "SHELL: -s ASSERTIONS=0"
+        PUBLIC "SHELL: -s ALLOW_MEMORY_GROWTH=1"
+        PUBLIC "SHELL: -s EXIT_RUNTIME=1"
+        PUBLIC "SHELL: -s STACK_SIZE=32mb"
+        PUBLIC "SHELL: -s INITIAL_MEMORY=128mb"
+        PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
+        PUBLIC "SHELL: --preload-file ../${XEUS_CPP_DATA_DIR}@/share/xeus-cpp"
+        PUBLIC "SHELL: --preload-file ../${XEUS_CPP_CONF_DIR}@/etc/xeus-cpp"
+    )
+
+    target_include_directories(test_xeus_cpp PRIVATE ${XEUS_CPP_INCLUDE_DIR})
+
+    add_custom_command(TARGET test_xeus_cpp POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/lib/libclangCppInterOp.so
+        ${CMAKE_CURRENT_BINARY_DIR}/libclangCppInterOp.so
+        COMMENT "Copying libclangCppInterOp.so to the test directory"
     )
 else()
+    find_package(Threads)
+
+    if (APPLE)
+        set_target_properties(test_xeus_cpp PROPERTIES
+            MACOSX_RPATH ON
+        )
+    else()
+        set_target_properties(test_xeus_cpp PROPERTIES
+            BUILD_WITH_INSTALL_RPATH 1
+            SKIP_BUILD_RPATH FALSE
+        )
+    endif()
+
     set_target_properties(test_xeus_cpp PROPERTIES
-        BUILD_WITH_INSTALL_RPATH 1
-        SKIP_BUILD_RPATH FALSE
+        INSTALL_RPATH_USE_LINK_PATH TRUE
     )
+
+    target_link_libraries(test_xeus_cpp xeus-cpp doctest::doctest ${CMAKE_THREAD_LIBS_INIT})
+    target_include_directories(test_xeus_cpp PRIVATE ${XEUS_CPP_INCLUDE_DIR})
+
+    add_custom_target(xtest COMMAND test_xeus_cpp DEPENDS test_xeus_cpp)
 endif()
-
-set_target_properties(test_xeus_cpp PROPERTIES
-    INSTALL_RPATH_USE_LINK_PATH TRUE
-)
-
-target_link_libraries(test_xeus_cpp xeus-cpp doctest::doctest ${CMAKE_THREAD_LIBS_INIT})
-target_include_directories(test_xeus_cpp PRIVATE ${XEUS_CPP_INCLUDE_DIR})
-
-add_custom_target(xtest COMMAND test_xeus_cpp DEPENDS test_xeus_cpp)

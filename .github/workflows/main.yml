@@ -247,11 +247,18 @@ jobs:
             ..
           emmake make -j ${{ env.ncpus }} install
 
-      - name: Jupyter Lite integration 
+      - name: Test xeus-cpp C++ Emscripten
         shell: bash -l {0}
         run: |
           micromamba create -n xeus-lite-host jupyterlite-core
           micromamba activate xeus-lite-host
+          cd build/test
+          node test_xeus_cpp.js
+        timeout-minutes: 4
+
+      - name: Jupyter Lite integration
+        shell: bash -l {0}
+        run: |
           python -m pip install jupyterlite-xeus
           jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }}
 
