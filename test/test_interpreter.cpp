@@ -134,6 +134,43 @@ TEST_SUITE("execute_request")
         REQUIRE(result["status"] == "ok");
     }
 
+    TEST_CASE("fetch_documentation_of_member_or_parameter")
+    {
+        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+
+        std::string code = "?std::vector.push_back";
+        std::string inspect_result = "https://en.cppreference.com/w/cpp/container/vector/push_back";
+        nl::json user_expressions = nl::json::object();
+        xeus::execute_request_config config;
+        config.silent = false;
+        config.store_history = false;
+        config.allow_stdin = false;
+        nl::json header = nl::json::object();
+        xeus::xrequest_context::guid_list id = {};
+        xeus::xrequest_context context(header, id);
+
+        std::promise<nl::json> promise;
+        std::future<nl::json> future = promise.get_future();
+        auto callback = [&promise](nl::json result) {
+            promise.set_value(result);
+        };
+
+        interpreter.execute_request(
+            std::move(context),
+            std::move(callback),
+            code,
+            std::move(config),
+            user_expressions
+        );
+        nl::json result = future.get();
+        REQUIRE(result["payload"][0]["data"]["text/plain"] == inspect_result);
+        REQUIRE(result["user_expressions"] == nl::json::object());
+        REQUIRE(result["found"] == true);
+        REQUIRE(result["status"] == "ok");
+    }
+
+
     TEST_CASE("bad_status")
     {
         std::vector<const char*> Args = {"resource-dir"};
@@ -852,6 +889,27 @@ TEST_SUITE("xinspect"){
         cmp.child_value = "nonexistentMethod";
         REQUIRE(cmp(node) == false);
     }
+
+    TEST_CASE("find_type_slow"){
+        std::string expression = "int";
+        std::string result = xcpp::find_type_slow(expression);
+        std::cout << result << std::endl;
+        bool res = (result == "<unnamed>" || result == "");
+        REQUIRE(res);
+
+        expression = "std::vector<int>";
+        result = xcpp::find_type_slow(expression);
+        std::cout << result << std::endl;
+        REQUIRE(result == "<unnamed>");
+    }
+
+    TEST_CASE("is_inspect_request"){ 
+        std::string code = "vector";
+        std::regex re_expression(R"(non_matching_pattern)");
+        std::pair<bool, std::smatch> result = xcpp::is_inspect_request(code, re_expression);
+        REQUIRE(result.first == false);
+    }
+
 }
 
 #if !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
