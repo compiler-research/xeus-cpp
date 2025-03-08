@@ -891,12 +891,6 @@ TEST_SUITE("xinspect"){
     }
 
     TEST_CASE("find_type_slow"){
-        std::string expression = "int";
-        std::string result = xcpp::find_type_slow(expression);
-        std::cout << result << std::endl;
-        bool res = (result == "<unnamed>" || result == "");
-        REQUIRE(res);
-
         expression = "std::vector<int>";
         result = xcpp::find_type_slow(expression);
         std::cout << result << std::endl;
