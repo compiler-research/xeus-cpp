@@ -259,6 +259,7 @@ jobs:
       - name: Jupyter Lite integration
         shell: bash -l {0}
         run: |
+          micromamba activate xeus-lite-host
           python -m pip install jupyterlite-xeus
           jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }}
 
