@@ -252,7 +252,8 @@ jobs:
         run: |
           micromamba create -n xeus-lite-host jupyterlite-core
           micromamba activate xeus-lite-host
-          node build/test/test_xeus_cpp.js
+          cd build/test
+          node test_xeus_cpp.js
         timeout-minutes: 4
 
       - name: Jupyter Lite integration
