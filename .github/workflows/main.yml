@@ -250,6 +250,7 @@ jobs:
       - name: Test xeus-cpp C++ Emscripten
         shell: bash -l {0}
         run: |
+          set -e
           micromamba create -n xeus-lite-host jupyterlite-core
           micromamba activate xeus-lite-host
           cd build/test
