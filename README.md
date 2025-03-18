@@ -81,16 +81,14 @@ You are now in a position to build the xeus-cpp kernel. You build it by executin
 micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
 mkdir build
 cd build
-export BUILD_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build
 export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host
-export SYSROOT_PATH=$BUILD_PREFIX/opt/emsdk/upstream/emscripten/cache/sysroot
 
 emcmake cmake \
         -DCMAKE_BUILD_TYPE=Release                        \
         -DCMAKE_INSTALL_PREFIX=$PREFIX                    \
         -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
         -DCMAKE_FIND_ROOT_PATH=$PREFIX                    \
-        -DSYSROOT_PATH=$SYSROOT_PATH                      \
+        -DSYSROOT_PATH=$EMSDK/upstream/emscripten/cache/sysroot  \
         ..
 emmake make install
 ```
