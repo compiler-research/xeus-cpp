@@ -890,12 +890,6 @@ TEST_SUITE("xinspect"){
         REQUIRE(cmp(node) == false);
     }
 
-    // TEST_CASE("find_type_slow"){
-    //     std::string expression = "std::vector<int>";
-    //     std::string result = xcpp::find_type_slow(expression);
-    //     REQUIRE(result == "<unnamed>");
-    // }
-
     TEST_CASE("is_inspect_request"){ 
         std::string code = "vector";
         std::regex re_expression(R"(non_matching_pattern)");
