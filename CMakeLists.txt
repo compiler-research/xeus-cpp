@@ -460,6 +460,7 @@ if(EMSCRIPTEN)
     # 3) Shift the resource dir and the sysroot to a common location.
     # 4) Preload everything required together.
 endif()
+
 # Tests
 # =====
 
