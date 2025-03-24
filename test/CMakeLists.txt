@@ -60,6 +60,7 @@ if(EMSCRIPTEN)
     target_link_options(test_xeus_cpp
         PUBLIC "SHELL: -fexceptions"
         PUBLIC "SHELL: -s MAIN_MODULE=1"
+        PUBLIC "SHELL: -s WASM_BIGINT"
         PUBLIC "SHELL: -s ASSERTIONS=0"
         PUBLIC "SHELL: -s ALLOW_MEMORY_GROWTH=1"
         PUBLIC "SHELL: -s EXIT_RUNTIME=1"
