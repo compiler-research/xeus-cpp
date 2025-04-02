@@ -106,3 +106,9 @@ Once the Jupyter Lite site has built you can test the website locally by executi
 ```bash
 jupyter lite serve --XeusAddon.prefix=$PREFIX
 ```
+
+To test the lite build you can execute the following to run the C++ tests built against emscripten
+```bash
+cd test
+node test_xeus_cpp.js
+```
