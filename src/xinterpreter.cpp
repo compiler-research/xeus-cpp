@@ -28,6 +28,8 @@
 #include "xplugin/xplugin_registry.hpp"
 #include "xplugin/xfactory.hpp"
 #include "xplugin/xshared_library.hpp"
+#include "xplugin/xmagics.hpp"
+#include "xplugin/os.hpp"
 #endif
 
 using Args = std::vector<const char*>;
@@ -397,7 +399,7 @@ __get_cxx_version ()
 #endif
 
 #ifdef XEUS_CPP_XPLUGIN
-        preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("list_plugins", list_plugins_magic);
+preamble_manager["magics"].get_cast<xp::xmagics_manager>().register_magic("file", xp::writefile());
 #endif
     }
 }
