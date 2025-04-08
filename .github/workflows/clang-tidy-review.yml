@@ -53,4 +53,4 @@ jobs:
             cmake . -B build -DCMAKE_C_COMPILER="$GITHUB_WORKSPACE/llvm/bin/clang" -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/llvm/bin/clang++" -DCMAKE_EXPORT_COMPILE_COMMANDS=On
             
       - name: Upload artifacts
-        uses: ZedThree/clang-tidy-review/upload@v0.20.1
+        uses: ZedThree/clang-tidy-review/upload@v0.21.0
