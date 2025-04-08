@@ -18,7 +18,7 @@ minutes of past meetings can be found on our
 ## Setting up a development environment
 
 First, you need to fork the project. After you have done this clone your forked repo. You can do this by 
-executing the folowing
+executing the following
 
 ```bash
 git clone https://github.com/<your-github-username>/xeus-cpp.git
@@ -35,7 +35,7 @@ micromamba create -f environment-dev.yml -y
 micromamba activate xeus-cpp
 ```
 
-You are now in a position to install xeus-cpp into this envirnoment. You can do this by executing
+You are now in a position to install xeus-cpp into this environment. You can do this by executing
 
 ```bash
 mkdir build
@@ -61,7 +61,7 @@ pytest -sv test_xcpp_kernel.py
 ## Setting up a development environment (wasm instructions)
 
 First, you need to fork the project. After you have done this clone your forked repo. You can do this by 
-executing the folowing
+executing the following
 
 ```bash
 git clone https://github.com/<your-github-username>/xeus-cpp.git

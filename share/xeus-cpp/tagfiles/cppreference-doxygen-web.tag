@@ -38138,8 +38138,8 @@
     </member>
     <member kind="function">
       <type>T</type>
-      <name>select_on_container_copy_contruction</name>
-      <anchorfile>cpp/memory/polymorphic_allocator/select_on_container_copy_contruction</anchorfile>
+      <name>select_on_container_copy_construction</name>
+      <anchorfile>cpp/memory/polymorphic_allocator/select_on_container_copy_construction</anchorfile>
       <anchor></anchor>
       <arglist>(T... args)</arglist>
     </member>
