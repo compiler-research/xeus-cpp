@@ -24,33 +24,53 @@
 #include "xparser.hpp"
 #include "xsystem.hpp"
 
+/************************************************************************************
+ * Copyright (c) 2023, xeus-cpp contributors                                        *
+ * Copyright (c) 2023, Martin Vassilev                                              *
+ *                                                                                  *
+ * Distributed under the terms of the BSD 3-Clause License.                         *
+ *                                                                                  *
+ * The full license is in the file LICENSE, distributed with this software.         *
+ ************************************************************************************/
+
+#include "xeus/xhelper.hpp"
+#include "xeus/xsystem.hpp"
+
+#include "xeus-cpp/xbuffer.hpp"
+#include "xeus-cpp/xeus_cpp_config.hpp"
+#include "xeus-cpp/xinterpreter.hpp"
+#include "xeus-cpp/xmagics.hpp"
+
+#include "xinput.hpp"
+#include "xinspect.hpp"
+#include "xmagics/os.hpp"
+#ifndef EMSCRIPTEN
+#include "xmagics/xassist.hpp"
+#endif
+#include "xparser.hpp"
+#include "xsystem.hpp"
+
 using Args = std::vector<const char*>;
 
 void* createInterpreter(const Args &ExtraArgs = {}) {
-  Args ClangArgs = {/*"-xc++"*/"-v"}; // ? {"-Xclang", "-emit-llvm-only", "-Xclang", "-diagnostic-log-file", "-Xclang", "-", "-xc++"};
+    Args ClangArgs = {/*"-xc++"*/"-v"}; // ? {"-Xclang", "-emit-llvm-only", "-Xclang", "-diagnostic-log-file", "-Xclang", "-", "-xc++"};
 #ifdef EMSCRIPTEN
-  ClangArgs.push_back("-std=c++20");
-#else
-  if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
-    return s == "-resource-dir";}) == ExtraArgs.end()) {
-    std::string resource_dir = Cpp::DetectResourceDir();
-    if (resource_dir.empty())
-      std::cerr << "Failed to detect the resource-dir\n";
+    ClangArgs.push_back("-std=c++20");
     ClangArgs.push_back("-resource-dir");
-    ClangArgs.push_back(resource_dir.c_str());
-  }
-  std::vector<std::string> CxxSystemIncludes;
-  Cpp::DetectSystemCompilerIncludePaths(CxxSystemIncludes);
-  for (const std::string& CxxInclude : CxxSystemIncludes) {
-    ClangArgs.push_back("-isystem");
-    ClangArgs.push_back(CxxInclude.c_str());
-  }
+    ClangArgs.push_back("/include");
+#else
+    // Add system include paths
+    std::vector<std::string> CxxSystemIncludes;
+    Cpp::DetectSystemCompilerIncludePaths(CxxSystemIncludes);
+    for (const std::string& CxxInclude : CxxSystemIncludes) {
+        ClangArgs.push_back("-isystem");
+        ClangArgs.push_back(CxxInclude.c_str());
+    }
 #endif
-  ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
-  // FIXME: We should process the kernel input options and conditionally pass
-  // the gpu args here.
-  return Cpp::CreateInterpreter(ClangArgs/*, {"-cuda"}*/);
+    ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
+    return Cpp::CreateInterpreter(ClangArgs/*, {"-cuda"}*/);
 }
+
 
 using namespace std::placeholders;
 
