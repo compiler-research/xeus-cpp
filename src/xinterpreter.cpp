@@ -399,10 +399,7 @@ __get_cxx_version ()
         // timeit(&m_interpreter));
         // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("python", pythonexec());
         preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("file", writefile());
-        preamble_manager["magics"].get_cast<xmagics_manager>().register_magic(
-            "timeit",
-            timeit(Cpp::GetInterpreter())
-        );
+        preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("timeit", timeit());
 #ifndef EMSCRIPTEN
         preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("xassist", xassist());
 #endif

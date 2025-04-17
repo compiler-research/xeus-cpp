@@ -23,7 +23,7 @@ namespace xcpp
     {
     public:
 
-        timeit(void* p);
+        timeit();
 
         virtual void operator()(const std::string& line) override
         {
@@ -39,11 +39,14 @@ namespace xcpp
             execute(cline, ccell);
         }
 
+    public:
+
+        static int exec_counter;
+
     private:
 
-        Cpp::TInterp_t m_interpreter;
         void get_options(argparser& argpars);
-        std::string inner(std::size_t number, const std::string& code) const;
+        std::string inner(std::size_t number, const std::string& code, int exec_counter) const;
         std::string _format_time(double timespan, std::size_t precision) const;
         void execute(std::string& line, std::string& cell);
         std::string wrap_code(const std::string& code) const;

@@ -32,25 +32,10 @@ namespace xcpp
         }
     };
 
-    timeit::timeit(Cpp::TInterp_t p)
-        : m_interpreter(p)
-    {
-        bool compilation_result = true;
-        std::string err;
-        compilation_result = Cpp::Process("#include <chrono>\n#include <iostream>\n");
+    int timeit::exec_counter = 0;
 
-        // Define the reusable timing function once
-        std::string timing_function = R"(
-             double get_elapsed_time(std::size_t num_iterations, void (*func)()) {
-                 auto _t2 = std::chrono::high_resolution_clock::now();
-                 for (std::size_t _i = 0; _i < num_iterations; ++_i) {
-                     func();
-                 }
-                 auto _t3 = std::chrono::high_resolution_clock::now();
-                 return std::chrono::duration_cast<std::chrono::microseconds>(_t3 - _t2).count();
-             }
-         )";
-        compilation_result = Cpp::Process(timing_function.c_str());
+    timeit::timeit()
+    {
     }
 
     void timeit::get_options(argparser& argpars)
@@ -83,7 +68,7 @@ namespace xcpp
             .nargs(0);
     }
 
-    std::string timeit::inner(std::size_t number, const std::string& code) const
+    std::string timeit::inner(std::size_t number, const std::string& code, int exec_counter) const
     {
         static std::size_t counter = 0;  // Ensure unique lambda names
         std::string unique_id = std::to_string(counter++);
@@ -91,7 +76,8 @@ namespace xcpp
         timeit_code += "auto user_code_" + unique_id + " = []() {\n";
         timeit_code += "   " + code + "\n";
         timeit_code += "};\n";
-        timeit_code += "get_elapsed_time(" + std::to_string(number) + ", user_code_" + unique_id + ")\n";
+        timeit_code += "get_elapsed_time_" + std::to_string(exec_counter) + "(" + std::to_string(number)
+                       + ", user_code_" + unique_id + ")\n";
         return timeit_code;
     }
 
@@ -117,6 +103,7 @@ namespace xcpp
 
     void timeit::execute(std::string& line, std::string& cell)
     {
+        exec_counter++;
         argparser argpars("timeit", XEUS_CPP_VERSION, argparse::default_arguments::none);
         get_options(argpars);
         argpars.parse(line);
@@ -155,6 +142,25 @@ namespace xcpp
         std::string err;
         bool hadError = false;
 
+        bool compilation_result = true;
+        compilation_result = Cpp::Process("#include <chrono>\n#include <iostream>\n");
+        // Define the reusable timing function once
+        std::string timing_function = R"(
+                double get_elapsed_time_)"
+                                      + std::to_string(exec_counter)
+                                      + R"( (std::size_t num_iterations, void (*func)()) {
+                    auto _t2 = std::chrono::high_resolution_clock::now();
+                    for (std::size_t _i = 0; _i < num_iterations; ++_i) {
+                        func();
+                    }
+                    auto _t3 = std::chrono::high_resolution_clock::now();
+                    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(_t3 - _t2).count();
+                    return duration < 0 ? 0.0 : static_cast<double>(duration);
+                }
+            )";
+
+        compilation_result = Cpp::Process(timing_function.c_str());
+
         try
         {
             if (number == 0)
@@ -162,7 +168,7 @@ namespace xcpp
                 for (std::size_t n = 0; n < 10; ++n)
                 {
                     number = std::pow(10, n);
-                    std::string timeit_code = inner(number, code);
+                    std::string timeit_code = inner(number, code, exec_counter);
                     std::ostringstream buffer_out, buffer_err;
                     std::streambuf* old_cout = std::cout.rdbuf(buffer_out.rdbuf());
                     std::streambuf* old_cerr = std::cerr.rdbuf(buffer_err.rdbuf());
@@ -185,7 +191,7 @@ namespace xcpp
             double stdev = 0;
             for (std::size_t r = 0; r < static_cast<std::size_t>(repeat); ++r)
             {
-                std::string timeit_code = inner(number, code);
+                std::string timeit_code = inner(number, code, exec_counter);
                 std::ostringstream buffer_out, buffer_err;
                 std::streambuf* old_cout = std::cout.rdbuf(buffer_out.rdbuf());
                 std::streambuf* old_cerr = std::cerr.rdbuf(buffer_err.rdbuf());
