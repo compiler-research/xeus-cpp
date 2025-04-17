@@ -20,6 +20,7 @@ namespace xcpp
     public:
 
         wasm_interpreter();
+        wasm_interpreter(int argc, char** argv);
         virtual ~wasm_interpreter() = default;
 
     };
