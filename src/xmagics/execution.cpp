@@ -29,6 +29,7 @@ namespace xcpp
         {
             std::string out = Cpp::EndStdStreamCapture();
             err = Cpp::EndStdStreamCapture();
+            std::cout << out;
         }
     };
 
@@ -163,34 +164,43 @@ namespace xcpp
 
         try
         {
-            if (number == 0)
-            {
-                for (std::size_t n = 0; n < 10; ++n)
-                {
-                    number = std::pow(10, n);
-                    std::string timeit_code = inner(number, code, exec_counter);
-                    std::ostringstream buffer_out, buffer_err;
-                    std::streambuf* old_cout = std::cout.rdbuf(buffer_out.rdbuf());
-                    std::streambuf* old_cerr = std::cerr.rdbuf(buffer_err.rdbuf());
-                    StreamRedirectRAII R(err);
-                    auto res_ptr = Cpp::Evaluate(timeit_code.c_str(), &hadError);
-                    std::cout.rdbuf(old_cout);
-                    std::cerr.rdbuf(old_cerr);
-                    output = std::to_string(res_ptr);
-                    err += buffer_err.str();
-                    double elapsed_time = std::stod(output) * 1e-6;
-                    if (elapsed_time >= 0.2)
-                    {
-                        break;
-                    }
-                }
-            }
+            StreamRedirectRAII R(err);
+            std::ostringstream buffer_out, buffer_err;
+            std::streambuf* old_cout = std::cout.rdbuf(buffer_out.rdbuf());
+            std::streambuf* old_cerr = std::cerr.rdbuf(buffer_err.rdbuf());
+            compilation_result = Cpp::Declare(code.c_str());
+            std::cout.rdbuf(old_cout);
+            std::cerr.rdbuf(old_cerr);
+        }
+        catch (std::exception& e)
+        {
+            errorlevel = 1;
+            ename = "Standard Exception: ";
+            evalue = e.what();
+            return;
+        }
+        catch (...)
+        {
+            errorlevel = 1;
+            ename = "Error: ";
+            return;
+        }
 
-            std::vector<double> all_runs;
-            double mean = 0;
-            double stdev = 0;
-            for (std::size_t r = 0; r < static_cast<std::size_t>(repeat); ++r)
+        if (compilation_result)
+        {
+            errorlevel = 1;
+            ename = "Error: ";
+            evalue = "Compilation error! " + err;
+            std::cerr << err;
+            return;
+        }
+
+
+        if (number == 0)
+        {
+            for (std::size_t n = 0; n < 10; ++n)
             {
+                number = std::pow(10, n);
                 std::string timeit_code = inner(number, code, exec_counter);
                 std::ostringstream buffer_out, buffer_err;
                 std::streambuf* old_cout = std::cout.rdbuf(buffer_out.rdbuf());
@@ -202,41 +212,41 @@ namespace xcpp
                 output = std::to_string(res_ptr);
                 err += buffer_err.str();
                 double elapsed_time = std::stod(output) * 1e-6;
-                all_runs.push_back(elapsed_time / number);
-                mean += all_runs.back();
+                if (elapsed_time >= 0.2)
+                {
+                    break;
+                }
             }
-            mean /= repeat;
-            for (std::size_t r = 0; r < static_cast<std::size_t>(repeat); ++r)
-            {
-                stdev += (all_runs[r] - mean) * (all_runs[r] - mean);
-            }
-            stdev = std::sqrt(stdev / repeat);
-
-            std::cout << _format_time(mean, precision) << " +- " << _format_time(stdev, precision);
-            std::cout << " per loop (mean +- std. dev. of " << repeat << " run"
-                      << ((repeat == 1) ? ", " : "s ");
-            std::cout << number << " loop" << ((number == 1) ? "" : "s") << " each)" << std::endl;
-        }
-        catch (std::exception& e)
-        {
-            errorlevel = 1;
-            ename = "Standard Exception: ";
-            evalue = e.what();
-        }
-        catch (...)
-        {
-            errorlevel = 1;
-            ename = "Error: ";
         }
 
-        if (hadError)
+        std::vector<double> all_runs;
+        double mean = 0;
+        double stdev = 0;
+        for (std::size_t r = 0; r < static_cast<std::size_t>(repeat); ++r)
         {
-            errorlevel = 1;
-            ename = "Error: ";
-            evalue = "Compilation error! " + err;
-            std::cerr << err;
-            std::cerr << "Error: " << evalue << std::endl;
-            std::cerr << "Error: " << err << std::endl;
+            std::string timeit_code = inner(number, code, exec_counter);
+            std::ostringstream buffer_out, buffer_err;
+            std::streambuf* old_cout = std::cout.rdbuf(buffer_out.rdbuf());
+            std::streambuf* old_cerr = std::cerr.rdbuf(buffer_err.rdbuf());
+            StreamRedirectRAII R(err);
+            auto res_ptr = Cpp::Evaluate(timeit_code.c_str(), &hadError);
+            std::cout.rdbuf(old_cout);
+            std::cerr.rdbuf(old_cerr);
+            output = std::to_string(res_ptr);
+            err += buffer_err.str();
+            double elapsed_time = std::stod(output) * 1e-6;
+            all_runs.push_back(elapsed_time / number);
+            mean += all_runs.back();
         }
+        mean /= repeat;
+        for (std::size_t r = 0; r < static_cast<std::size_t>(repeat); ++r)
+        {
+            stdev += (all_runs[r] - mean) * (all_runs[r] - mean);
+        }
+        stdev = std::sqrt(stdev / repeat);
+
+        std::cout << _format_time(mean, precision) << " +- " << _format_time(stdev, precision);
+        std::cout << " per loop (mean +- std. dev. of " << repeat << " run" << ((repeat == 1) ? ", " : "s ");
+        std::cout << number << " loop" << ((number == 1) ? "" : "s") << " each)" << std::endl;
     }
 }

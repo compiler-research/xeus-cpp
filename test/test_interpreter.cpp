@@ -1087,4 +1087,15 @@ TEST_SUITE("timeit")
         std::string output = redirect.getCaptured();
         REQUIRE(output.find("mean +- std. dev. of 1 run, 10 loops each") != std::string::npos);
     }
+
+    TEST_CASE("fail_check")
+    {
+        std::string line = "timeit";
+        std::string cell = "int x = ";
+        StreamRedirectRAII redirect(std::cerr);
+        xcpp::timeit ti;
+        ti(line, cell);
+        std::string output = redirect.getCaptured();
+        REQUIRE(output.find("expected expression") != std::string::npos);
+    }
 }
