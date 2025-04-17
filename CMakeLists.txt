@@ -148,6 +148,7 @@ function(configure_native_kernel kernel)
 endfunction()
 
 function(configure_wasm_kernel kernel)
+  set(XEUS_CPP_RESOURCE_DIR "/lib/clang/${CPPINTEROP_LLVM_VERSION_MAJOR}")
 
   configure_file (
     "${CMAKE_CURRENT_SOURCE_DIR}${kernel}wasm_kernel.json.in"
@@ -169,17 +170,9 @@ endfunction()
 
 message("Configure kernels: ...")
 if(EMSCRIPTEN)
-    # TODO: Currently jupyterlite-xeus and xeus-lite do not provide
-    # methods to fetch information from the arguments present in the
-    # generated emscripten kernel.
-    # The following needs to be done here :
-    # 1) We need to configure the kernel properly
-    #    Check issue https://github.com/compiler-research/xeus-cpp/issues/185.
-    # 2) Once the above is done we need to add support in jupyterlite-xeus & xeus-lite
-    #    to be able to deal with arguments present in kernel.json
-    # 3) Finally we should fetch the C++ version from the kernel.json file and
-    #    be able to pass it to our wasm interpreter rather than forcing a version.
+    configure_wasm_kernel("/share/jupyter/kernels/xcpp17/")
     configure_wasm_kernel("/share/jupyter/kernels/xcpp20/")
+    configure_wasm_kernel("/share/jupyter/kernels/xcpp23/")
 else()
     configure_native_kernel("/share/jupyter/kernels/xcpp17/")
     configure_native_kernel("/share/jupyter/kernels/xcpp20/")
@@ -444,20 +437,13 @@ if(EMSCRIPTEN)
     xeus_wasm_link_options(xcpp "web,worker")
     target_link_options(xcpp
         PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
+        # PUBLIC "SHELL: --preload-file ${CMAKE_INSTALL_PREFIX}${XEUS_CPP_RESOURCE_DIR}/include@${XEUS_CPP_RESOURCE_DIR}"
         PUBLIC "SHELL: --preload-file ${XEUS_CPP_DATA_DIR}@/share/xeus-cpp"
         PUBLIC "SHELL: --preload-file ${XEUS_CPP_CONF_DIR}@/etc/xeus-cpp"
         PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm_patches/post.js"
     )
-    # TODO: Emscripten supports preloading files just once before it generates
-    # the xcpp.data file (containing the binary representation of the file(s) we
-    # want to include in our application).
-    # Hence although we are adding support for Standard Headers, Libraries etc
-    # through emscripten's sysroot for now, we need to do the following:
-    # 1) Enable CppInterOp to provide us with a resource dir.
-    # 2) If the above cannot be done, we can use the resource dir provided
-    #    by llvm on emscripten-forge but would involve adding a dependency.
-    # 3) Shift the resource dir and the sysroot to a common location.
-    # 4) Preload everything required together.
+    # TODO: Uncomment the above line regarding preloading clang's resource dir
+    # once has been supported through cppinterop.
 endif()
 # Tests
 # =====
