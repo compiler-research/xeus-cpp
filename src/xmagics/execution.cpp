@@ -35,10 +35,6 @@ namespace xcpp
 
     int timeit::exec_counter = 0;
 
-    timeit::timeit()
-    {
-    }
-
     void timeit::get_options(argparser& argpars)
     {
         argpars.add_description("Time execution of a C++ statement or expression");

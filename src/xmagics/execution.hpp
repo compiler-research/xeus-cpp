@@ -23,8 +23,7 @@ namespace xcpp
     {
     public:
 
-        timeit();
-
+        XEUS_CPP_API
         virtual void operator()(const std::string& line) override
         {
             std::string cline = line;
@@ -32,6 +31,7 @@ namespace xcpp
             execute(cline, cell);
         }
 
+        XEUS_CPP_API
         virtual void operator()(const std::string& line, const std::string& cell) override
         {
             std::string cline = line;
