@@ -154,7 +154,7 @@ namespace xcpp
         bool hadError = false;
 
         bool compilation_result = true;
-        // compilation_result = Cpp::Process("#include <chrono>\n");
+        compilation_result = Cpp::Process("#include <chrono>\n");
         // Define the reusable timing function once
         std::string timing_function = R"(
                 double get_elapsed_time_)"
