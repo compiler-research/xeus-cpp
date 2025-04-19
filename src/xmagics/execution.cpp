@@ -35,6 +35,20 @@ namespace xcpp
 
     int timeit::exec_counter = 0;
 
+    void timeit::operator()(const std::string& line)
+    {
+        std::string cline = line;
+        std::string ccell = "";
+        execute(cline, ccell);
+    }
+
+    void timeit::operator()(const std::string& line, const std::string& cell)
+    {
+        std::string cline = line;
+        std::string ccell = cell;
+        execute(cline, ccell);
+    }
+
     void timeit::get_options(argparser& argpars)
     {
         argpars.add_description("Time execution of a C++ statement or expression");

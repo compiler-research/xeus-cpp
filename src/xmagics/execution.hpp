@@ -12,8 +12,6 @@
 #include <cstddef>
 #include <string>
 
-#include "clang/Interpreter/CppInterOp.h"
-
 #include "xeus-cpp/xmagics.hpp"
 #include "xeus-cpp/xoptions.hpp"
 
@@ -24,20 +22,10 @@ namespace xcpp
     public:
 
         XEUS_CPP_API
-        virtual void operator()(const std::string& line) override
-        {
-            std::string cline = line;
-            std::string cell = "";
-            execute(cline, cell);
-        }
+        virtual void operator()(const std::string& line) override;
 
         XEUS_CPP_API
-        virtual void operator()(const std::string& line, const std::string& cell) override
-        {
-            std::string cline = line;
-            std::string ccell = cell;
-            execute(cline, ccell);
-        }
+        virtual void operator()(const std::string& line, const std::string& cell) override;
 
     public:
 
@@ -49,7 +37,6 @@ namespace xcpp
         std::string inner(std::size_t number, const std::string& code, int exec_counter) const;
         std::string _format_time(double timespan, std::size_t precision) const;
         void execute(std::string& line, std::string& cell);
-        std::string wrap_code(const std::string& code) const;
     };
 }
 #endif
