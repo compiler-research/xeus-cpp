@@ -654,15 +654,10 @@ TEST_SUITE("xsystem_clone")
     }
 }
 
+#if !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
 TEST_SUITE("xsystem_apply")
 {
-#if defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
-    TEST_CASE("apply_xsystem"
-            * doctest::should_fail(true)
-            * doctest::description("TODO: Currently fails for the Emscripten build"))
-#else
     TEST_CASE("apply_xsystem")
-#endif
     {
         xcpp::xsystem system;
         std::string code = "!echo Hello, World!";
@@ -673,6 +668,7 @@ TEST_SUITE("xsystem_apply")
         REQUIRE(kernel_res["status"] == "ok");
     }
 }
+#endif
 
 TEST_SUITE("xmagics_contains"){
     TEST_CASE("bad_status_cell") {
