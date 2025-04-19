@@ -28,14 +28,6 @@ namespace xcpp
 
         void apply(const std::string& code, nl::json& kernel_res) override
         {
-#if defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
-            // WASM environment: Disable shell commands
-            kernel_res["status"] = "error";
-            kernel_res["ename"] = "UnsupportedEnvironment";
-            kernel_res["evalue"] = "Shell commands are not supported in the WASM environment.";
-            kernel_res["traceback"] = nl::json::array();
-#else
-            // Native environment: Execute shell commands
             std::regex re(spattern + R"((.*))");
             std::smatch to_execute;
             std::regex_search(code, to_execute, re);
@@ -73,7 +65,6 @@ namespace xcpp
                 kernel_res["evalue"] = "evalue";
                 kernel_res["traceback"] = nl::json::array();
             }
-#endif
         }
 
         [[nodiscard]] std::unique_ptr<xpreamble> clone() const override
