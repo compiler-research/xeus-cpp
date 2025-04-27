@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
     signal(SIGINT, xcpp::stop_handler);
 
     std::string file_name = xeus::extract_filename(argc, argv);
-    interpreter_ptr interpreter = xcpp::build_interpreter(argc, argv);
+    auto interpreter = std::unique_ptr<xcpp::interpreter>(new xcpp::interpreter(argc, argv));
     std::unique_ptr<xeus::xcontext> context = xeus::make_zmq_context();
 
     if (!file_name.empty())
