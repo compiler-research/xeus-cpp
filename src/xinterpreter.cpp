@@ -31,10 +31,12 @@ void* createInterpreter(const Args &ExtraArgs = {}) {
   if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
     return s == "-resource-dir";}) == ExtraArgs.end()) {
     std::string resource_dir = Cpp::DetectResourceDir();
-    if (resource_dir.empty())
-      std::cerr << "Failed to detect the resource-dir\n";
-    ClangArgs.push_back("-resource-dir");
-    ClangArgs.push_back(resource_dir.c_str());
+    if (!resource_dir.empty()) {
+        ClangArgs.push_back("-resource-dir");
+        ClangArgs.push_back(resource_dir.c_str());
+    } else {
+        std::cerr << "Failed to detect the resource-dir\n";
+    }
   }
   std::vector<std::string> CxxSystemIncludes;
   Cpp::DetectSystemCompilerIncludePaths(CxxSystemIncludes);

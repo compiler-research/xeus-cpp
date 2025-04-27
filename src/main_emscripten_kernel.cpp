@@ -15,9 +15,26 @@
 
 #include "xeus-cpp/xinterpreter_wasm.hpp"
 
+template <class interpreter_type>
+static interpreter_type* builder_with_args(emscripten::val js_args)
+{
+    static std::vector<std::string> args = emscripten::vecFromJSArray<std::string>(js_args);
+    static std::vector<const char*> argv_vec;
+
+    for (const auto& s : args)
+    {
+        argv_vec.push_back(s.c_str());
+    }
+
+    int argc = static_cast<int>(argv_vec.size());
+    char** argv = const_cast<char**>(argv_vec.data());
+
+    return new interpreter_type(argc, argv);
+}
+
 EMSCRIPTEN_BINDINGS(my_module)
 {
     xeus::export_core();
     using interpreter_type = xcpp::wasm_interpreter;
-    xeus::export_kernel<interpreter_type>("xkernel");
+    xeus::export_kernel<interpreter_type, &builder_with_args<interpreter_type>>("xkernel");
 }
