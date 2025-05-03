@@ -16,11 +16,12 @@
 #include "xeus-cpp/xoptions.hpp"
 #include "xeus-cpp/xeus_cpp_config.hpp"
 
-#include "../src/xparser.hpp"
-#include "../src/xsystem.hpp"
+#include "../src/xinspect.hpp"
+#include "../src/xmagics/execution.hpp"
 #include "../src/xmagics/os.hpp"
 #include "../src/xmagics/xassist.hpp"
-#include "../src/xinspect.hpp"
+#include "../src/xparser.hpp"
+#include "../src/xsystem.hpp"
 
 
 #include <iostream>
@@ -1074,5 +1075,50 @@ TEST_SUITE("file") {
         REQUIRE(lines[0] == "Hello, World!");
         REQUIRE(lines[1] == "Hello, again!");
         infile.close();
+    }
+}
+
+TEST_SUITE("timeit")
+{
+    TEST_CASE("cell_check")
+    {
+        std::string line = "timeit";
+        std::string cell = "std::cout << 1 << std::endl;";
+        StreamRedirectRAII redirect(std::cout);
+        xcpp::timeit ti;
+        ti(line, cell);
+        std::string output = redirect.getCaptured();
+        REQUIRE(output.find("mean +- std. dev. of") != std::string::npos);
+    }
+
+    TEST_CASE("line_check")
+    {
+        std::string line = "timeit std::cout << 1 << std::endl;";
+        StreamRedirectRAII redirect(std::cout);
+        xcpp::timeit ti;
+        ti(line);
+        std::string output = redirect.getCaptured();
+        REQUIRE(output.find("mean +- std. dev. of") != std::string::npos);
+    }
+
+    TEST_CASE("arg_check")
+    {
+        std::string line = "timeit -n 10 -r 1 -p 6 std::cout << 1 << std::endl;";
+        StreamRedirectRAII redirect(std::cout);
+        xcpp::timeit ti;
+        ti(line);
+        std::string output = redirect.getCaptured();
+        REQUIRE(output.find("mean +- std. dev. of 1 run, 10 loops each") != std::string::npos);
+    }
+
+    TEST_CASE("fail_check")
+    {
+        std::string line = "timeit";
+        std::string cell = "int x = ";
+        StreamRedirectRAII redirect(std::cerr);
+        xcpp::timeit ti;
+        ti(line, cell);
+        std::string output = redirect.getCaptured();
+        REQUIRE(output.find("expected expression") != std::string::npos);
     }
 }
