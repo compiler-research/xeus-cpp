@@ -444,8 +444,8 @@ if(EMSCRIPTEN)
     xeus_wasm_link_options(xcpp "web,worker")
     target_link_options(xcpp
         PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
-        PUBLIC "SHELL: --preload-file ${XEUS_CPP_DATA_DIR}@/share/xeus-cpp"
-        PUBLIC "SHELL: --preload-file ${XEUS_CPP_CONF_DIR}@/etc/xeus-cpp"
+        PUBLIC "SHELL: --preload-file ${XCPP_TAGFILES_DIR}@/share/xeus-cpp/tagfiles"
+        PUBLIC "SHELL: --preload-file ${XCPP_TAGCONFS_DIR}@/etc/xeus-cpp/tags.d"
         PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm_patches/post.js"
     )
     # TODO: Emscripten supports preloading files just once before it generates
@@ -472,11 +472,13 @@ include(CMakePackageConfigHelpers)
 
 set(XEUS_CPP_CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" CACHE STRING "install path for xeus-cppConfig.cmake")
 
-install(DIRECTORY ${XCPP_TAGFILES_DIR}
-        DESTINATION ${XEUS_CPP_DATA_DIR})
+if(NOT EMSCRIPTEN)
+    install(DIRECTORY ${XCPP_TAGFILES_DIR}
+            DESTINATION ${XEUS_CPP_DATA_DIR})
 
-install(DIRECTORY ${XCPP_TAGCONFS_DIR}
-        DESTINATION ${XEUS_CPP_CONF_DIR})
+    install(DIRECTORY ${XCPP_TAGCONFS_DIR}
+            DESTINATION ${XEUS_CPP_CONF_DIR})
+endif()
 
 # Install xeus-cpp and xeus-cpp-static
 if (XEUS_CPP_BUILD_SHARED)
