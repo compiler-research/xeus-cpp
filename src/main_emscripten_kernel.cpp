@@ -18,6 +18,7 @@
 template <class interpreter_type>
 static interpreter_type* builder_with_args(emscripten::val js_args)
 {
+    // TODO: Refactor interpreter constructor to avoid static args-to-argv conversion.
     static std::vector<std::string> args = emscripten::vecFromJSArray<std::string>(js_args);
     static std::vector<const char*> argv_vec;
 
@@ -29,7 +30,10 @@ static interpreter_type* builder_with_args(emscripten::val js_args)
     int argc = static_cast<int>(argv_vec.size());
     char** argv = const_cast<char**>(argv_vec.data());
 
-    return new interpreter_type(argc, argv);
+    auto* res = new interpreter_type(argc, argv);
+    argv_vec.clear();
+    args.clear();
+    return res;
 }
 
 EMSCRIPTEN_BINDINGS(my_module)

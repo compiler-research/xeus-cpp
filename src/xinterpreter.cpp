@@ -18,6 +18,7 @@
 #include "xinput.hpp"
 #include "xinspect.hpp"
 #include "xmagics/os.hpp"
+#include <iostream>
 #ifndef EMSCRIPTEN
 #include "xmagics/xassist.hpp"
 #endif
