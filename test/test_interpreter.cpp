@@ -9,26 +9,26 @@
 #include <future>
 
 #include "doctest/doctest.h"
-#include "xeus-cpp/xinterpreter.hpp"
-#include "xeus-cpp/xholder.hpp"
-#include "xeus-cpp/xmanager.hpp"
-#include "xeus-cpp/xutils.hpp"
-#include "xeus-cpp/xoptions.hpp"
 #include "xeus-cpp/xeus_cpp_config.hpp"
+#include "xeus-cpp/xholder.hpp"
+#include "xeus-cpp/xinterpreter.hpp"
+#include "xeus-cpp/xmanager.hpp"
+#include "xeus-cpp/xoptions.hpp"
+#include "xeus-cpp/xutils.hpp"
 
-#include "../src/xparser.hpp"
-#include "../src/xsystem.hpp"
+#include "../src/xinspect.hpp"
 #include "../src/xmagics/os.hpp"
 #include "../src/xmagics/xassist.hpp"
-#include "../src/xinspect.hpp"
+#include "../src/xparser.hpp"
+#include "../src/xsystem.hpp"
 
 
+#include <fstream>
 #include <iostream>
 #include <pugixml.hpp>
-#include <fstream>
 #if defined(__GNUC__) && !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
-    #include <sys/wait.h>
-    #include <unistd.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #endif
 
 
@@ -36,33 +36,40 @@
 ///
 /// This class redirects the output of a given std::ostream to a std::stringstream.
 /// The original stream is restored when the object is destroyed.
-class StreamRedirectRAII {
-    public:
+class StreamRedirectRAII
+{
+public:
 
-        /// Constructor that starts redirecting the given stream.
-        StreamRedirectRAII(std::ostream& stream) : old_stream_buff(stream.rdbuf()), stream_to_redirect(stream) {
-            stream_to_redirect.rdbuf(ss.rdbuf());
-        }
+    /// Constructor that starts redirecting the given stream.
+    StreamRedirectRAII(std::ostream& stream)
+        : old_stream_buff(stream.rdbuf())
+        , stream_to_redirect(stream)
+    {
+        stream_to_redirect.rdbuf(ss.rdbuf());
+    }
 
-        /// Destructor that restores the original stream.
-        ~StreamRedirectRAII() {
-            stream_to_redirect.rdbuf(old_stream_buff);
-        }
+    /// Destructor that restores the original stream.
+    ~StreamRedirectRAII()
+    {
+        stream_to_redirect.rdbuf(old_stream_buff);
+    }
 
-        /// Get the output that was written to the stream.
-        std::string getCaptured() {
-            return ss.str();
-        }
+    /// Get the output that was written to the stream.
+    std::string getCaptured()
+    {
+        return ss.str();
+    }
 
-    private:
-        /// The original buffer of the stream.
-        std::streambuf* old_stream_buff;
+private:
 
-        /// The stream that is being redirected.
-        std::ostream& stream_to_redirect;
+    /// The original buffer of the stream.
+    std::streambuf* old_stream_buff;
 
-        /// The stringstream that the stream is redirected to.
-        std::stringstream ss;
+    /// The stream that is being redirected.
+    std::ostream& stream_to_redirect;
+
+    /// The stringstream that the stream is redirected to.
+    std::stringstream ss;
 };
 
 TEST_SUITE("execute_request")
@@ -70,7 +77,7 @@ TEST_SUITE("execute_request")
     TEST_CASE("stl")
     {
         std::vector<const char*> Args = {"stl-test-case", "-v"};
-        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+        xcpp::interpreter interpreter((int) Args.size(), Args.data());
         std::string code = "#include <vector>";
         nl::json user_expressions = nl::json::object();
         xeus::execute_request_config config;
@@ -83,17 +90,13 @@ TEST_SUITE("execute_request")
 
         std::promise<nl::json> promise;
         std::future<nl::json> future = promise.get_future();
-        auto callback = [&promise](nl::json result) {
+        auto callback = [&promise](nl::json result)
+        {
             promise.set_value(result);
         };
 
-        interpreter.execute_request(
-            std::move(context),
-            std::move(callback),
-            code,
-            std::move(config),
-            user_expressions
-        );
+        interpreter
+            .execute_request(std::move(context), std::move(callback), code, std::move(config), user_expressions);
         nl::json result = future.get();
         REQUIRE(result["status"] == "ok");
     }
@@ -101,7 +104,7 @@ TEST_SUITE("execute_request")
     TEST_CASE("fetch_documentation")
     {
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
-        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+        xcpp::interpreter interpreter((int) Args.size(), Args.data());
 
         std::string code = "?std::vector";
         std::string inspect_result = "https://en.cppreference.com/w/cpp/container/vector";
@@ -116,17 +119,13 @@ TEST_SUITE("execute_request")
 
         std::promise<nl::json> promise;
         std::future<nl::json> future = promise.get_future();
-        auto callback = [&promise](nl::json result) {
+        auto callback = [&promise](nl::json result)
+        {
             promise.set_value(result);
         };
 
-        interpreter.execute_request(
-            std::move(context),
-            std::move(callback),
-            code,
-            std::move(config),
-            user_expressions
-        );
+        interpreter
+            .execute_request(std::move(context), std::move(callback), code, std::move(config), user_expressions);
         nl::json result = future.get();
         REQUIRE(result["payload"][0]["data"]["text/plain"] == inspect_result);
         REQUIRE(result["user_expressions"] == nl::json::object());
@@ -137,7 +136,7 @@ TEST_SUITE("execute_request")
     TEST_CASE("fetch_documentation_of_member_or_parameter")
     {
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
-        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+        xcpp::interpreter interpreter((int) Args.size(), Args.data());
 
         std::string code = "?std::vector.push_back";
         std::string inspect_result = "https://en.cppreference.com/w/cpp/container/vector/push_back";
@@ -152,17 +151,13 @@ TEST_SUITE("execute_request")
 
         std::promise<nl::json> promise;
         std::future<nl::json> future = promise.get_future();
-        auto callback = [&promise](nl::json result) {
+        auto callback = [&promise](nl::json result)
+        {
             promise.set_value(result);
         };
 
-        interpreter.execute_request(
-            std::move(context),
-            std::move(callback),
-            code,
-            std::move(config),
-            user_expressions
-        );
+        interpreter
+            .execute_request(std::move(context), std::move(callback), code, std::move(config), user_expressions);
         nl::json result = future.get();
         REQUIRE(result["payload"][0]["data"]["text/plain"] == inspect_result);
         REQUIRE(result["user_expressions"] == nl::json::object());
@@ -174,7 +169,7 @@ TEST_SUITE("execute_request")
     TEST_CASE("bad_status")
     {
         std::vector<const char*> Args = {"resource-dir"};
-        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+        xcpp::interpreter interpreter((int) Args.size(), Args.data());
 
         std::string code = "int x = ;";
         nl::json user_expressions = nl::json::object();
@@ -188,17 +183,13 @@ TEST_SUITE("execute_request")
 
         std::promise<nl::json> promise;
         std::future<nl::json> future = promise.get_future();
-        auto callback = [&promise](nl::json result) {
+        auto callback = [&promise](nl::json result)
+        {
             promise.set_value(result);
         };
 
-        interpreter.execute_request(
-            std::move(context),
-            std::move(callback),
-            code,
-            std::move(config),
-            user_expressions
-        );
+        interpreter
+            .execute_request(std::move(context), std::move(callback), code, std::move(config), user_expressions);
         nl::json result = future.get();
         REQUIRE(result["status"] == "error");
     }
@@ -207,22 +198,23 @@ TEST_SUITE("execute_request")
 TEST_SUITE("inspect_request")
 {
 #if defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
-    TEST_CASE("good_status"
-            * doctest::should_fail(true)
-            * doctest::description("TODO: Currently fails for the Emscripten build"))
+    TEST_CASE(
+        "good_status" * doctest::should_fail(true)
+        * doctest::description("TODO: Currently fails for the Emscripten build")
+    )
 #else
     TEST_CASE("good_status")
 #endif
     {
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
-        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+        xcpp::interpreter interpreter((int) Args.size(), Args.data());
 
         std::string code = "std::vector";
         int cursor_pos = 11;
 
         nl::json result = interpreter.inspect_request(
-            code, 
-            cursor_pos, 
+            code,
+            cursor_pos,
             /*detail_level=*/0
         );
 
@@ -234,14 +226,14 @@ TEST_SUITE("inspect_request")
     TEST_CASE("bad_status")
     {
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
-        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+        xcpp::interpreter interpreter((int) Args.size(), Args.data());
 
         std::string code = "nonExistentFunction";
         int cursor_pos = 19;
 
         nl::json result = interpreter.inspect_request(
-            code, 
-            cursor_pos, 
+            code,
+            cursor_pos,
             /*detail_level=*/0
         );
 
@@ -255,7 +247,7 @@ TEST_SUITE("kernel_info_request")
     TEST_CASE("good_status")
     {
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
-        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+        xcpp::interpreter interpreter((int) Args.size(), Args.data());
 
         nl::json result = interpreter.kernel_info_request();
 
@@ -266,7 +258,6 @@ TEST_SUITE("kernel_info_request")
         REQUIRE(result["language_info"]["file_extension"] == ".cpp");
         REQUIRE(result["status"] == "ok");
     }
-
 }
 
 TEST_SUITE("shutdown_request")
@@ -274,11 +265,10 @@ TEST_SUITE("shutdown_request")
     TEST_CASE("good_status")
     {
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
-        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+        xcpp::interpreter interpreter((int) Args.size(), Args.data());
 
         REQUIRE_NOTHROW(interpreter.shutdown_request());
     }
-
 }
 
 TEST_SUITE("is_complete_request")
@@ -286,7 +276,7 @@ TEST_SUITE("is_complete_request")
     TEST_CASE("incomplete_code")
     {
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
-        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+        xcpp::interpreter interpreter((int) Args.size(), Args.data());
 
         std::string code = "int main() \\";
         nl::json result = interpreter.is_complete_request(code);
@@ -296,7 +286,7 @@ TEST_SUITE("is_complete_request")
     TEST_CASE("complete_code")
     {
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
-        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+        xcpp::interpreter interpreter((int) Args.size(), Args.data());
 
         std::string code = "int main() {}";
         nl::json result = interpreter.is_complete_request(code);
@@ -304,9 +294,10 @@ TEST_SUITE("is_complete_request")
     }
 }
 
-TEST_SUITE("trim"){
-
-    TEST_CASE("trim_basic_test"){
+TEST_SUITE("trim")
+{
+    TEST_CASE("trim_basic_test")
+    {
         std::string argument = "argument";
 
         std::string result = xcpp::trim(argument);
@@ -314,9 +305,10 @@ TEST_SUITE("trim"){
         REQUIRE(result == "argument");
     }
 
-    /*Checks if it trims the string which 
+    /*Checks if it trims the string which
     has an empty space at the start and in the end*/
-    TEST_CASE("trim_start_and_end"){
+    TEST_CASE("trim_start_and_end")
+    {
         std::string argument = " argument ";
 
         std::string result = xcpp::trim(argument);
@@ -325,7 +317,8 @@ TEST_SUITE("trim"){
     }
 
     /*Checks if it trims the string which has no characters*/
-    TEST_CASE("trim_empty"){
+    TEST_CASE("trim_empty")
+    {
         std::string argument = "  ";
 
         std::string result = xcpp::trim(argument);
@@ -334,14 +327,14 @@ TEST_SUITE("trim"){
     }
 
     /*Checks if it trims the string is empty*/
-    TEST_CASE("trim_empty"){
+    TEST_CASE("trim_empty")
+    {
         std::string argument = "";
 
         std::string result = xcpp::trim(argument);
 
         REQUIRE(result == "");
     }
-
 }
 
 TEST_SUITE("is_match_magics_manager")
@@ -522,7 +515,8 @@ TEST_SUITE("xbuffer")
 
 TEST_SUITE("xoptions")
 {
-    TEST_CASE("good_status") {
+    TEST_CASE("good_status")
+    {
         xcpp::argparser parser("test");
         parser.add_argument("--verbose").help("increase output verbosity").default_value(false).implicit_value(true);
         std::string line = "./main --verbose";
@@ -530,9 +524,10 @@ TEST_SUITE("xoptions")
         parser.parse(line);
 
         REQUIRE(parser["--verbose"] == true);
-    } 
+    }
 
-    TEST_CASE("bad_status") {
+    TEST_CASE("bad_status")
+    {
         xcpp::argparser parser("test");
         parser.add_argument("--verbose");
         std::string line = "./main --verbose";
@@ -540,9 +535,12 @@ TEST_SUITE("xoptions")
         parser.parse(line);
 
         bool exceptionThrown = false;
-        try {
+        try
+        {
             bool isVerbose = (parser["--verbose"] == false);
-        } catch (const std::exception& e) {
+        }
+        catch (const std::exception& e)
+        {
             exceptionThrown = true;
         }
         REQUIRE(exceptionThrown);
@@ -551,7 +549,8 @@ TEST_SUITE("xoptions")
 
 TEST_SUITE("os")
 {
-    TEST_CASE("write_new_file") {
+    TEST_CASE("write_new_file")
+    {
         xcpp::writefile wf;
         std::string line = "filename testfile.txt -h";
         std::string cell = "Hello, World!";
@@ -565,7 +564,8 @@ TEST_SUITE("os")
         std::remove("testfile.txt");
     }
 
-    TEST_CASE("overwrite_file") {
+    TEST_CASE("overwrite_file")
+    {
         xcpp::writefile wf;
         std::string line = "filename testfile.txt";
         std::string cell = "Hello, World!";
@@ -573,7 +573,7 @@ TEST_SUITE("os")
         wf(line, cell);
 
         std::string overwrite_cell = "Overwrite test";
-        
+
         wf(line, overwrite_cell);
 
         std::ifstream infile("testfile.txt");
@@ -586,7 +586,8 @@ TEST_SUITE("os")
         std::remove("testfile.txt");
     }
 
-    TEST_CASE("append_file") {
+    TEST_CASE("append_file")
+    {
         xcpp::writefile wf;
         std::string line = "filename testfile.txt";
         std::string cell = "Hello, World!";
@@ -601,17 +602,17 @@ TEST_SUITE("os")
         std::ifstream infile("testfile.txt");
         std::vector<std::string> lines;
         std::string content;
-        while(std::getline(infile, content)) {
+        while (std::getline(infile, content))
+        {
             lines.push_back(content);
         }
-        
+
         REQUIRE(lines[0] == cell);
         REQUIRE(lines[1] == append_cell);
         infile.close();
 
         std::remove("testfile.txt");
     }
-
 }
 
 TEST_SUITE("xsystem_clone")
@@ -632,7 +633,6 @@ TEST_SUITE("xsystem_clone")
         std::unique_ptr<xcpp::xpreamble> clone = system.clone();
 
         REQUIRE(clone.get() != nullptr);
-
     }
 }
 
@@ -652,42 +652,53 @@ TEST_SUITE("xsystem_apply")
 }
 #endif
 
-TEST_SUITE("xmagics_contains"){
-    TEST_CASE("bad_status_cell") {
+TEST_SUITE("xmagics_contains")
+{
+    TEST_CASE("bad_status_cell")
+    {
         xcpp::xmagics_manager manager;
         xcpp::xmagic_type magic = xcpp::xmagic_type::cell;
         // manager.register_magic("my_magic", xcpp::xmagic_type::cell);
-        
+
         bool result = manager.contains("my_magic", xcpp::xmagic_type::cell);
         REQUIRE(result == false);
-    } 
+    }
 
-    TEST_CASE("bad_status_line") {
+    TEST_CASE("bad_status_line")
+    {
         xcpp::xmagics_manager manager;
         xcpp::xmagic_type magic = xcpp::xmagic_type::line;
         // manager.register_magic("my_magic", xcpp::xmagic_type::cell);
-        
+
         bool result = manager.contains("my_magic", xcpp::xmagic_type::line);
         REQUIRE(result == false);
-    } 
+    }
 }
 
-class MyMagicLine : public xcpp::xmagic_line {
+class MyMagicLine : public xcpp::xmagic_line
+{
 public:
-    virtual void operator()(const std::string& line) override{
+
+    virtual void operator()(const std::string& line) override
+    {
         std::cout << line << std::endl;
     }
 };
 
-class MyMagicCell : public xcpp::xmagic_cell {
+class MyMagicCell : public xcpp::xmagic_cell
+{
 public:
-    virtual void operator()(const std::string& line, const std::string& cell) override{
+
+    virtual void operator()(const std::string& line, const std::string& cell) override
+    {
         std::cout << line << cell << std::endl;
     }
 };
 
-TEST_SUITE("xmagics_apply"){
-    TEST_CASE("bad_status_cell") {
+TEST_SUITE("xmagics_apply")
+{
+    TEST_CASE("bad_status_cell")
+    {
         xcpp::xmagics_manager manager;
 
         nl::json kernel_res;
@@ -695,16 +706,17 @@ TEST_SUITE("xmagics_apply"){
         REQUIRE(kernel_res["status"] == "error");
     }
 
-    TEST_CASE("bad_status_line") {
+    TEST_CASE("bad_status_line")
+    {
         xcpp::xmagics_manager manager;
 
         nl::json kernel_res;
         manager.apply("%dummy", kernel_res);
         REQUIRE(kernel_res["status"] == "error");
-    } 
+    }
 
-    TEST_CASE("good_status_line") {
-
+    TEST_CASE("good_status_line")
+    {
         xcpp::xpreamble_manager preamble_manager;
 
         preamble_manager.register_preamble("magics", std::make_unique<xcpp::xmagics_manager>());
@@ -716,10 +728,10 @@ TEST_SUITE("xmagics_apply"){
         preamble_manager["magics"].get_cast<xcpp::xmagics_manager>().apply("%%magic2 qwerty", kernel_res);
 
         REQUIRE(kernel_res["status"] == "ok");
-    } 
+    }
 
-    TEST_CASE("good_status_cell") {
-
+    TEST_CASE("good_status_cell")
+    {
         xcpp::xpreamble_manager preamble_manager;
 
         preamble_manager.register_preamble("magics", std::make_unique<xcpp::xmagics_manager>());
@@ -731,35 +743,39 @@ TEST_SUITE("xmagics_apply"){
         preamble_manager["magics"].get_cast<xcpp::xmagics_manager>().apply("%magic1 qwerty", kernel_res);
 
         REQUIRE(kernel_res["status"] == "ok");
-    } 
+    }
 
-    TEST_CASE("cell magic with empty cell body") {
-
+    TEST_CASE("cell magic with empty cell body")
+    {
         xcpp::xmagics_manager manager;
 
         StreamRedirectRAII redirect(std::cerr);
 
         manager.apply("test", "line", "");
 
-        REQUIRE(redirect.getCaptured() == "UsageError: %%test is a cell magic, but the cell body is empty.\n"
-                    "If you only intend to display %%test help, please use a double line break to fill in the cell body.\n");
+        REQUIRE(
+            redirect.getCaptured()
+            == "UsageError: %%test is a cell magic, but the cell body is empty.\n"
+               "If you only intend to display %%test help, please use a double line break to fill in the cell body.\n"
+        );
     }
 }
 
 #if defined(__GNUC__) && !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
-TEST_SUITE("xutils_handler"){
-    TEST_CASE("handler") {
+TEST_SUITE("xutils_handler")
+{
+    TEST_CASE("handler")
+    {
         pid_t pid = fork();
-        if (pid == 0) {
-
+        if (pid == 0)
+        {
             signal(SIGSEGV, xcpp::handler);
-            exit(0);  
-
-        } else {
-            
+            exit(0);
+        }
+        else
+        {
             int status;
             REQUIRE(WEXITSTATUS(status) == 0);
-            
         }
     }
 }
@@ -770,7 +786,7 @@ TEST_SUITE("complete_request")
     TEST_CASE("completion_test")
     {
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
-        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+        xcpp::interpreter interpreter((int) Args.size(), Args.data());
         std::string code1 = "#include <iostream>";
         nl::json user_expressions = nl::json::object();
         xeus::execute_request_config config;
@@ -783,17 +799,13 @@ TEST_SUITE("complete_request")
 
         std::promise<nl::json> promise;
         std::future<nl::json> future = promise.get_future();
-        auto callback = [&promise](nl::json result) {
+        auto callback = [&promise](nl::json result)
+        {
             promise.set_value(result);
         };
 
-        interpreter.execute_request(
-            std::move(context),
-            std::move(callback),
-            code1,
-            std::move(config),
-            user_expressions
-        );
+        interpreter
+            .execute_request(std::move(context), std::move(callback), code1, std::move(config), user_expressions);
         nl::json execute = future.get();
 
         REQUIRE(execute["status"] == "ok");
@@ -806,8 +818,10 @@ TEST_SUITE("complete_request")
         REQUIRE(result["cursor_end"] == 2);
         REQUIRE(result["status"] == "ok");
         size_t found = 0;
-        for (auto& r : result["matches"]) {
-            if (r == "static" || r == "struct") {
+        for (auto& r : result["matches"])
+        {
+            if (r == "static" || r == "struct")
+            {
                 found++;
             }
         }
@@ -815,8 +829,10 @@ TEST_SUITE("complete_request")
     }
 }
 
-TEST_SUITE("xinspect"){
-    TEST_CASE("class_member_predicate_get_filename"){
+TEST_SUITE("xinspect")
+{
+    TEST_CASE("class_member_predicate_get_filename")
+    {
         xcpp::class_member_predicate cmp;
         cmp.class_name = "TestClass";
         cmp.kind = "public";
@@ -835,12 +851,13 @@ TEST_SUITE("xinspect"){
         anchorfile.append_child(pugi::node_pcdata).set_value("testfile.cpp");
 
         REQUIRE(cmp.get_filename(node) == "testfile.cpp");
-    
+
         cmp.child_value = "nonexistentMethod";
         REQUIRE(cmp.get_filename(node) == "");
     }
 
-    TEST_CASE("class_member_predicate_operator"){
+    TEST_CASE("class_member_predicate_operator")
+    {
         xcpp::class_member_predicate cmp;
         cmp.class_name = "TestClass";
         cmp.kind = "public";
@@ -856,7 +873,7 @@ TEST_SUITE("xinspect"){
         pugi::xml_node child_name = child.append_child("name");
         child_name.append_child(pugi::node_pcdata).set_value("testMethod");
 
-    
+
         REQUIRE(cmp(node) == true);
         node.attribute("kind").set_value("struct");
         REQUIRE(cmp(node) == true);
@@ -868,19 +885,20 @@ TEST_SUITE("xinspect"){
         REQUIRE(cmp(node) == false);
     }
 
-    TEST_CASE("is_inspect_request"){ 
+    TEST_CASE("is_inspect_request")
+    {
         std::string code = "vector";
         std::regex re_expression(R"(non_matching_pattern)");
         std::pair<bool, std::smatch> result = xcpp::is_inspect_request(code, re_expression);
         REQUIRE(result.first == false);
     }
-
 }
 
 #if !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
-TEST_SUITE("xassist"){
-
-    TEST_CASE("model_not_found"){
+TEST_SUITE("xassist")
+{
+    TEST_CASE("model_not_found")
+    {
         xcpp::xassist assist;
         std::string line = "%%xassist testModel";
         std::string cell = "test input";
@@ -890,10 +908,10 @@ TEST_SUITE("xassist"){
         assist(line, cell);
 
         REQUIRE(redirect.getCaptured() == "Model not found.\n");
-
     }
 
-    TEST_CASE("gemini"){
+    TEST_CASE("gemini")
+    {
         xcpp::xassist assist;
         std::string line = "%%xassist gemini --save-key";
         std::string cell = "1234";
@@ -920,7 +938,7 @@ TEST_SUITE("xassist"){
         infile_model.close();
 
         StreamRedirectRAII redirect(std::cerr);
-        
+
         assist("%%xassist gemini", "hello");
 
         REQUIRE(!redirect.getCaptured().empty());
@@ -942,7 +960,8 @@ TEST_SUITE("xassist"){
         std::remove("gemini_chat_history.txt");
     }
 
-    TEST_CASE("openai"){
+    TEST_CASE("openai")
+    {
         xcpp::xassist assist;
         std::string line = "%%xassist openai --save-key";
         std::string cell = "1234";
@@ -956,7 +975,7 @@ TEST_SUITE("xassist"){
         REQUIRE(content == "1234");
         infile.close();
 
-         line = "%%xassist openai --save-model";
+        line = "%%xassist openai --save-model";
         cell = "1234";
 
         assist(line, cell);
@@ -969,7 +988,7 @@ TEST_SUITE("xassist"){
         infile_model.close();
 
         StreamRedirectRAII redirect(std::cerr);
-        
+
         assist("%%xassist openai", "hello");
 
         REQUIRE(!redirect.getCaptured().empty());
@@ -979,7 +998,8 @@ TEST_SUITE("xassist"){
         std::remove("openai_chat_history.txt");
     }
 
-    TEST_CASE("ollama"){
+    TEST_CASE("ollama")
+    {
         xcpp::xassist assist;
         std::string line = "%%xassist ollama --set-url";
         std::string cell = "https://api.openai.com/v1/chat/completions";
@@ -1006,7 +1026,7 @@ TEST_SUITE("xassist"){
         infile_model.close();
 
         StreamRedirectRAII redirect(std::cerr);
-        
+
         assist("%%xassist ollama", "hello");
 
         REQUIRE(!redirect.getCaptured().empty());
@@ -1014,13 +1034,14 @@ TEST_SUITE("xassist"){
         std::remove("ollama_url.txt");
         std::remove("ollama_model.txt");
     }
-
 }
 #endif
 
 
-TEST_SUITE("file") {
-    TEST_CASE("Write") {
+TEST_SUITE("file")
+{
+    TEST_CASE("Write")
+    {
         xcpp::writefile wf;
         std::string line = "%%file testfile.txt";
         std::string cell = "Hello, World!";
@@ -1034,7 +1055,8 @@ TEST_SUITE("file") {
         REQUIRE(content == "Hello, World!");
         infile.close();
     }
-    TEST_CASE("Overwrite") {
+    TEST_CASE("Overwrite")
+    {
         xcpp::writefile wf;
         std::string line = "%%file testfile.txt";
         std::string cell = "Hello, World!";
@@ -1052,7 +1074,8 @@ TEST_SUITE("file") {
         REQUIRE(content == overwrite_cell);
         infile.close();
     }
-    TEST_CASE("Append") {
+    TEST_CASE("Append")
+    {
         xcpp::writefile wf;
         std::string line = "%%file testfile.txt";
         std::string cell = "Hello, World!";
@@ -1067,12 +1090,81 @@ TEST_SUITE("file") {
         std::ifstream infile("testfile.txt");
         std::vector<std::string> lines;
         std::string content;
-        while(std::getline(infile, content)) {
+        while (std::getline(infile, content))
+        {
             lines.push_back(content);
         }
 
         REQUIRE(lines[0] == "Hello, World!");
         REQUIRE(lines[1] == "Hello, again!");
         infile.close();
+    }
+}
+
+TEST_SUITE("undo_and_redefinition")
+{
+    TEST_CASE("RedefinitionAndUndoErrors")
+    {
+        std::vector<const char*> Args = {/*"-v", "resource-dir", "..."*/};
+        xcpp::interpreter interpreter((int) Args.size(), Args.data());
+        std::string code = R"(
+            int x = 5;
+        )";
+        nl::json user_expressions = nl::json::object();
+        xeus::execute_request_config config;
+        config.silent = false;
+        config.store_history = false;
+        config.allow_stdin = false;
+        nl::json header = nl::json::object();
+        xeus::xrequest_context::guid_list id = {};
+        xeus::xrequest_context context(header, id);
+
+        // Execute first code: define int x = 5
+        std::promise<nl::json> promise1;
+        std::future<nl::json> future1 = promise1.get_future();
+        auto callback1 = [&promise1](nl::json result)
+        {
+            promise1.set_value(result);
+        };
+        interpreter
+            .execute_request(std::move(context), std::move(callback1), code, std::move(config), user_expressions);
+        nl::json execute1 = future1.get();
+        REQUIRE(execute1["status"] == "ok");
+
+        code = R"(%undo)";
+        std::promise<nl::json> promise2;
+        std::future<nl::json> future2 = promise2.get_future();
+        auto callback2 = [&promise2](nl::json result)
+        {
+            promise2.set_value(result);
+        };
+        interpreter
+            .execute_request(std::move(context), std::move(callback2), code, std::move(config), user_expressions);
+        nl::json execute2 = future2.get();
+        REQUIRE(execute2["status"] == "ok");
+
+        code = "int x = 10;";
+        std::promise<nl::json> promise3;
+        std::future<nl::json> future3 = promise3.get_future();
+        auto callback3 = [&promise3](nl::json result)
+        {
+            promise3.set_value(result);
+        };
+        interpreter
+            .execute_request(std::move(context), std::move(callback3), code, std::move(config), user_expressions);
+        nl::json execute3 = future3.get();
+        REQUIRE(execute3["status"] == "ok");
+
+        code = "int x = 20;";
+        std::promise<nl::json> promise4;
+        std::future<nl::json> future4 = promise4.get_future();
+        auto callback4 = [&promise4](nl::json result)
+        {
+            promise4.set_value(result);
+        };
+        interpreter
+            .execute_request(std::move(context), std::move(callback4), code, std::move(config), user_expressions);
+        nl::json execute4 = future4.get();
+        REQUIRE(execute4["status"] == "error");
     }
 }
