@@ -1,9 +1,9 @@
 {
-  "display_name": "C++20",
+  "display_name": "C++17",
   "argv": [
       "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
       "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
-      "-std=c++20"
+      "-std=c++17"
   ],
   "language": "cpp",
   "metadata": {

@@ -18,6 +18,7 @@
 #include "xinput.hpp"
 #include "xinspect.hpp"
 #include "xmagics/os.hpp"
+#include <iostream>
 #ifndef EMSCRIPTEN
 #include "xmagics/xassist.hpp"
 #endif
@@ -27,17 +28,16 @@
 using Args = std::vector<const char*>;
 
 void* createInterpreter(const Args &ExtraArgs = {}) {
-  Args ClangArgs = {/*"-xc++"*/"-v"}; // ? {"-Xclang", "-emit-llvm-only", "-Xclang", "-diagnostic-log-file", "-Xclang", "-", "-xc++"};
-#ifdef EMSCRIPTEN
-  ClangArgs.push_back("-std=c++20");
-#else
+  Args ClangArgs = {/*"-xc++"*/"-v"};
   if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
     return s == "-resource-dir";}) == ExtraArgs.end()) {
     std::string resource_dir = Cpp::DetectResourceDir();
-    if (resource_dir.empty())
-      std::cerr << "Failed to detect the resource-dir\n";
-    ClangArgs.push_back("-resource-dir");
-    ClangArgs.push_back(resource_dir.c_str());
+    if (!resource_dir.empty()) {
+        ClangArgs.push_back("-resource-dir");
+        ClangArgs.push_back(resource_dir.c_str());
+    } else {
+        std::cerr << "Failed to detect the resource-dir\n";
+    }
   }
   std::vector<std::string> CxxSystemIncludes;
   Cpp::DetectSystemCompilerIncludePaths(CxxSystemIncludes);
@@ -45,7 +45,6 @@ void* createInterpreter(const Args &ExtraArgs = {}) {
     ClangArgs.push_back("-isystem");
     ClangArgs.push_back(CxxInclude.c_str());
   }
-#endif
   ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
   // FIXME: We should process the kernel input options and conditionally pass
   // the gpu args here.

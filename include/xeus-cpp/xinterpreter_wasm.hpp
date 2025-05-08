@@ -19,7 +19,7 @@ namespace xcpp
     {
     public:
 
-        wasm_interpreter();
+        wasm_interpreter(int argc = 0, char** argv = nullptr);
         virtual ~wasm_interpreter() = default;
 
     };

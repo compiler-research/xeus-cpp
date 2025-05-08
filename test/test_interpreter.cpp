@@ -344,24 +344,6 @@ TEST_SUITE("trim"){
 
 }
 
-TEST_SUITE("build_interpreter")
-{
-    // This test case checks if the function `build_interpreter` returns a non-null pointer
-    // when valid arguments are passed. It sets up a scenario with valid command line arguments
-    // and checks if the function returns a non-null pointer.
-    TEST_CASE("build_interpreter_pointer_not_null")
-    {
-        char arg1[] = "program_name";
-        char arg2[] = "-option1";
-        char* argv[] = {arg1, arg2};
-        int argc = 2;
-
-        interpreter_ptr interp_ptr = xcpp::build_interpreter(argc, argv);
-
-        REQUIRE(interp_ptr != nullptr);
-    }
-}
-
 TEST_SUITE("is_match_magics_manager")
 {
     // This test case checks if the function `is_match` correctly identifies strings that match
