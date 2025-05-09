@@ -56,7 +56,9 @@ if(EMSCRIPTEN)
     target_compile_options(test_xeus_cpp
         PUBLIC "SHELL: -fexceptions"
     )
-
+    set_target_properties(test_xeus_cpp PROPERTIES
+        SUFFIX ".html"
+    )
     target_link_options(test_xeus_cpp
         PUBLIC "SHELL: -fexceptions"
         PUBLIC "SHELL: -s MAIN_MODULE=1"
@@ -69,6 +71,8 @@ if(EMSCRIPTEN)
         PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
         PUBLIC "SHELL: --preload-file ../${XEUS_CPP_DATA_DIR}@/share/xeus-cpp"
         PUBLIC "SHELL: --preload-file ../${XEUS_CPP_CONF_DIR}@/etc/xeus-cpp"
+        PUBLIC "SHELL: --emrun"
+        PUBLIC "SHELL: -s MINIFY_HTML=0"
     )
 
     target_include_directories(test_xeus_cpp PRIVATE ${XEUS_CPP_INCLUDE_DIR})
