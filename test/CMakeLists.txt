@@ -69,6 +69,7 @@ if(EMSCRIPTEN)
         PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
         PUBLIC "SHELL: --preload-file ../${XEUS_CPP_DATA_DIR}@/share/xeus-cpp"
         PUBLIC "SHELL: --preload-file ../${XEUS_CPP_CONF_DIR}@/etc/xeus-cpp"
+        PUBLIC "SHELL: -s STRICT=1"
     )
 
     target_include_directories(test_xeus_cpp PRIVATE ${XEUS_CPP_INCLUDE_DIR})

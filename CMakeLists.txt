@@ -441,6 +441,8 @@ if(EMSCRIPTEN)
         PUBLIC "SHELL: --preload-file ${XEUS_CPP_DATA_DIR}@/share/xeus-cpp"
         PUBLIC "SHELL: --preload-file ${XEUS_CPP_CONF_DIR}@/etc/xeus-cpp"
         PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm_patches/post.js"
+        PUBLIC "SHELL: -s STRICT=1"
+        PUBLIC "SHELL: --no-entry"
     )
     # TODO: Uncomment the above line regarding preloading clang's resource dir
     # once has been supported through cppinterop.
