@@ -61,6 +61,7 @@ jobs:
             -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
             -DCMAKE_FIND_ROOT_PATH=$PREFIX                    \
             -DSYSROOT_PATH=$SYSROOT_PATH                      \
+            -DCMAKE_COMPILE_WARNING_AS_ERROR=ON            \
             ..
           emmake make -j ${{ env.ncpus }} install
 
