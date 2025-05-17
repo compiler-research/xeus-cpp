@@ -13,6 +13,6 @@
       "-std=c++17"@XEUS_CPP_OMP@
   ],
   "language": "cpp",
-  "metadata": {"debugger": false
+  "metadata": {"debugger": true
   }
 }

@@ -193,6 +193,7 @@ set(XEUS_CPP_HEADERS
     include/xeus-cpp/xmagics.hpp
     include/xeus-cpp/xoptions.hpp
     include/xeus-cpp/xpreamble.hpp
+    include/xeus-cpp/xdebugger.hpp
     #src/xinspect.hpp
     #src/xsystem.hpp
     #src/xparser.hpp
@@ -207,6 +208,9 @@ set(XEUS_CPP_SRC
     src/xparser.cpp
     src/xutils.cpp
     src/xmagics/os.cpp
+    src/xdebugger.cpp
+    src/xinternal_utils.cpp
+    src/xdebuglldb_client.cpp
 )
 
 if(NOT EMSCRIPTEN)
