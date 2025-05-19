@@ -127,8 +127,6 @@ namespace xcpp
                 "lldb-dap",
                 "--port",
                 m_lldb_port.c_str(),
-                "--init-command",
-                "settings set plugin.jit-loader.gdb.enable on",
                 NULL
             );
 
@@ -154,24 +152,42 @@ namespace xcpp
             return false;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
-        try
-        {
-            std::string endpoint = "tcp://" + m_lldb_host + ":" + m_lldb_port;
-            std::cout << xcpp::blue_text("Testing connection to LLDB-DAP at ") << endpoint << std::endl;
-            if (!p_debuglldb_client->test_connection(endpoint))
-            {
-                std::cout << xcpp::red_text("LLDB-DAP server not responding at ") << endpoint << std::endl;
-                return false;
-            }
-            std::cout << xcpp::green_text("Connected to LLDB-DAP at ") << endpoint << std::endl;
-        }
-        catch (const std::exception& e)
-        {
-            std::cout << xcpp::red_text("Exception while connecting to LLDB-DAP: ") << e.what() << std::endl;
-            return false;
-        }
+        // try
+        // {
+        //     std::string endpoint = "tcp://" + m_lldb_host + ":" + m_lldb_port;
+        //     std::cout << xcpp::blue_text("Testing connection to LLDB-DAP at ") << endpoint << std::endl;
+        //     if (!p_debuglldb_client->test_connection(endpoint))
+        //     {
+        //         std::cout << xcpp::red_text("LLDB-DAP server not responding at ") << endpoint << std::endl;
+        //         return false;
+        //     }
+        //     std::cout << xcpp::green_text("Connected to LLDB-DAP at ") << endpoint << std::endl;
+        //     if (!p_debuglldb_client->test_connection(endpoint))
+        //     {
+        //         std::cout << xcpp::red_text("LLDB-DAP server not responding at ") << endpoint << std::endl;
+        //         return false;
+        //     }
+        //     std::cout << xcpp::green_text("Connected to LLDB-DAP at ") << endpoint << std::endl;
+        //     if (!p_debuglldb_client->test_connection(endpoint))
+        //     {
+        //         std::cout << xcpp::red_text("LLDB-DAP server not responding at ") << endpoint << std::endl;
+        //         return false;
+        //     }
+        //     std::cout << xcpp::green_text("Connected to LLDB-DAP at ") << endpoint << std::endl;
+        //     if (!p_debuglldb_client->test_connection(endpoint))
+        //     {
+        //         std::cout << xcpp::red_text("LLDB-DAP server not responding at ") << endpoint << std::endl;
+        //         return false;
+        //     }
+        //     std::cout << xcpp::green_text("Connected to LLDB-DAP at ") << endpoint << std::endl;
+        // }
+        // catch (const std::exception& e)
+        // {
+        //     std::cout << xcpp::red_text("Exception while connecting to LLDB-DAP: ") << e.what() << std::endl;
+        //     return false;
+        // }
 
         m_is_running = true;
         return true;
@@ -213,7 +229,23 @@ namespace xcpp
         client.detach();
 
         // Send initial DAP request to verify connection
-        send_recv_request("REQ");
+
+        nl::json init_request = {
+            {"seq", 1},
+            {"type", "request"},
+            {"command", "initialize"},
+            {"arguments", {
+                {"clientID", "manual-client"},
+                {"adapterID", "lldb"},
+                {"linesStartAt1", true},
+                {"columnsStartAt1", true}
+            }}
+        };
+
+        
+        std::cout << send_recv_request("REQ") << std::endl;
+        nl::json request_reply = forward_message(init_request);
+        std::cout << request_reply.dump() << std::endl;
 
         // Create temporary folder for cell code
         std::string tmp_folder = get_tmp_prefix();
@@ -329,7 +361,12 @@ namespace xcpp
         const nl::json& debugger_config
     )
     {
-        std::cout << "Creating C++ debugger" << std::endl;
+        std::clog << "Creating C++ debugger" << std::endl;
+        std::clog << "Debugger config: " << debugger_config.dump() << std::endl;
+        std::clog << "User name: " << user_name << std::endl;
+        std::clog << "Session ID: " << session_id << std::endl;
+        // std::cout << "Context: " << context.get_context_id() << std::endl;
+        // std::cout << "Config: " << config.dump() << std::endl;
         return std::unique_ptr<xeus::xdebugger>(
             new debugger(context, config, user_name, session_id, debugger_config)
         );

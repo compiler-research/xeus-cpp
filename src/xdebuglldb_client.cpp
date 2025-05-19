@@ -55,7 +55,7 @@ namespace xcpp
         server_addr.sin_port = htons(port);
         if (inet_pton(AF_INET, host.c_str(), &server_addr.sin_addr) <= 0)
         {
-            close(sock);
+            // close(sock);
             return false;
         }
 
@@ -69,7 +69,7 @@ namespace xcpp
         // Attempt to connect
         if (connect(sock, (struct sockaddr*) &server_addr, sizeof(server_addr)) != 0)
         {
-            close(sock);
+            // close(sock);
             return false;
         }
 
@@ -95,7 +95,7 @@ namespace xcpp
         ssize_t bytes_sent = send(sock, message.c_str(), message.length(), 0);
         if (bytes_sent != static_cast<ssize_t>(message.length()))
         {
-            close(sock);
+            // close(sock);
             return false;
         }
 
@@ -107,12 +107,12 @@ namespace xcpp
             buffer[bytes_received] = '\0';  // Null-terminate the received data
             // Basic check: if we received any data, consider the connection successful
             std::cout << "Received response: " << buffer << std::endl;
-            close(sock);
+            // close(sock);
             return true;
         }
 
         // No response or error
-        close(sock);
+        // close(sock);
         return false;
     }
 
