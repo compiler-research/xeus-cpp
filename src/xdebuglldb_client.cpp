@@ -25,6 +25,7 @@ namespace xcpp
     )
         : base_type(context, config, socket_linger, dap_config, cb)
     {
+        std::cout << "xdebuglldb_client initialized" << std::endl;
     }
 
     bool xdebuglldb_client::test_connection(const std::string& endpoint)

@@ -312,6 +312,7 @@ __get_cxx_version ()
                              "\n"
                              "  xeus-cpp: a C++ Jupyter kernel - based on Clang-repl\n";
         result["banner"] = banner;
+        result["debugger"] = true;
         result["language_info"]["name"] = "C++";
         result["language_info"]["version"] = m_version;
         result["language_info"]["mimetype"] = "text/x-c++src";

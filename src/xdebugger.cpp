@@ -58,6 +58,7 @@ namespace xcpp
 
     debugger::~debugger()
     {
+        std::cout << "Stopping debugger..........." << std::endl;
         delete p_debuglldb_client;
         p_debuglldb_client = nullptr;
     }
@@ -152,43 +153,6 @@ namespace xcpp
             return false;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-
-        // try
-        // {
-        //     std::string endpoint = "tcp://" + m_lldb_host + ":" + m_lldb_port;
-        //     std::cout << xcpp::blue_text("Testing connection to LLDB-DAP at ") << endpoint << std::endl;
-        //     if (!p_debuglldb_client->test_connection(endpoint))
-        //     {
-        //         std::cout << xcpp::red_text("LLDB-DAP server not responding at ") << endpoint << std::endl;
-        //         return false;
-        //     }
-        //     std::cout << xcpp::green_text("Connected to LLDB-DAP at ") << endpoint << std::endl;
-        //     if (!p_debuglldb_client->test_connection(endpoint))
-        //     {
-        //         std::cout << xcpp::red_text("LLDB-DAP server not responding at ") << endpoint << std::endl;
-        //         return false;
-        //     }
-        //     std::cout << xcpp::green_text("Connected to LLDB-DAP at ") << endpoint << std::endl;
-        //     if (!p_debuglldb_client->test_connection(endpoint))
-        //     {
-        //         std::cout << xcpp::red_text("LLDB-DAP server not responding at ") << endpoint << std::endl;
-        //         return false;
-        //     }
-        //     std::cout << xcpp::green_text("Connected to LLDB-DAP at ") << endpoint << std::endl;
-        //     if (!p_debuglldb_client->test_connection(endpoint))
-        //     {
-        //         std::cout << xcpp::red_text("LLDB-DAP server not responding at ") << endpoint << std::endl;
-        //         return false;
-        //     }
-        //     std::cout << xcpp::green_text("Connected to LLDB-DAP at ") << endpoint << std::endl;
-        // }
-        // catch (const std::exception& e)
-        // {
-        //     std::cout << xcpp::red_text("Exception while connecting to LLDB-DAP: ") << e.what() << std::endl;
-        //     return false;
-        // }
-
         m_is_running = true;
         return true;
     }
@@ -242,10 +206,79 @@ namespace xcpp
             }}
         };
 
+        nl::json launch_request = {
+            {"seq", 2},
+            {"type", "request"},
+            {"command", "launch"},
+            {"arguments", {
+                {"program", "/Users/abhinavkumar/Desktop/Coding/Testing/test"},
+                {"args", {}},
+                {"cwd", "/Users/abhinavkumar/Desktop/Coding/Testing"},
+                {"initCommands", {
+                    "settings set plugin.jit-loader.gdb.enable on"
+                }}
+            }}
+        };
+
+        nl::json breakpoint_request = {
+            {"seq", 3},
+            {"type", "request"},
+            {"command", "setBreakpoints"},
+            {"arguments", {
+                {"source", {
+                    {"name", "input_line_1"},
+                    {"path", "/Users/abhinavkumar/Desktop/Coding/Testing/input_line_1"}
+                }},
+                {"breakpoints", {
+                    {{"line", 8}}
+                }},
+                {"lines", {8}},
+                {"sourceModified", false}
+            }}
+        };
+
+
+
+        nl::json config_done_request = {
+            {"seq", 4},
+            {"type", "request"},
+            {"command", "configurationDone"},
+            {"arguments", {}}
+        };
+
+        nl::json run_request = {
+            {"seq", 5},
+            {"type", "request"},
+            {"command", "continue"},
+            {"arguments", {}}
+        };
+
+        nl::json stacktrace_request = {
+            {"seq", 6},
+            {"type", "request"},
+            {"command", "stackTrace"},
+            {"arguments", {
+                {"threadId", 1},
+                {"startFrame", 0},
+                {"levels", 10}
+            }}
+        };
+
         
         std::cout << send_recv_request("REQ") << std::endl;
         nl::json request_reply = forward_message(init_request);
         std::cout << request_reply.dump() << std::endl;
+        request_reply = forward_message(launch_request);
+        std::cout << request_reply.dump() << std::endl;
+        request_reply = forward_message(breakpoint_request);
+        std::cout << request_reply.dump() << std::endl;
+        request_reply = forward_message(config_done_request);
+        std::cout << request_reply.dump() << std::endl;
+        request_reply = forward_message(run_request);
+        std::cout << request_reply.dump() << std::endl;
+        request_reply = forward_message(stacktrace_request);
+        std::cout << request_reply.dump() << std::endl;
+        // std::cout << send_recv_request("REQ") << std::endl;
 
         // Create temporary folder for cell code
         std::string tmp_folder = get_tmp_prefix();
@@ -258,6 +291,7 @@ namespace xcpp
     nl::json debugger::inspect_variables_request(const nl::json& message)
     {
         // Placeholder DAP response
+        std::cout << "inspect_variables_request not implemented" << std::endl;
         nl::json reply = {
             {"type", "response"},
             {"request_seq", message["seq"]},
@@ -271,6 +305,7 @@ namespace xcpp
     nl::json debugger::stack_trace_request(const nl::json& message)
     {
         // Placeholder DAP response
+        std::cout << "stack_trace_request not implemented" << std::endl;
         nl::json reply = {
             {"type", "response"},
             {"request_seq", message["seq"]},
@@ -285,6 +320,7 @@ namespace xcpp
     nl::json debugger::attach_request(const nl::json& message)
     {
         // Placeholder DAP response
+        std::cout << "attach_request not implemented" << std::endl;
         nl::json reply = {
             {"type", "response"},
             {"request_seq", message["seq"]},
@@ -298,6 +334,7 @@ namespace xcpp
     nl::json debugger::configuration_done_request(const nl::json& message)
     {
         // Minimal DAP response to allow DAP workflow to proceed
+        std::cout << "configuration_done_request not implemented" << std::endl;
         nl::json reply = {
             {"type", "response"},
             {"request_seq", message["seq"]},
@@ -310,6 +347,7 @@ namespace xcpp
     nl::json debugger::variables_request_impl(const nl::json& message)
     {
         // Placeholder DAP response
+        std::cout << "variables_request_impl not implemented" << std::endl;
         nl::json reply = {
             {"type", "response"},
             {"request_seq", message["seq"]},
@@ -333,6 +371,7 @@ namespace xcpp
     xeus::xdebugger_info debugger::get_debugger_info() const
     {
         // Placeholder debugger info
+        std::cout << "get_debugger_info called" << std::endl;
         return xeus::xdebugger_info(
             xeus::get_tmp_hash_seed(),
             get_tmp_prefix(),
@@ -346,6 +385,7 @@ namespace xcpp
     std::string debugger::get_cell_temporary_file(const std::string& code) const
     {
         // Placeholder: Return a dummy temporary file path
+        std::cout << "get_cell_temporary_file called" << std::endl;
         std::string tmp_file = get_tmp_prefix() + "/cell_tmp.cpp";
         std::ofstream out(tmp_file);
         out << code;
@@ -361,10 +401,10 @@ namespace xcpp
         const nl::json& debugger_config
     )
     {
-        std::clog << "Creating C++ debugger" << std::endl;
-        std::clog << "Debugger config: " << debugger_config.dump() << std::endl;
-        std::clog << "User name: " << user_name << std::endl;
-        std::clog << "Session ID: " << session_id << std::endl;
+        std::cout << "Creating C++ debugger" << std::endl;
+        std::cout << "Debugger config: " << debugger_config.dump() << std::endl;
+        std::cout << "User name: " << user_name << std::endl;
+        std::cout << "Session ID: " << session_id << std::endl;
         // std::cout << "Context: " << context.get_context_id() << std::endl;
         // std::cout << "Config: " << config.dump() << std::endl;
         return std::unique_ptr<xeus::xdebugger>(
