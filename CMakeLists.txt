@@ -436,6 +436,7 @@ if(EMSCRIPTEN)
     xeus_wasm_compile_options(xcpp)
     xeus_wasm_link_options(xcpp "web,worker")
     target_link_options(xcpp
+        PUBLIC "SHELL: -s USE_SDL=2"
         PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
         PUBLIC "SHELL: --preload-file ${XCPP_TAGFILES_DIR}@/share/xeus-cpp/tagfiles"
         PUBLIC "SHELL: --preload-file ${XCPP_TAGCONFS_DIR}@/etc/xeus-cpp/tags.d"
