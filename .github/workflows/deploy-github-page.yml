@@ -61,6 +61,7 @@ jobs:
             -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
             -DCMAKE_FIND_ROOT_PATH=$PREFIX                    \
             -DSYSROOT_PATH=$SYSROOT_PATH                      \
+            -DCMAKE_COMPILE_WARNING_AS_ERROR=ON            \
             ..
           emmake make -j ${{ env.ncpus }} install
 
@@ -74,6 +75,7 @@ jobs:
               --XeusAddon.prefix=${{ env.PREFIX }} \
               --contents README.md \
               --contents notebooks/xeus-cpp-lite-demo.ipynb \
+              --contents notebooks/smallpt.ipynb \
               --contents notebooks/images/marie.png \
               --contents notebooks/audio/audio.wav \
               --output-dir dist
