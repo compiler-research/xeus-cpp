@@ -459,13 +459,11 @@ include(CMakePackageConfigHelpers)
 
 set(XEUS_CPP_CMAKECONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}" CACHE STRING "install path for xeus-cppConfig.cmake")
 
-if(NOT EMSCRIPTEN)
-    install(DIRECTORY ${XCPP_TAGFILES_DIR}
-            DESTINATION ${XEUS_CPP_DATA_DIR})
+install(DIRECTORY ${XCPP_TAGFILES_DIR}
+        DESTINATION ${XEUS_CPP_DATA_DIR})
 
-    install(DIRECTORY ${XCPP_TAGCONFS_DIR}
-            DESTINATION ${XEUS_CPP_CONF_DIR})
-endif()
+install(DIRECTORY ${XCPP_TAGCONFS_DIR}
+        DESTINATION ${XEUS_CPP_CONF_DIR})
 
 # Install xeus-cpp and xeus-cpp-static
 if (XEUS_CPP_BUILD_SHARED)
