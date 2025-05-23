@@ -133,14 +133,17 @@ __get_cxx_version ()
 
         auto input_guard = input_redirection(config.allow_stdin);
 
-        // Check for magics
-        for (auto& pre : preamble_manager.preamble)
+        if(code.find("%undo") != 0) 
         {
-            if (pre.second.is_match(code))
+            // Check for magics
+            for (auto& pre : preamble_manager.preamble)
             {
-                pre.second.apply(code, kernel_res);
-                cb(kernel_res);
-                return;
+                if (pre.second.is_match(code))
+                {
+                    pre.second.apply(code, kernel_res);
+                    cb(kernel_res);
+                    return;
+                }
             }
         }
 
@@ -168,7 +171,42 @@ __get_cxx_version ()
         try
         {
             StreamRedirectRAII R(err);
-            compilation_result = Cpp::Process(code.c_str());
+            if (code.rfind("%undo", 0) == 0)
+            {
+#ifdef EMSCRIPTEN
+                throw std::logic_error("Undo is not supported in xeus-cpp-lite");
+#else
+                int n = 1;  // Default value
+                if (code.length() > 5)
+                {
+                    try
+                    {
+                        n = std::stoi(code.substr(6));
+                    }
+                    catch (const std::invalid_argument&)
+                    {
+                        throw std::runtime_error(
+                            "Invalid format for %undo. Expected '%undo n' where n is an integer"
+                        );
+                    }
+                    catch (const std::out_of_range&)
+                    {
+                        throw std::runtime_error("Number out of range for %undo");
+                    }
+                }
+                compilation_result = static_cast<bool>(Cpp::Undo(n));
+#endif
+            }
+            else
+            {
+                compilation_result = Cpp::Process(code.c_str());
+            }
+        }
+        catch (std::logic_error& e)
+        {
+            errorlevel = 1;
+            ename = "Logic Error: ";
+            evalue = e.what();
         }
         catch (std::exception& e)
         {
