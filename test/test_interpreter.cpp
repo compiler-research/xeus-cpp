@@ -1077,10 +1077,16 @@ TEST_SUITE("file") {
     }
 }
 
-#if !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+
 TEST_SUITE("undo_and_redefinition")
 {
+#if defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+    TEST_CASE("RedefinitionAndUndoErrors"
+            * doctest::should_fail(true)
+            * doctest::description("TODO: Currently fails for the Emscripten build"))
+#else
     TEST_CASE("RedefinitionAndUndoErrors")
+#endif
     {
         std::vector<const char*> Args = {/*"-v", "resource-dir", "..."*/};
         xcpp::interpreter interpreter((int) Args.size(), Args.data());
@@ -1145,4 +1151,3 @@ TEST_SUITE("undo_and_redefinition")
         REQUIRE(execute4["status"] == "error");
     }
 }
-#endif

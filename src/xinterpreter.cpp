@@ -133,7 +133,7 @@ __get_cxx_version ()
 
         auto input_guard = input_redirection(config.allow_stdin);
 
-        if(code.find("%undo") != 0) 
+        if (code.find("%undo") != 0) 
         {
             // Check for magics
             for (auto& pre : preamble_manager.preamble)
