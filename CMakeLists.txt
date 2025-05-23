@@ -91,7 +91,7 @@ endif()
 
 set(xeus_REQUIRED_VERSION 5.0.0)
 set(xeus_zmq_REQUIRED_VERSION 3.0.0)
-set(CppInterOp_REQUIRED_VERSION 1.5.0)
+set(CppInterOp_REQUIRED_VERSION 1.7.0)
 
 if (NOT TARGET xeus AND NOT TARGET xeus-static)
     find_package(xeus ${xeus_REQUIRED_VERSION} REQUIRED)
