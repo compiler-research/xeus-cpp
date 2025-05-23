@@ -100,7 +100,7 @@ Once the Jupyter Lite site has built you can test the website locally by executi
 Installing from conda-forge
 ===========================
 
-If you have conda installed then you can install xeus-cpp using the follwing command
+If you have conda installed then you can install xeus-cpp using the following command
 
 .. code-block:: bash
 
