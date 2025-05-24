@@ -12,7 +12,7 @@ dependencies:
   - nlohmann_json=3.12.0
   - CppInterOp
   - pugixml
-  - cpp-argparse>=3.0,<4.0
+  - cpp-argparse
   # Test dependencies
   - pytest
   - jupyter_kernel_test<0.8
