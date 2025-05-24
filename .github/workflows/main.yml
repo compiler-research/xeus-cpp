@@ -234,6 +234,7 @@ jobs:
           pushd build
 
           export BUILD_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build
+          echo "BUILD_PREFIX=$BUILD_PREFIX" >> $GITHUB_ENV
           export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host
           echo "PREFIX=$PREFIX" >> $GITHUB_ENV
           export SYSROOT_PATH=$BUILD_PREFIX/opt/emsdk/upstream/emscripten/cache/sysroot
@@ -251,10 +252,72 @@ jobs:
       - name: Test xeus-cpp C++ Emscripten
         shell: bash -l {0}
         run: |
+          export BUILD_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build
           set -e
           micromamba create -n xeus-lite-host jupyterlite-core
           micromamba activate xeus-lite-host
           cd build/test
+          # Fresh install browsers, and run Emscripten tests in them
+          # This is to match the Emscripten build instructions, where
+          # we run in a fresh browser, to stop any extra installed
+          # stuff interferring with the running of the tests
+          # Explaination of options for emrun
+          # --browser (name of browser on path)
+          # --kill_exit makes it so that when emrun finishes,
+          # that the headless browser we create is killed along with it
+          # --timeout 60 is such that emrun is killed after 60 seconds if
+          # still running. emrun should have finished long before then,
+          # so if it is still running, something went wrong (such as a test
+          # which crashed the html file). This will cause the ci to fail,
+          # as a non 0 value of will be returned.
+          # In the case of Chrome we have the extra --no-sandbox flag, as on
+          # Ubuntu Chrome will refuse to run otherwise, as it expects to have
+          # been installed with admin privileges. This flag allows it to run
+          # in userspace.
+          os="${{ matrix.os }}"
+          if [[ "${os}" == "macos"* ]]; then
+            # Install Firefox
+            wget "https://download.mozilla.org/?product=firefox-latest&os=osx&lang=en-US" -O Firefox-latest.dmg
+            hdiutil attach Firefox-latest.dmg
+            cp -r /Volumes/Firefox/Firefox.app $PWD
+            hdiutil detach /Volumes/Firefox
+            cd ./Firefox.app/Contents/MacOS/
+            export PATH="$PWD:$PATH"
+            cd -
+
+            # Install Google Chrome
+            wget https://dl.google.com/chrome/mac/stable/accept_tos%3Dhttps%253A%252F%252Fwww.google.com%252Fintl%252Fen_ph%252Fchrome%252Fterms%252F%26_and_accept_tos%3Dhttps%253A%252F%252Fpolicies.google.com%252Fterms/googlechrome.pkg
+            pkgutil --expand-full googlechrome.pkg google-chrome
+            cd ./google-chrome/GoogleChrome.pkg/Payload/Google\ Chrome.app/Contents/MacOS/
+            export PATH="$PWD:$PATH"
+            cd -
+
+            # Run tests in browsers
+            echo "Running test_xeus_cpp in Firefox"
+            python ${{ env.BUILD_PREFIX }}/bin/emrun.py --browser="firefox" --kill_exit --timeout 60 --browser-args="--headless"  test_xeus_cpp.html
+            echo "Running test_xeus_cpp in Google Chrome"
+            python ${{ env.BUILD_PREFIX }}/bin/emrun.py --browser="Google Chrome" --kill_exit --timeout 60 --browser-args="--headless  --no-sandbox"  test_xeus_cpp.html
+          else
+            # Install Google Chrome
+            wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+            dpkg-deb -x google-chrome-stable_current_amd64.deb $PWD/chrome
+            cd ./chrome/opt/google/chrome/
+            export PATH="$PWD:$PATH"
+            cd -
+  
+            # Install Firefox
+            wget https://ftp.mozilla.org/pub/firefox/releases/138.0.1/linux-x86_64/en-GB/firefox-138.0.1.tar.xz
+            tar -xJf firefox-138.0.1.tar.xz
+            cd ./firefox
+            export PATH="$PWD:$PATH"
+            cd -
+
+            # Run tests in browsers
+            echo "Running test_xeus_cpp in Firefox"
+            python ${{ env.BUILD_PREFIX }}/bin/emrun.py --browser="firefox" --kill_exit --timeout 60 --browser-args="--headless"  test_xeus_cpp.html
+            echo "Running test_xeus_cpp in Google Chrome"
+            python ${{ env.BUILD_PREFIX }}/bin/emrun.py --browser="google-chrome" --kill_exit --timeout 60 --browser-args="--headless --no-sandbox"  test_xeus_cpp.html
+          fi
           node test_xeus_cpp.js
         timeout-minutes: 4
 
