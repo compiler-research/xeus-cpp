@@ -136,8 +136,6 @@ http://xeus-cpp.readthedocs.io
 - [argparse](https://github.com/p-ranav/argparse)
 - [CppInterOp](https://github.com/compiler-research/CppInterOp)
 
-## Contributing
-
 See [CONTRIBUTING.md](./CONTRIBUTING.md) to know how to contribute and set up a
 development environment.
 

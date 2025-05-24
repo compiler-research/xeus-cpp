@@ -15,9 +15,8 @@
 
 namespace xcpp
 {
-
-    wasm_interpreter::wasm_interpreter()
-        : interpreter(0, nullptr)
+    wasm_interpreter::wasm_interpreter(int argc, char** argv)
+        : interpreter(argc, argv)
     {
     }
 }

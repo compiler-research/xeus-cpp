@@ -132,6 +132,7 @@ namespace xcpp
         if (std::regex_search(to_inspect, method, std::regex(R"((.*)\.(\w*)$)")))
         {
             std::string type_name = find_type_slow(method[1]);
+            type_name = (type_name.empty()) ? method[1] : type_name;
 
             if (!type_name.empty())
             {

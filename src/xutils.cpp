@@ -50,21 +50,6 @@ namespace xcpp
         exit(0);
     }
 
-    interpreter_ptr build_interpreter(int argc, char** argv)
-    {
-        std::vector<const char*> interpreter_argv(argc);
-        interpreter_argv[0] = "xeus-cpp";
-
-        // Copy all arguments in the new vector excepting the process name.
-        for (int i = 1; i < argc; i++)
-        {
-            interpreter_argv[i] = argv[i];
-        }
-
-        interpreter_ptr interp_ptr = std::make_unique<interpreter>(argc, interpreter_argv.data());
-        return interp_ptr;
-    }
-
     std::string retrieve_tagconf_dir()
     {
         const char* tagconf_dir_env = std::getenv("XCPP_TAGCONFS_DIR");
