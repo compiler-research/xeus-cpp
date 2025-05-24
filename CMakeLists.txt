@@ -438,13 +438,11 @@ if(EMSCRIPTEN)
     target_link_options(xcpp
         PUBLIC "SHELL: -s USE_SDL=2"
         PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
-        #PUBLIC "SHELL: --preload-file ${CMAKE_INSTALL_PREFIX}${XEUS_CPP_RESOURCE_DIR}@${XEUS_CPP_RESOURCE_DIR}"
+        PUBLIC "SHELL: --preload-file ${CMAKE_INSTALL_PREFIX}${XEUS_CPP_RESOURCE_DIR}@${XEUS_CPP_RESOURCE_DIR}"
         PUBLIC "SHELL: --preload-file ${XEUS_CPP_DATA_DIR}@/share/xeus-cpp"
         PUBLIC "SHELL: --preload-file ${XEUS_CPP_CONF_DIR}@/etc/xeus-cpp"
         PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm_patches/post.js"
     )
-    # TODO: Uncomment the above line regarding preloading clang's resource dir
-    # once has been supported through cppinterop.
 endif()
 # Tests
 # =====
