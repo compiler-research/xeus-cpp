@@ -148,7 +148,6 @@ function(configure_native_kernel kernel)
 endfunction()
 
 function(configure_wasm_kernel kernel)
-  set(XEUS_CPP_RESOURCE_DIR "/lib/clang/${CPPINTEROP_LLVM_VERSION_MAJOR}" PARENT_SCOPE)
 
   configure_file (
     "${CMAKE_CURRENT_SOURCE_DIR}${kernel}wasm_kernel.json.in"
@@ -170,6 +169,7 @@ endfunction()
 
 message("Configure kernels: ...")
 if(EMSCRIPTEN)
+    set(XEUS_CPP_RESOURCE_DIR "/lib/clang/${CPPINTEROP_LLVM_VERSION_MAJOR}")
     configure_wasm_kernel("/share/jupyter/kernels/xcpp17/")
     configure_wasm_kernel("/share/jupyter/kernels/xcpp20/")
     configure_wasm_kernel("/share/jupyter/kernels/xcpp23/")
