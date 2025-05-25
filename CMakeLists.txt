@@ -75,8 +75,6 @@ if(XEUS_CPP_ENABLE_CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 if(EMSCRIPTEN)
-    # Other options
-    option(LLVM_RESOURCE_DIR "Emscripten LLVM resource directory" "unknown")
     add_compile_definitions(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
     message("Build with emscripten")
     set(XEUS_CPP_BUILD_STATIC ON)
