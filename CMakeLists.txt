@@ -75,6 +75,8 @@ if(XEUS_CPP_ENABLE_CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 if(EMSCRIPTEN)
+    # Other options
+    option(LLVM_RESOURCE_DIR "Emscripten LLVM resource directory" "unknown")
     add_compile_definitions(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
     message("Build with emscripten")
     set(XEUS_CPP_BUILD_STATIC ON)
@@ -435,10 +437,14 @@ if(EMSCRIPTEN)
     xeus_cpp_set_kernel_options(xcpp)
     xeus_wasm_compile_options(xcpp)
     xeus_wasm_link_options(xcpp "web,worker")
+    if(NOT DEFINED LLVM_RESOURCE_DIR)
+      set(LLVM_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}${XEUS_CPP_RESOURCE_DIR}) 
+      message(STATUS "LLVM_RESOURCE_DIR not defined, using fallback value: ${CMAKE_INSTALL_PREFIX}${XEUS_CPP_RESOURCE_DIR}")
+    endif()
     target_link_options(xcpp
         PUBLIC "SHELL: -s USE_SDL=2"
         PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
-        PUBLIC "SHELL: --preload-file ${CMAKE_INSTALL_PREFIX}${XEUS_CPP_RESOURCE_DIR}@${XEUS_CPP_RESOURCE_DIR}"
+        PUBLIC "SHELL: --preload-file ${LLVM_RESOURCE_DIR}@${LLVM_RESOURCE_DIR}"
         PUBLIC "SHELL: --preload-file ${XEUS_CPP_DATA_DIR}@/share/xeus-cpp"
         PUBLIC "SHELL: --preload-file ${XEUS_CPP_CONF_DIR}@/etc/xeus-cpp"
         PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm_patches/post.js"
