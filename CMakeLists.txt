@@ -435,14 +435,14 @@ if(EMSCRIPTEN)
     xeus_cpp_set_kernel_options(xcpp)
     xeus_wasm_compile_options(xcpp)
     xeus_wasm_link_options(xcpp "web,worker")
-    if(NOT DEFINED LLVM_RESOURCE_DIR)
-      set(LLVM_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}${XEUS_CPP_RESOURCE_DIR}) 
-      message(STATUS "LLVM_RESOURCE_DIR not defined, using fallback value: ${CMAKE_INSTALL_PREFIX}${XEUS_CPP_RESOURCE_DIR}")
+    if(NOT DEFINED CLANG_RESOURCE_DIR)
+      set(CLANG_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}${XEUS_CPP_RESOURCE_DIR}) 
+      message(STATUS "CLANG_RESOURCE_DIR not defined, using fallback value: ${CMAKE_INSTALL_PREFIX}${XEUS_CPP_RESOURCE_DIR}")
     endif()
     target_link_options(xcpp
         PUBLIC "SHELL: -s USE_SDL=2"
         PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
-        PUBLIC "SHELL: --preload-file ${LLVM_RESOURCE_DIR}@${LLVM_RESOURCE_DIR}"
+        PUBLIC "SHELL: --preload-file ${CLANG_RESOURCE_DIR}@${CLANG_RESOURCE_DIR}"
         PUBLIC "SHELL: --preload-file ${XEUS_CPP_DATA_DIR}@/share/xeus-cpp"
         PUBLIC "SHELL: --preload-file ${XEUS_CPP_CONF_DIR}@/etc/xeus-cpp"
         PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm_patches/post.js"
