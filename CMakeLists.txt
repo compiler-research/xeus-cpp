@@ -431,6 +431,14 @@ if (XEUS_CPP_BUILD_EXECUTABLE)
 endif()
 
 if(EMSCRIPTEN)
+    # Ensure required SDL2 ports (e.g. SDL2) are built before header preloading
+    execute_process(
+        COMMAND embuilder build sdl2
+        RESULT_VARIABLE SDL2_RESULT
+    )
+    if(NOT SDL2_RESULT EQUAL 0)
+        message(FATAL_ERROR "Failed to run 'embuilder build sdl2'")
+    endif()
     include(WasmBuildOptions)
     find_package(xeus-lite REQUIRED)
     add_executable(xcpp src/main_emscripten_kernel.cpp )
