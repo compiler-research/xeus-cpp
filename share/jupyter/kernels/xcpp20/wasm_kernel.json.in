@@ -2,7 +2,7 @@
   "display_name": "C++20",
   "argv": [
       "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
-      "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
+      "-resource-dir", "/lib/clang/@CPPINTEROP_LLVM_VERSION_MAJOR@",
       "-std=c++20"
   ],
   "language": "cpp",
