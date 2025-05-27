@@ -111,6 +111,11 @@ find_package(pugixml REQUIRED)
 # Configuration
 # =============
 
+if(NOT DEFINED XEUS_CPP_RESOURCE_DIR)
+    set(XEUS_CPP_RESOURCE_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR}")
+    message(STATUS "Using clang resource dir headers from ${XEUS_CPP_RESOURCE_DIR}")
+endif()
+
 if (NOT DEFINED XEUS_CPP_KERNELSPEC_PATH)
     set(XEUS_CPP_KERNELSPEC_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/")
 endif ()
@@ -118,7 +123,6 @@ endif ()
 function(configure_native_kernel kernel)
   set(XEUS_CPP_PATH "$ENV{PATH}")
   set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
-  set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR})
   set(XEUS_CPP_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include)
 
   if (WIN32)
@@ -169,7 +173,6 @@ endfunction()
 
 message("Configure kernels: ...")
 if(EMSCRIPTEN)
-    set(XEUS_CPP_RESOURCE_DIR "/lib/clang/${CPPINTEROP_LLVM_VERSION_MAJOR}")
     configure_wasm_kernel("/share/jupyter/kernels/xcpp17/")
     configure_wasm_kernel("/share/jupyter/kernels/xcpp20/")
     configure_wasm_kernel("/share/jupyter/kernels/xcpp23/")
@@ -438,7 +441,7 @@ if(EMSCRIPTEN)
     target_link_options(xcpp
         PUBLIC "SHELL: -s USE_SDL=2"
         PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
-        PUBLIC "SHELL: --preload-file ${CMAKE_INSTALL_PREFIX}${XEUS_CPP_RESOURCE_DIR}@${XEUS_CPP_RESOURCE_DIR}"
+        PUBLIC "SHELL: --preload-file ${XEUS_CPP_RESOURCE_DIR}@/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR}"
         PUBLIC "SHELL: --preload-file ${XEUS_CPP_DATA_DIR}@/share/xeus-cpp"
         PUBLIC "SHELL: --preload-file ${XEUS_CPP_CONF_DIR}@/etc/xeus-cpp"
         PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm_patches/post.js"
