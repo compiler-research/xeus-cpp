@@ -3,7 +3,8 @@
   "argv": [
       "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
       "-resource-dir", "/lib/clang/@CPPINTEROP_LLVM_VERSION_MAJOR@",
-      "-std=c++17"
+      "-std=c++17", "-mllvm", "-enable-emscripten-cxx-exceptions",
+      "-mllvm", "-enable-emscripten-sjlj", "-msimd128"
   ],
   "language": "cpp",
   "metadata": {
