@@ -70,7 +70,7 @@ jobs:
         shell: bash -l {0}
         run: |
           set -e
-          micromamba create -n xeus-lite-host jupyterlite-core
+          micromamba create -n xeus-lite-host jupyterlite-core jupyter_server
           micromamba activate xeus-lite-host
           cd build/test
           # Fresh install browsers, and run Emscripten tests in them
@@ -140,7 +140,6 @@ jobs:
       - name: Jupyter Lite integration
         shell: bash -l {0}
         run: |
-          micromamba create -n xeus-lite-host jupyterlite-core jupyter_server
           micromamba activate xeus-lite-host
           python -m pip install jupyterlite-xeus
           jupyter lite build \

@@ -1,5 +1,6 @@
 # ![xeus-cpp](docs/source/xeus-logo.svg)
-
+<div align="center">
+        
 [![Build Status](https://github.com/compiler-research/xeus-cpp/actions/workflows/main.yml/badge.svg)](https://github.com/compiler-research/xeus-cpp/actions/workflows/main.yml)
 [![Documentation Status](http://readthedocs.org/projects/xeus-cpp/badge/?version=latest)](https://xeus-cppreadthedocs.io/en/latest/?badge=latest)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/compiler-research/xeus-cpp/main?urlpath=/lab/tree/notebooks/xeus-cpp.ipynb)
@@ -9,14 +10,17 @@
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/xeus-cpp/badges/license.svg)](https://github.com/conda-forge/xeus-cpp-feedstock)
 [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/xeus-cpp.svg)](https://anaconda.org/conda-forge/xeus-cpp)
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/xeus-cpp/badges/downloads.svg)](https://github.com/conda-forge/xeus-cpp-feedstock)
-
+</div>
 
 `xeus-cpp` is a Jupyter kernel for cpp based on the native implementation of the
 Jupyter protocol [xeus](https://github.com/jupyter-xeus/xeus).
 
 Try Jupyter Lite demo by clicking below
 
+<div align="center">
+        
 [![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://compiler-research.github.io/xeus-cpp/lab/index.html)
+</div>
 
 ## Installation within a mamba environment (non wasm build instructions)
 
@@ -148,7 +152,7 @@ To do this on Ubuntu x86 execute the following
 
 To build Jupyter Lite with this kernel without creating a website you can execute the following
 ```bash
-micromamba create -n xeus-lite-host jupyterlite-core -c conda-forge
+micromamba create -n xeus-lite-host jupyterlite-core jupyter_server -c conda-forge
 micromamba activate xeus-lite-host
 python -m pip install jupyterlite-xeus
 jupyter lite build --XeusAddon.prefix=$PREFIX
