@@ -21,14 +21,6 @@ this environment with mamba by executing the following
 
 .. code-block:: bash
 
-    mamba create -n  "xeus-cpp"
-    source activate  "xeus-cpp"
-
-We will now install the dependencies needed to compile xeux-cpp from source within 
-this environment by executing the following
-
-.. code-block:: bash
-
     micromamba create -f environment-dev.yml
     micromamba install jupyterlab -c conda-forge
 
