@@ -40,6 +40,7 @@ The safest usage of xeus-cpp from source is to build and install it within a cle
 with mamba by executing the following
 ```bash
 micromamba create -f environment-dev.yml
+micromamba activate xeus-cpp
 micromamba install jupyterlab -c conda-forge
 ```
 Now you can compile the kernel from the source by executing (replace `$CONDA_PREFIX` with a custom installation prefix if need be)
