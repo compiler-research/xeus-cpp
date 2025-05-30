@@ -39,11 +39,6 @@ cd ./xeus-cpp
 The safest usage of xeus-cpp from source is to build and install it within a clean environment named `xeus-cpp`. You can create and activate this environment 
 with mamba by executing the following
 ```bash
-mamba create -n  "xeus-cpp"
-source activate  "xeus-cpp"
-```
-We will now install the dependencies needed to compile xeux-cpp from source within this environment by executing the following
-```bash
 micromamba create -f environment-dev.yml
 micromamba install jupyterlab -c conda-forge
 ```
