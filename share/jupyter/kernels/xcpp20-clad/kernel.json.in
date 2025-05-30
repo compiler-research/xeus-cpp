@@ -1,0 +1,19 @@
+{
+  "display_name": "C++20 CLAD",
+  "env": {
+      "PATH":"@XEUS_CPP_PATH@",
+      "LD_LIBRARY_PATH":"@XEUS_CPP_LD_LIBRARY_PATH@"
+  },
+  "argv": [
+      "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
+      "-f",
+      "{connection_file}",
+      "-fplugin=@CMAKE_INSTALL_PREFIX@/lib/clad.dylib",
+      "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
+      "-I", "@XEUS_CPP_INCLUDE_DIR@",
+      "-std=c++20"
+  ],
+  "language": "cpp",
+  "metadata": {"debugger": false
+  }
+}
