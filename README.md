@@ -185,6 +185,7 @@ http://xeus-cpp.readthedocs.io
 - [nlohmann_json](https://github.com/nlohmann/json)
 - [argparse](https://github.com/p-ranav/argparse)
 - [CppInterOp](https://github.com/compiler-research/CppInterOp)
+- [pugixml](https://github.com/zeux/pugixml)
 
 | `xeus-cpp` | `xeus-zmq`      | `CppInterOp` | `pugixml` | `cpp-argparse`| `nlohmann_json` |
 |------------|-----------------|--------------|-----------|---------------|-----------------|
