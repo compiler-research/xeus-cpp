@@ -29,8 +29,8 @@ this environment by executing the following
 
 .. code-block:: bash
 
-    mamba install notebook cmake cxx-compiler xeus-zmq nlohmann_json=3.11.3
-    jupyterlab CppInterOp cpp-argparse pugixml doctest -c conda-forge
+    micromamba create -f environment-dev.yml
+    micromamba install jupyterlab -c conda-forge
 
 Now you can compile the kernel from the source by executing (replace `$CONDA_PREFIX` 
 with a custom installation prefix if need be)
