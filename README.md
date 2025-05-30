@@ -39,12 +39,9 @@ cd ./xeus-cpp
 The safest usage of xeus-cpp from source is to build and install it within a clean environment named `xeus-cpp`. You can create and activate this environment 
 with mamba by executing the following
 ```bash
-mamba create -n  "xeus-cpp"
-source activate  "xeus-cpp"
-```
-We will now install the dependencies needed to compile xeux-cpp from source within this environment by executing the following
-```bash
-mamba install notebook cmake cxx-compiler xeus-zmq nlohmann_json=3.11.3 jupyterlab CppInterOp cpp-argparse">=3.0,<4.0" pugixml doctest -c conda-forge
+micromamba create -f environment-dev.yml
+micromamba activate xeus-cpp
+micromamba install jupyterlab -c conda-forge
 ```
 Now you can compile the kernel from the source by executing (replace `$CONDA_PREFIX` with a custom installation prefix if need be)
 ```bash
@@ -184,21 +181,11 @@ http://xeus-cpp.readthedocs.io
 - [nlohmann_json](https://github.com/nlohmann/json)
 - [argparse](https://github.com/p-ranav/argparse)
 - [CppInterOp](https://github.com/compiler-research/CppInterOp)
+- [pugixml](https://github.com/zeux/pugixml)
 
 | `xeus-cpp` | `xeus-zmq`      | `CppInterOp` | `pugixml` | `cpp-argparse`| `nlohmann_json` |
 |------------|-----------------|--------------|-----------|---------------|-----------------|
-|  main      |  >=3.0.0,<4.0.0 | >=1.7.0      | ~1.8.1    | >=3.0,<4.0    | >=3.12.0,<4.0   |
-|  0.6.0     |  >=3.0.0,<4.0.0 | >=1.5.0      | ~1.8.1    | <3.1          | >=3.11.3,<4.0   |
-|  0.5.0     |  >=3.0.0,<4.0.0 | >=1.3.0      | ~1.8.1    | <3.1          | >=3.11.3,<4.0   |
-
-Versions prior to `0.5.0` have an additional dependency on [xtl](https://github.com/xtensor-stack/xtl), [clang](https://github.com/llvm/llvm-project/) & [cppzmq](https://github.com/zeromq/cppzmq)
-
-| `xeus-cpp` | `xeus-zmq`      | `xtl`           | `clang`   | `pugixml` | `cppzmq` | `cpp-argparse`| `nlohmann_json` |
-|------------|-----------------|-----------------|-----------|-----------|----------|---------------|-----------------|
-|  0.4.0     |  >=1.0.0,<2.0.0 |  >=0.7.7,<0.8.0 | >=16,<17  | ~1.8.1    | ~4.3.0   | ~2.9          | >=3.6.1,<4.0    |
-|  0.3.0     |  >=1.0.0,<2.0.0 |  >=0.7.7,<0.8.0 | >=16,<17  | ~1.8.1    | ~4.3.0   | ~2.9          | >=3.6.1,<4.0    |
-|  0.2.0     |  >=1.0.0,<2.0.0 |  >=0.7.7,<0.8.0 | >=16,<17  | ~1.8.1    | ~4.3.0   | ~2.9          | >=3.6.1,<4.0    |
-|  0.1.0     |  >=1.0.0,<2.0.0 |  >=0.7.0,<0.8.0 | >=16,<17  | ~1.8.1    | ~4.3.0   | ~2.9          | >=3.6.1,<4.0    |
+|  main      |  3.1.0 | 1.7.0      | 1.15    | 3.2    | 3.12.0   |
 
 ## Contributing
 
