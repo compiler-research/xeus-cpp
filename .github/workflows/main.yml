@@ -254,7 +254,7 @@ jobs:
         run: |
           export BUILD_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build
           set -e
-          micromamba create -n xeus-lite-host jupyterlite-core
+          micromamba create -n xeus-lite-host jupyterlite-core=0.6
           micromamba activate xeus-lite-host
           cd build/test
           # Fresh install browsers, and run Emscripten tests in them
