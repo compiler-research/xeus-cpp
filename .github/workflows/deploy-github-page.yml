@@ -70,7 +70,7 @@ jobs:
         shell: bash -l {0}
         run: |
           set -e
-          micromamba create -n xeus-lite-host jupyterlite-core=0.6 jupyter_server
+          micromamba create -n xeus-lite-host jupyterlite-core=0.6 jupyter_server jupyterlite-xeus
           micromamba activate xeus-lite-host
           cd build/test
           # Fresh install browsers, and run Emscripten tests in them
@@ -141,7 +141,6 @@ jobs:
         shell: bash -l {0}
         run: |
           micromamba activate xeus-lite-host
-          python -m pip install jupyterlite-xeus
           jupyter lite build \
               --XeusAddon.prefix=${{ env.PREFIX }} \
               --contents README.md \
