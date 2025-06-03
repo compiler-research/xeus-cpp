@@ -141,7 +141,7 @@ jobs:
         shell: bash -l {0}
         run: |
           micromamba activate xeus-lite-host
-          python -m pip install jupyterlite-xeus==4.0.0rc0
+          python -m pip install jupyterlite-xeus
           jupyter lite build \
               --XeusAddon.prefix=${{ env.PREFIX }} \
               --contents README.md \
