@@ -147,7 +147,7 @@ To do this on Ubuntu x86 execute the following
 
 To build Jupyter Lite with this kernel without creating a website you can execute the following
 ```bash
-micromamba create -n xeus-lite-host jupyterlite-core jupyter_server -c conda-forge
+micromamba create -n xeus-lite-host jupyterlite-core=0.6 jupyter_server -c conda-forge
 micromamba activate xeus-lite-host
 python -m pip install jupyterlite-xeus
 jupyter lite build --XeusAddon.prefix=$PREFIX
