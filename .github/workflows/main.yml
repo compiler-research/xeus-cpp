@@ -179,7 +179,7 @@ jobs:
         if: ${{ success() && (matrix.coverage == true) }}
         uses: codecov/codecov-action@v5
         with:
-          file: ./coverage.info
+          files: ./coverage.info
           fail_ci_if_error: true
           verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
