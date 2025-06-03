@@ -130,9 +130,8 @@ To build Jupyter Lite with this kernel without creating a website you can execut
 
 .. code-block:: bash
 
-    micromamba create -n xeus-lite-host jupyterlite-core=0.6 jupyter_server -c conda-forge
+    micromamba create -n xeus-lite-host jupyterlite-core=0.6 jupyter_server jupyterlite-xeus -c conda-forge
     micromamba activate xeus-lite-host
-    python -m pip install jupyterlite-xeus
     jupyter lite build --XeusAddon.prefix=$PREFIX
 
 Once the Jupyter Lite site has built you can test the website locally by executing
