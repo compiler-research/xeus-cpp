@@ -11,7 +11,7 @@
 
 // Project version
 #define XEUS_CPP_VERSION_MAJOR 0
-#define XEUS_CPP_VERSION_MINOR 7
+#define XEUS_CPP_VERSION_MINOR 8
 #define XEUS_CPP_VERSION_PATCH 0
 #define XEUS_CPP_VERSION_LABEL dev
 
