@@ -10,6 +10,7 @@
   "metadata": {
     "debugger": false,
     "shared": {
+      "libxeus.so": "lib/libxeus.so",
       "libclangCppInterOp.so": "lib/libclangCppInterOp.so"
     }
   }
