@@ -23,9 +23,6 @@ namespace xcpp
 
         virtual ~xdebuglldb_client() = default;
 
-        // Test connection to LLDB-DAP server
-        bool test_connection(const std::string& endpoint);
-
     private:
 
         void handle_event(nl::json message) override;

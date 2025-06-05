@@ -62,6 +62,8 @@ namespace xcpp
 
         void shutdown_request_impl() override;
 
+        nl::json internal_request_impl(const nl::json& content) override;
+
         nl::json get_error_reply(
             const std::string& ename,
             const std::string& evalue,

@@ -1,13 +1,17 @@
 #include "xeus-cpp/xdebugger.hpp"
 
+#include <arpa/inet.h>  // For inet_pton(), htons()
+#include <chrono>       // For std::chrono (used in sleep_for)
 #include <cstdlib>
+#include <fcntl.h>
 #include <fstream>
 #include <iostream>
-#include <thread>
+#include <netinet/in.h>  // For sockaddr_in, AF_INET
+#include <sys/socket.h>  // For socket(), connect(), send(), recv()
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <thread>
 #include <unistd.h>
-#include <fcntl.h>
 
 #include "nlohmann/json.hpp"
 #include "xdebuglldb_client.hpp"
@@ -65,6 +69,8 @@ namespace xcpp
 
     bool debugger::start_lldb()
     {
+        std::cout << "debugger::start_lldb" << std::endl;
+
         // Find a free port for LLDB-DAP
         m_lldb_port = xeus::find_free_port(100, 9999, 10099);
         if (m_lldb_port.empty())
@@ -81,12 +87,20 @@ namespace xcpp
             out << m_debugger_config.dump() << std::endl;
         }
 
-        // Construct LLDB-DAP command
-        std::string lldb_command = "lldb-dap --port " + m_lldb_port;
+        // Build C++ code to start LLDB-DAP process
+        std::string code = "#include <iostream>\n";
+        code += "#include <string>\n";
+        code += "#include <vector>\n";
+        code += "#include <cstdlib>\n";
+        code += "#include <unistd.h>\n";
+        code += "#include <sys/wait.h>\n";
+        code += "#include <fcntl.h>\n";
+        code += "using namespace std;\n\n";
+        code += "int main() {\n";
 
-        std::cout << "lldb-dap command: " << lldb_command << std::endl;
-
-        // Optionally, append additional configuration from m_debugger_config
+        // Construct LLDB-DAP command arguments
+        code += "    vector<string> lldb_args = {\"lldb-dap\", \"--port\", \"" + m_lldb_port + "\"};\n";
+        // Add additional configuration from m_debugger_config
         auto it = m_debugger_config.find("lldb");
         if (it != m_debugger_config.end() && it->is_object())
         {
@@ -96,91 +110,148 @@ namespace xcpp
                 for (const auto& cmd : it->at("initCommands").get<std::vector<std::string>>())
                 {
                     std::cout << "Adding command: " << cmd << std::endl;
-                    lldb_command += " --init-command \"" + cmd + "\"";
+                    // Escape quotes in the command for C++ string
+                    std::string escaped_cmd = cmd;
+                    size_t pos = 0;
+                    while ((pos = escaped_cmd.find("\"", pos)) != std::string::npos)
+                    {
+                        escaped_cmd.replace(pos, 1, "\\\"");
+                        pos += 2;
+                    }
+                    while ((pos = escaped_cmd.find("\\", pos)) != std::string::npos
+                           && pos < escaped_cmd.length() - 1)
+                    {
+                        if (escaped_cmd[pos + 1] != '\"')
+                        {
+                            escaped_cmd.replace(pos, 1, "\\\\");
+                            pos += 2;
+                        }
+                        else
+                        {
+                            pos += 2;
+                        }
+                    }
+                    code += "    lldb_args.push_back(\"--init-command\");\n";
+                    code += "    lldb_args.push_back(\"" + escaped_cmd + "\");\n";
                 }
             }
         }
 
-        // Start LLDB-DAP process
-        // Note: Using std::system for simplicity; replace with a process library in production
+        // Set up log directory and file
         std::string log_dir = xeus::get_temp_directory_path() + "/xcpp_debug_logs_"
                               + std::to_string(xeus::get_current_pid());
         xeus::create_directory(log_dir);
         std::string log_file = log_dir + "/lldb-dap.log";
 
-        // Fork to start lldb-dap
-        pid_t pid = fork();
-        if (pid == 0)
-        {  // Child process
-            // Redirect stdin, stdout, stderr to /dev/null and log file
-            int fd = open("/dev/null", O_RDONLY);
-            dup2(fd, STDIN_FILENO);
-            close(fd);
+        // Add code to start the subprocess with proper redirection
+        code += "    string log_file = \"" + log_file + "\";\n";
+        code += "    \n";
+        code += "    pid_t pid = fork();\n";
+        code += "    if (pid == 0) {\n";
+        code += "        // Child process - redirect stdout/stderr to log file\n";
+        code += "        int fd = open(log_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);\n";
+        code += "        if (fd != -1) {\n";
+        code += "            dup2(fd, STDOUT_FILENO);\n";
+        code += "            dup2(fd, STDERR_FILENO);\n";
+        code += "            close(fd);\n";
+        code += "        }\n";
+        code += "        \n";
+        code += "        // Redirect stdin to /dev/null\n";
+        code += "        int null_fd = open(\"/dev/null\", O_RDONLY);\n";
+        code += "        if (null_fd != -1) {\n";
+        code += "            dup2(null_fd, STDIN_FILENO);\n";
+        code += "            close(null_fd);\n";
+        code += "        }\n";
+        code += "        \n";
+        code += "        // Convert vector to char* array for execvp\n";
+        code += "        vector<char*> args;\n";
+        code += "        for (auto& arg : lldb_args) {\n";
+        code += "            args.push_back(const_cast<char*>(arg.c_str()));\n";
+        code += "        }\n";
+        code += "        args.push_back(nullptr);\n";
+        code += "        \n";
+        code += "        execvp(\"lldb-dap\", args.data());\n";
+        code += "        \n";
+        code += "        // If execvp fails\n";
+        code += "        cerr << \"Failed to execute lldb-dap\" << endl;\n";
+        code += "        exit(1);\n";
+        code += "    }\n";
+        code += "    else if (pid > 0) {\n";
+        code += "        // Parent process\n";
+        code += "        cout << \"LLDB-DAP process started, PID: \" << pid << endl;\n";
+        code += "        \n";
+        code += "        // Check if process is still running\n";
+        code += "        int status;\n";
+        code += "        if (waitpid(pid, &status, WNOHANG) != 0) {\n";
+        code += "            cerr << \"LLDB-DAP process exited early\" << endl;\n";
+        code += "            return 1;\n";
+        code += "        }\n";
+        code += "        \n";
+        code += "        cout << \"LLDB-DAP started successfully\" << endl;\n";
+        code += "    }\n";
+        code += "    else {\n";
+        code += "        cerr << \"fork() failed\" << endl;\n";
+        code += "        return 1;\n";
+        code += "    }\n";
+        code += "    \n";
+        code += "    return 0;\n";
+        code += "}\n";
 
-            fd = open(log_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
-            dup2(fd, STDOUT_FILENO);
-            dup2(fd, STDERR_FILENO);
-            close(fd);
+        std::cout << "Starting LLDB-DAP with port: " << m_lldb_port << std::endl;
 
-            // Execute lldb-dap
-            execlp(
-                "lldb-dap",
-                "lldb-dap",
-                "--port",
-                m_lldb_port.c_str(),
-                NULL
-            );
+        // Execute the C++ code via control messenger
+        nl::json json_code;
+        json_code["code"] = code;
+        nl::json rep = xdebugger::get_control_messenger().send_to_shell(json_code);
+        std::string status = rep["status"].get<std::string>();
 
-            // If execlp fails
-            std::cout << xcpp::red_text("execlp failed for lldb-dap") << std::endl;
-            exit(1);
-        }
-        else if (pid > 0)
-        {  // Parent process
-            std::cout << xcpp::green_text("LLDB-DAP process started, PID: ") << pid << std::endl;
+        std::cout << "LLDB-DAP start response: " << rep.dump() << std::endl;
 
-            // Check if process is running
-            int status;
-            if (waitpid(pid, &status, WNOHANG) != 0)
+        if (status != "ok")
+        {
+            std::string ename = rep["ename"].get<std::string>();
+            std::string evalue = rep["evalue"].get<std::string>();
+            std::vector<std::string> traceback = rep["traceback"].get<std::vector<std::string>>();
+            std::clog << "Exception raised when trying to start LLDB-DAP" << std::endl;
+            for (std::size_t i = 0; i < traceback.size(); ++i)
             {
-                std::cout << xcpp::red_text("LLDB-DAP process exited early") << std::endl;
-                return false;
+                std::clog << traceback[i] << std::endl;
             }
+            std::clog << ename << " - " << evalue << std::endl;
+            return false;
         }
         else
         {
-            std::cout << xcpp::red_text("fork failed") << std::endl;
-            return false;
+            std::cout << xcpp::green_text("LLDB-DAP process started successfully") << std::endl;
         }
 
         m_is_running = true;
-        return true;
+        return status == "ok";
     }
 
     bool debugger::start()
     {
-        // Create temporary directory for logs
         std::cout << "Starting debugger..." << std::endl;
-        std::string temp_dir = xeus::get_temp_directory_path();
-        std::string log_dir = temp_dir + "/xcpp_debug_logs_" + std::to_string(xeus::get_current_pid());
-        xeus::create_directory(log_dir);
 
-        // Start LLDB-DAP
+        // Start LLDB-DAP process
         static bool lldb_started = start_lldb();
         if (!lldb_started)
         {
             std::cout << "Failed to start LLDB-DAP" << std::endl;
             return false;
         }
-
-        // Bind xeus debugger sockets
+        // Bind xeus debugger sockets for Jupyter communication
         std::string controller_end_point = xeus::get_controller_end_point("debugger");
         std::string controller_header_end_point = xeus::get_controller_end_point("debugger_header");
         std::string publisher_end_point = xeus::get_publisher_end_point();
-
         bind_sockets(controller_header_end_point, controller_end_point);
 
-        // Start LLDB-DAP client in a separate thread
+        std::cout << "Debugger sockets bound to: " << controller_end_point << std::endl;
+        std::cout << "Debugger header sockets bound to: " << controller_header_end_point << std::endl;
+        std::cout << "Publisher sockets bound to: " << publisher_end_point << std::endl;
+        std::cout << "LLDB-DAP host: " << m_lldb_host << ", port: " << m_lldb_port << std::endl;
+
+        // Start LLDB-DAP client thread (for ZMQ communication)
         std::string lldb_endpoint = "tcp://" + m_lldb_host + ":" + m_lldb_port;
         std::thread client(
             &xdebuglldb_client::start_debugger,
@@ -192,93 +263,27 @@ namespace xcpp
         );
         client.detach();
 
-        // Send initial DAP request to verify connection
-
+        // Now test direct TCP communication
         nl::json init_request = {
             {"seq", 1},
             {"type", "request"},
             {"command", "initialize"},
-            {"arguments", {
-                {"clientID", "manual-client"},
-                {"adapterID", "lldb"},
-                {"linesStartAt1", true},
-                {"columnsStartAt1", true}
-            }}
+            {"arguments",
+             {{"adapterID", "xcpp17"},
+              {"clientID", "jupyterlab"},
+              {"clientName", "JupyterLab"},
+              {"columnsStartAt1", true},
+              {"linesStartAt1", true},
+              {"locale", "en"},
+              {"pathFormat", "path"},
+              {"supportsRunInTerminalRequest", true},
+              {"supportsVariablePaging", true},
+              {"supportsVariableType", true}}}
         };
+        // Also test ZMQ path
+        send_recv_request("REQ");
 
-        nl::json launch_request = {
-            {"seq", 2},
-            {"type", "request"},
-            {"command", "launch"},
-            {"arguments", {
-                {"program", "/Users/abhinavkumar/Desktop/Coding/Testing/test"},
-                {"args", {}},
-                {"cwd", "/Users/abhinavkumar/Desktop/Coding/Testing"},
-                {"initCommands", {
-                    "settings set plugin.jit-loader.gdb.enable on"
-                }}
-            }}
-        };
-
-        nl::json breakpoint_request = {
-            {"seq", 3},
-            {"type", "request"},
-            {"command", "setBreakpoints"},
-            {"arguments", {
-                {"source", {
-                    {"name", "input_line_1"},
-                    {"path", "/Users/abhinavkumar/Desktop/Coding/Testing/input_line_1"}
-                }},
-                {"breakpoints", {
-                    {{"line", 8}}
-                }},
-                {"lines", {8}},
-                {"sourceModified", false}
-            }}
-        };
-
-
-
-        nl::json config_done_request = {
-            {"seq", 4},
-            {"type", "request"},
-            {"command", "configurationDone"},
-            {"arguments", {}}
-        };
-
-        nl::json run_request = {
-            {"seq", 5},
-            {"type", "request"},
-            {"command", "continue"},
-            {"arguments", {}}
-        };
-
-        nl::json stacktrace_request = {
-            {"seq", 6},
-            {"type", "request"},
-            {"command", "stackTrace"},
-            {"arguments", {
-                {"threadId", 1},
-                {"startFrame", 0},
-                {"levels", 10}
-            }}
-        };
-
-        
-        std::cout << send_recv_request("REQ") << std::endl;
-        nl::json request_reply = forward_message(init_request);
-        std::cout << request_reply.dump() << std::endl;
-        request_reply = forward_message(launch_request);
-        std::cout << request_reply.dump() << std::endl;
-        request_reply = forward_message(breakpoint_request);
-        std::cout << request_reply.dump() << std::endl;
-        request_reply = forward_message(config_done_request);
-        std::cout << request_reply.dump() << std::endl;
-        request_reply = forward_message(run_request);
-        std::cout << request_reply.dump() << std::endl;
-        request_reply = forward_message(stacktrace_request);
-        std::cout << request_reply.dump() << std::endl;
-        // std::cout << send_recv_request("REQ") << std::endl;
+        // std::cout << forward_message(init_request).dump() << std::endl;
 
         // Create temporary folder for cell code
         std::string tmp_folder = get_tmp_prefix();
@@ -291,13 +296,59 @@ namespace xcpp
     nl::json debugger::inspect_variables_request(const nl::json& message)
     {
         // Placeholder DAP response
+        // std::cout << "Sending setBreakpoints request..." << std::endl;
+        // nl::json breakpoint_request = {
+        //     {"seq", 3},
+        //     {"type", "request"},
+        //     {"command", "setBreakpoints"},
+        //     {"arguments", {
+        //         {"source", {
+        //             {"name", "input_line_1"},
+        //             {"path", "/Users/abhinavkumar/Desktop/Coding/Testing/input_line_1"}
+        //         }},
+        //         {"breakpoints", {{{"line", 8}}}},
+        //         {"lines", {8}},
+        //         {"sourceModified", false}
+        //     }}
+        // };
+        // nl::json breakpoint_reply = forward_message(breakpoint_request);
+        // std::cout << "Breakpoint reply: " << breakpoint_reply.dump() << std::endl;
+        // nl::json config_done_request = {
+        //     {"seq", 4},
+        //     {"type", "request"},
+        //     {"command", "configurationDone"}
+        // };
+        // nl::json config_reply = forward_message(config_done_request);
+        // std::cout << "Configuration done reply: " << config_reply.dump() << std::endl;
+
+        // nl::json run_request = {
+        //     {"seq", 5},
+        //     {"type", "request"},
+        //     {"command", "continue"},
+        //     {"arguments", nl::json::object()}
+        // };
+        // nl::json run_reply = forward_message(run_request);
+        // std::cout << "Continue reply: " << run_reply.dump() << std::endl;
+
         std::cout << "inspect_variables_request not implemented" << std::endl;
+        std::cout << message.dump() << std::endl;
         nl::json reply = {
             {"type", "response"},
             {"request_seq", message["seq"]},
-            {"success", false},
+            {"success", true},
             {"command", message["command"]},
-            {"message", "inspectVariables not implemented"}
+            {"body",
+             {{"variables",
+               {{{"name", "a"},
+             {"value", "100"},
+             {"type", "int"},
+             {"evaluateName", "a"},
+             {"variablesReference", 0}},
+            {{"name", "b"},
+             {"value", "1000"},
+             {"type", "int"},
+             {"evaluateName", "b"},
+             {"variablesReference", 0}}}}}}
         };
         return reply;
     }
@@ -320,14 +371,19 @@ namespace xcpp
     nl::json debugger::attach_request(const nl::json& message)
     {
         // Placeholder DAP response
-        std::cout << "attach_request not implemented" << std::endl;
-        nl::json reply = {
-            {"type", "response"},
-            {"request_seq", message["seq"]},
-            {"success", false},
-            {"command", message["command"]},
-            {"message", "attach not implemented"}
+        std::cout << "debugger::attach_request (sending launch instead)" << std::endl;
+        nl::json launch_request = {
+            {"seq", 2},
+            {"type", "request"},
+            {"command", "launch"},
+            {"arguments",
+             {{"program", "/Users/abhinavkumar/Desktop/Coding/Testing/test"},
+              {"args", {"arg1", "arg2"}},
+              {"cwd", "/Users/abhinavkumar/Desktop/Coding/Testing"},
+              {"initCommands", {"settings set plugin.jit-loader.gdb.enable on"}}}}
         };
+        nl::json reply = forward_message(launch_request);
+        std::cout << "Launch request sent instead of attach: " << reply.dump() << std::endl;
         return reply;
     }
 

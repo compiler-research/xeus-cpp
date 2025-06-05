@@ -57,11 +57,18 @@ namespace xcpp
         xeus::xdebugger_info get_debugger_info() const override;
         std::string get_cell_temporary_file(const std::string& code) const override;
 
+        bool connect_to_lldb_tcp();
+        std::string send_dap_message(const nl::json& message);
+        std::string receive_dap_response();
+
         xdebuglldb_client* p_debuglldb_client;
         std::string m_lldb_host;
         std::string m_lldb_port;
+        std::string m_lldbdap_port;
         nl::json m_debugger_config;
         bool m_is_running;
+        int m_tcp_socket;
+        bool m_tcp_connected;
     };
 
     XEUS_CPP_API
