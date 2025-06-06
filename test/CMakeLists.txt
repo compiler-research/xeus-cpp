@@ -90,6 +90,13 @@ if(EMSCRIPTEN)
         ${CMAKE_CURRENT_BINARY_DIR}/libclangCppInterOp.so
         COMMENT "Copying libclangCppInterOp.so to the test directory"
     )
+
+    add_custom_command(TARGET test_xeus_cpp POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/lib/libxeus.so
+        ${CMAKE_CURRENT_BINARY_DIR}/libxeus.so
+        COMMENT "Copying libxeus.so to the test directory"
+    )
 else()
     find_package(Threads)
 
