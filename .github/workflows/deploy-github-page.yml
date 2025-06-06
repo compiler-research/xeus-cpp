@@ -144,7 +144,7 @@ jobs:
           jupyter lite build \
               --XeusAddon.prefix=${{ env.PREFIX }} \
               --XeusAddon.mounts="${{ env.PREFIX }}/share/xeus-cpp/tagfiles:/share/xeus-cpp/tagfiles" \
-              --XeusAddon.mounts="${{ env.PREFIX }}/etc/xeus-cpp/tags.d:/etc/xeus-cpp/tags.d"
+              --XeusAddon.mounts="${{ env.PREFIX }}/etc/xeus-cpp/tags.d:/etc/xeus-cpp/tags.d" \
               --contents README.md \
               --contents notebooks/xeus-cpp-lite-demo.ipynb \
               --contents notebooks/smallpt.ipynb \
