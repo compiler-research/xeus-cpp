@@ -446,6 +446,19 @@ if(EMSCRIPTEN)
     xeus_cpp_set_kernel_options(xcpp)
     xeus_wasm_compile_options(xcpp)
     xeus_wasm_link_options(xcpp "web,worker")
+    if (SYSROOT_PATH MATCHES "@")
+      execute_process(
+          COMMAND ln -s ${SYSROOT_PATH}
+      )
+      set(SYSROOT_PATH_ORIGINAL ${SYSROOT_PATH})
+      set(SYSROOT_PATH "./sysroot/")
+    endif()
+    if (XEUS_CPP_RESOURCE_DIR MATCHES "@")
+      execute_process(
+          COMMAND ln -s ${XEUS_CPP_RESOURCE_DIR}
+      )
+      set(XEUS_CPP_RESOURCE_DIR "./${CPPINTEROP_LLVM_VERSION_MAJOR}")
+    endif()
     target_link_options(xcpp
         PUBLIC "SHELL: -s USE_SDL=2"
         PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
@@ -460,6 +473,11 @@ endif()
 
 if(XEUS_CPP_BUILD_TESTS)
     add_subdirectory(test)
+    if (SYSROOT_PATH_ORIGINAL MATCHES "@")
+      execute_process(
+          COMMAND ln -s ${SYSROOT_PATH_ORIGINAL} "${CMAKE_CURRENT_BINARY_DIR}/test/"
+      )
+    endif()
 endif()
 
 # Installation
