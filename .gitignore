@@ -45,3 +45,6 @@ bld
 # LLM Implementation
 *_api_key.txt
 *_chat_history.txt
+
+# MacOS specific files
+*.DS_Store
