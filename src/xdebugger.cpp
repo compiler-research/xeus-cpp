@@ -371,19 +371,20 @@ namespace xcpp
     nl::json debugger::attach_request(const nl::json& message)
     {
         // Placeholder DAP response
-        std::cout << "debugger::attach_request (sending launch instead)" << std::endl;
-        nl::json launch_request = {
+        std::cout << "debugger::attach_request" << std::endl;
+        nl::json attach_request = {
             {"seq", 2},
             {"type", "request"},
-            {"command", "launch"},
-            {"arguments",
-             {{"program", "/Users/abhinavkumar/Desktop/Coding/Testing/test"},
-              {"args", {"arg1", "arg2"}},
-              {"cwd", "/Users/abhinavkumar/Desktop/Coding/Testing"},
-              {"initCommands", {"settings set plugin.jit-loader.gdb.enable on"}}}}
+            {"command", "attach"},
+            {"arguments", {
+            {"pid", message["arguments"].value("pid", 0)},
+            {"program", message["arguments"].value("program", "")},
+            {"stopOnEntry", message["arguments"].value("stopOnEntry", false)},
+            {"initCommands", message["arguments"].value("initCommands", nl::json::array())}
+            }}
         };
-        nl::json reply = forward_message(launch_request);
-        std::cout << "Launch request sent instead of attach: " << reply.dump() << std::endl;
+        nl::json reply = forward_message(attach_request);
+        std::cout << "Attach request sent: " << reply.dump() << std::endl;
         return reply;
     }
 
