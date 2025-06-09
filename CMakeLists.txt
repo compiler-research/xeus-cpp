@@ -177,6 +177,7 @@ else()
     configure_native_kernel("/share/jupyter/kernels/xcpp17/")
     configure_native_kernel("/share/jupyter/kernels/xcpp20/")
     configure_native_kernel("/share/jupyter/kernels/xcpp23/")
+    configure_native_kernel("/share/jupyter/kernels/xcpp17-debugger/")
 endif()
 
 # Source files

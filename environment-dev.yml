@@ -1,4 +1,4 @@
-name: xeus-cpp
+name: xeus-cpp-2
 channels:
   - conda-forge
 dependencies:
