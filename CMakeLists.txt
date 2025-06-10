@@ -452,8 +452,6 @@ if(EMSCRIPTEN)
         PUBLIC "SHELL: -s USE_SDL=2"
         PUBLIC "SHELL: --preload-file ${ESCAPED_SYSROOT_PATH}/include@/include"
         PUBLIC "SHELL: --preload-file ${ESCAPED_XEUS_CPP_RESOURCE_DIR}@/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR}"
-        PUBLIC "SHELL: --preload-file ${XEUS_CPP_DATA_DIR}@/share/xeus-cpp"
-        PUBLIC "SHELL: --preload-file ${XEUS_CPP_CONF_DIR}@/etc/xeus-cpp"
         PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm_patches/post.js"
     )
 endif()
