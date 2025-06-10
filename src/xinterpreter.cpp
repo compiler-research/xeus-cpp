@@ -25,6 +25,14 @@
 #include "xparser.hpp"
 #include "xsystem.hpp"
 
+#ifdef XEUS_CPP_XPLUGIN
+#include "xplugin/xplugin_registry.hpp"
+#include "xplugin/xfactory.hpp"
+#include "xplugin/xshared_library.hpp"
+#include "xplugin/xmagics.hpp"
+#include "xplugin/os.hpp"
+#endif
+
 using Args = std::vector<const char*>;
 
 void* createInterpreter(const Args &ExtraArgs = {}) {
@@ -113,6 +121,18 @@ __get_cxx_version ()
         redirect_output();
         init_preamble();
         init_magic();
+
+#ifdef XEUS_CPP_XPLUGIN
+        // Initialize the xplugin registry
+        using base_type = plugin::PluginBase;
+        using factory_base_type = xp::xfactory_base<base_type, int, std::string>;
+        using plugin_registry_type = xp::xplugin_registry<factory_base_type>;
+
+        m_plugin_registry = std::make_unique<plugin_registry_type>();
+
+        // Load plugins from a directory
+        m_plugin_registry->load_plugins("/path/to/plugins");
+#endif
     }
 
     interpreter::~interpreter()
@@ -366,14 +386,19 @@ __get_cxx_version ()
 
     void interpreter::init_magic()
     {
-        // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("executable",
+// preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("executable",
         // executable(m_interpreter));
         // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("timeit",
         // timeit(&m_interpreter));
         // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("python", pythonexec());
         preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("file", writefile());
+
 #ifndef EMSCRIPTEN
         preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("xassist", xassist());
+#endif
+
+#ifdef XEUS_CPP_XPLUGIN
+preamble_manager["magics"].get_cast<xp::xmagics_manager>().register_magic("file", xp::writefile());
 #endif
     }
 }
