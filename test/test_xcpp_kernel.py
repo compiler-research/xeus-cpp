@@ -141,8 +141,8 @@ if platform.system() != 'Windows':
         def test_notebooks(self):
             for name in self.notebook_names:
 
-                inp = f'Notebooks/{name}.ipynb'
-                out = f'Notebooks/{name}_output.ipynb'
+                inp = f'../notebooks/{name}.ipynb'
+                out = f'../notebooks/{name}_output.ipynb'
 
                 with open(inp) as f:
                     input_nb = nbformat.read(f, as_version=4)
