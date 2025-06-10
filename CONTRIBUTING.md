@@ -149,7 +149,7 @@ To build Jupyter Lite with this kernel without creating a website you can execut
 ```bash
 micromamba create -n xeus-lite-host jupyterlite-core=0.6 jupyter_server jupyterlite-xeus -c conda-forge
 micromamba activate xeus-lite-host
-jupyter lite build --XeusAddon.prefix=$PREFIX
+jupyter lite build --XeusAddon.prefix=$PREFIX \
                    --XeusAddon.mounts="$PREFIX/share/xeus-cpp/tagfiles:/share/xeus-cpp/tagfiles" \
                    --XeusAddon.mounts="$PREFIX/etc/xeus-cpp/tags.d:/etc/xeus-cpp/tags.d" \
                    --contents README.md \
