@@ -73,31 +73,20 @@ namespace xcpp
         xeus::register_interpreter(this);
     }
 
-    static std::string get_stdopt()
+    static std::string get_stdopt(int argc, const char* const* argv)
     {
-        // We need to find what's the C++ version the interpreter runs with.
-        const char* code = R"(
-int __get_cxx_version () {
-#if __cplusplus > 202302L
-    return 26;
-#elif __cplusplus > 202002L
-    return 23;
-#elif __cplusplus >  201703L
-    return 20;
-#elif __cplusplus > 201402L
-    return 17;
-#elif __cplusplus > 201103L || (defined(_WIN32) && _MSC_VER >= 1900)
-    return 14;
-#elif __cplusplus >= 201103L
-   return 11;
-#else
-  return 0;
-#endif
-  }
-__get_cxx_version ()
-      )";
-        auto cxx_version = Cpp::Evaluate(code);
-        return std::to_string(cxx_version);
+        std::string res = "14";
+        for (int i = 0; i < argc; ++i)
+        {
+            std::string arg(argv[i]);
+            auto pos = arg.find("-std=c++");
+            if (pos != std::string::npos)
+            {
+                res = arg.substr(pos + 8);
+                break;
+            }
+        }
+        return res;
     }
 
     interpreter::interpreter(int argc, const char* const* argv) :
@@ -109,7 +98,7 @@ __get_cxx_version ()
     {
         //NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-pointer-arithmetic)
         createInterpreter(Args(argv ? argv + 1 : argv, argv + argc));
-        m_version = get_stdopt();
+        m_version = get_stdopt(argc, argv);
         redirect_output();
         init_preamble();
         init_magic();
