@@ -254,7 +254,9 @@ TEST_SUITE("kernel_info_request")
 {
     TEST_CASE("good_status")
     {
-        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
+        std::vector<const char*> Args = {
+            "-v", "-std=c++23"  // test input for get_stdopt
+        };
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
 
         nl::json result = interpreter.kernel_info_request();
@@ -264,6 +266,7 @@ TEST_SUITE("kernel_info_request")
         REQUIRE(result["language_info"]["mimetype"] == "text/x-c++src");
         REQUIRE(result["language_info"]["codemirror_mode"] == "text/x-c++src");
         REQUIRE(result["language_info"]["file_extension"] == ".cpp");
+        REQUIRE(result["language_info"]["version"] == "23");
         REQUIRE(result["status"] == "ok");
     }
 
