@@ -446,10 +446,12 @@ if(EMSCRIPTEN)
     xeus_cpp_set_kernel_options(xcpp)
     xeus_wasm_compile_options(xcpp)
     xeus_wasm_link_options(xcpp "web,worker")
+    string(REPLACE "@" "@@" ESCAPED_SYSROOT_PATH "${SYSROOT_PATH}")
+    string(REPLACE "@" "@@" ESCAPED_XEUS_CPP_RESOURCE_DIR "${XEUS_CPP_RESOURCE_DIR}")
     target_link_options(xcpp
         PUBLIC "SHELL: -s USE_SDL=2"
-        PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
-        PUBLIC "SHELL: --preload-file ${XEUS_CPP_RESOURCE_DIR}@/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR}"
+        PUBLIC "SHELL: --preload-file ${ESCAPED_SYSROOT_PATH}/include@/include"
+        PUBLIC "SHELL: --preload-file ${ESCAPED_XEUS_CPP_RESOURCE_DIR}@/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR}"
         PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm_patches/post.js"
     )
 endif()
