@@ -12,7 +12,7 @@ on:
     - cron: '30 20 * * *' # Warning: Timezone dep - 20:00 is 1:00
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
 jobs:
