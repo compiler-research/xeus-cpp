@@ -35,10 +35,7 @@ class XCppCompleteTests(jupyter_kernel_test.KernelTests):
         reply = self.get_non_kernel_info_reply(timeout=1)
         assert reply is not None
         self.assertEqual(reply["msg_type"], "complete_reply")
-        if platform.system() == 'Windows':
-            self.assertEqual(str(reply["content"]["matches"]), "['fabs', 'fabsf', 'fabsl', 'float', 'foo']")
-        else:
-            self.assertEqual(str(reply["content"]["matches"]), "['float', 'foo']")
+        self.assertEqual(reply["content"]["matches"], ['float', 'foo'])
         self.assertEqual(reply["content"]["status"], "ok")
 
     # Continuation

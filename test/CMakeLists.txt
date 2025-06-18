@@ -56,7 +56,16 @@ if(EMSCRIPTEN)
     target_compile_options(test_xeus_cpp
         PUBLIC "SHELL: -fexceptions"
     )
-
+    # So we create a html file, as well as the javascript file
+    set_target_properties(test_xeus_cpp PROPERTIES
+        SUFFIX ".html"
+    )
+    # --emrun
+    # Makes it so that we run the html file created by this target, that we can capture the
+    # standard output and output it to the terminal
+    # MINIFY_HTML=0
+    # Without this MINIFY_HTML=0 flag you end up with the situation where the creation of the
+    # test_xeus_cpp.html file breaks on MacOS, but not Ubuntu
     target_link_options(test_xeus_cpp
         PUBLIC "SHELL: -fexceptions"
         PUBLIC "SHELL: -s MAIN_MODULE=1"
@@ -66,9 +75,11 @@ if(EMSCRIPTEN)
         PUBLIC "SHELL: -s EXIT_RUNTIME=1"
         PUBLIC "SHELL: -s STACK_SIZE=32mb"
         PUBLIC "SHELL: -s INITIAL_MEMORY=128mb"
-        PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
+        PUBLIC "SHELL: --preload-file ${ESCAPED_SYSROOT_PATH}/include@/include"
         PUBLIC "SHELL: --preload-file ../${XEUS_CPP_DATA_DIR}@/share/xeus-cpp"
         PUBLIC "SHELL: --preload-file ../${XEUS_CPP_CONF_DIR}@/etc/xeus-cpp"
+        PUBLIC "SHELL: --emrun"
+        PUBLIC "SHELL: -s MINIFY_HTML=0"
     )
 
     target_include_directories(test_xeus_cpp PRIVATE ${XEUS_CPP_INCLUDE_DIR})
@@ -78,6 +89,13 @@ if(EMSCRIPTEN)
         ${CMAKE_INSTALL_PREFIX}/lib/libclangCppInterOp.so
         ${CMAKE_CURRENT_BINARY_DIR}/libclangCppInterOp.so
         COMMENT "Copying libclangCppInterOp.so to the test directory"
+    )
+
+    add_custom_command(TARGET test_xeus_cpp POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_INSTALL_PREFIX}/lib/libxeus.so
+        ${CMAKE_CURRENT_BINARY_DIR}/libxeus.so
+        COMMENT "Copying libxeus.so to the test directory"
     )
 else()
     find_package(Threads)

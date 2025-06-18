@@ -54,8 +54,8 @@ option(XEUS_CPP_BUILD_STATIC "Build xeus-cpp static library" ON)
 option(XEUS_CPP_BUILD_SHARED "Split xcpp build into executable and library" ON)
 option(XEUS_CPP_BUILD_EXECUTABLE "Build the xcpp executable" ON)
 
-option(XEUS_CPP_USE_SHARED_XEUS "Link xcpp  with the xeus shared library (instead of the static library)" ON)
-option(XEUS_CPP_USE_SHARED_XEUS_CPP "Link xcpp  with the xeus shared library (instead of the static library)" ON)
+option(XEUS_CPP_USE_SHARED_XEUS "Link xcpp with the xeus shared library (instead of the static library)" ON)
+option(XEUS_CPP_USE_SHARED_XEUS_CPP "Link xcpp with the xeus-cpp shared library (instead of the static library)" ON)
 option(XEUS_CPP_EMSCRIPTEN_WASM_BUILD "Build for wasm with emscripten" OFF)
 
 # Test options
@@ -77,10 +77,9 @@ endif()
 if(EMSCRIPTEN)
     add_compile_definitions(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
     message("Build with emscripten")
-    set(XEUS_CPP_BUILD_STATIC ON)
+    set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
     set(XEUS_CPP_BUILD_SHARED OFF)
     set(XEUS_CPP_BUILD_EXECUTABLE OFF)
-    set(XEUS_CPP_USE_SHARED_XEUS OFF)
     set(XEUS_CPP_USE_SHARED_XEUS_CPP OFF)
     # ENV (https://github.com/emscripten-core/emscripten/commit/6d9681ad04f60b41ef6345ab06c29bbc9eeb84e0)
     set(EMSCRIPTEN_FEATURES "${EMSCRIPTEN_FEATURES} -s \"EXPORTED_RUNTIME_METHODS=[ENV']\"")
@@ -91,7 +90,8 @@ endif()
 
 set(xeus_REQUIRED_VERSION 5.0.0)
 set(xeus_zmq_REQUIRED_VERSION 3.0.0)
-set(CppInterOp_REQUIRED_VERSION 1.5.0)
+set(CppInterOp_REQUIRED_VERSION 1.7.0)
+set(xeus_lite_REQUIRED_VERSION 3.2.1)
 
 if (NOT TARGET xeus AND NOT TARGET xeus-static)
     find_package(xeus ${xeus_REQUIRED_VERSION} REQUIRED)
@@ -111,6 +111,11 @@ find_package(pugixml REQUIRED)
 # Configuration
 # =============
 
+if(NOT DEFINED XEUS_CPP_RESOURCE_DIR)
+    set(XEUS_CPP_RESOURCE_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR}")
+    message(STATUS "Using clang resource dir headers from ${XEUS_CPP_RESOURCE_DIR}")
+endif()
+
 if (NOT DEFINED XEUS_CPP_KERNELSPEC_PATH)
     set(XEUS_CPP_KERNELSPEC_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/")
 endif ()
@@ -118,7 +123,6 @@ endif ()
 function(configure_native_kernel kernel)
   set(XEUS_CPP_PATH "$ENV{PATH}")
   set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
-  set(XEUS_CPP_RESOURCE_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR})
   set(XEUS_CPP_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include)
 
   if (WIN32)
@@ -148,7 +152,6 @@ function(configure_native_kernel kernel)
 endfunction()
 
 function(configure_wasm_kernel kernel)
-  set(XEUS_CPP_RESOURCE_DIR "/lib/clang/${CPPINTEROP_LLVM_VERSION_MAJOR}" PARENT_SCOPE)
 
   configure_file (
     "${CMAKE_CURRENT_SOURCE_DIR}${kernel}wasm_kernel.json.in"
@@ -433,22 +436,29 @@ if (XEUS_CPP_BUILD_EXECUTABLE)
 endif()
 
 if(EMSCRIPTEN)
+    # Ensure required SDL2 ports (e.g. SDL2) are built before header preloading
+    execute_process(
+        COMMAND embuilder build sdl2
+        RESULT_VARIABLE SDL2_RESULT
+    )
+    if(NOT SDL2_RESULT EQUAL 0)
+        message(FATAL_ERROR "Failed to run 'embuilder build sdl2'")
+    endif()
     include(WasmBuildOptions)
-    find_package(xeus-lite REQUIRED)
+    find_package(xeus-lite ${xeus_lite_REQUIRED_VERSION} REQUIRED)
     add_executable(xcpp src/main_emscripten_kernel.cpp )
     target_link_libraries(xcpp PRIVATE xeus-lite)
     xeus_cpp_set_kernel_options(xcpp)
     xeus_wasm_compile_options(xcpp)
     xeus_wasm_link_options(xcpp "web,worker")
+    string(REPLACE "@" "@@" ESCAPED_SYSROOT_PATH "${SYSROOT_PATH}")
+    string(REPLACE "@" "@@" ESCAPED_XEUS_CPP_RESOURCE_DIR "${XEUS_CPP_RESOURCE_DIR}")
     target_link_options(xcpp
-        PUBLIC "SHELL: --preload-file ${SYSROOT_PATH}/include@/include"
-        #PUBLIC "SHELL: --preload-file ${CMAKE_INSTALL_PREFIX}${XEUS_CPP_RESOURCE_DIR}@${XEUS_CPP_RESOURCE_DIR}"
-        PUBLIC "SHELL: --preload-file ${XEUS_CPP_DATA_DIR}@/share/xeus-cpp"
-        PUBLIC "SHELL: --preload-file ${XEUS_CPP_CONF_DIR}@/etc/xeus-cpp"
+        PUBLIC "SHELL: -s USE_SDL=2"
+        PUBLIC "SHELL: --preload-file ${ESCAPED_SYSROOT_PATH}/include@/include"
+        PUBLIC "SHELL: --preload-file ${ESCAPED_XEUS_CPP_RESOURCE_DIR}@/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR}"
         PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm_patches/post.js"
     )
-    # TODO: Uncomment the above line regarding preloading clang's resource dir
-    # once has been supported through cppinterop.
 endif()
 # Tests
 # =====
