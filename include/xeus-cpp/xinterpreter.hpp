@@ -40,7 +40,7 @@ namespace xcpp
         void publish_stdout(const std::string&);
         void publish_stderr(const std::string&);
 
-        static std::string get_current_pid();
+        static pid_t get_current_pid();
 
     private:
 
