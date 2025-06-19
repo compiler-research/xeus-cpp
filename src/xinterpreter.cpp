@@ -129,7 +129,11 @@ __get_cxx_version ()
     {
         // NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-pointer-arithmetic)
         createInterpreter(Args(argv ? argv + 1 : argv, argv + argc));
+#ifdef XEUS_CPP_USE_DEBUGGER
         // m_version = get_stdopt();
+#else 
+        m_version = get_stdopt();
+#endif
         redirect_output();
         init_preamble();
         init_magic();
