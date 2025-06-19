@@ -29,32 +29,20 @@ using Args = std::vector<const char*>;
 
 void* createInterpreter(const Args& ExtraArgs = {})
 {
-    Args ClangArgs = {/*"-xc++"*/ "-v"};
-    if (std::find_if(
-            ExtraArgs.begin(),
-            ExtraArgs.end(),
-            [](const std::string& s)
-            {
-                return s == "-resource-dir";
-            }
-        )
-        == ExtraArgs.end())
-    {
+    Args ClangArgs = {/*"-xc++"*/"-v"};
+    if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
+        return s == "-resource-dir";}) == ExtraArgs.end()) {
         std::string resource_dir = Cpp::DetectResourceDir();
-        if (!resource_dir.empty())
-        {
+        if (!resource_dir.empty()) {
             ClangArgs.push_back("-resource-dir");
             ClangArgs.push_back(resource_dir.c_str());
-        }
-        else
-        {
+        } else {
             std::cerr << "Failed to detect the resource-dir\n";
         }
     }
     std::vector<std::string> CxxSystemIncludes;
     Cpp::DetectSystemCompilerIncludePaths(CxxSystemIncludes);
-    for (const std::string& CxxInclude : CxxSystemIncludes)
-    {
+    for (const std::string& CxxInclude : CxxSystemIncludes) {
         ClangArgs.push_back("-isystem");
         ClangArgs.push_back(CxxInclude.c_str());
     }
@@ -62,45 +50,35 @@ void* createInterpreter(const Args& ExtraArgs = {})
 
     // FIXME: We should process the kernel input options and conditionally pass
     // the gpu args here.
-    if (std::find_if(
-            ExtraArgs.begin(),
-            ExtraArgs.end(),
-            [](const std::string& s)
-            {
-                return s == "-gdwarf-4";
-            }
-        )
-        == ExtraArgs.end())
-    {
+    if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
+        return s == "-gdwarf-4";}) == ExtraArgs.end()) {
         // If no debugger option, then use the non-OOP JIT execution.
         return Cpp::CreateInterpreter(ClangArgs /*, {"-cuda"}*/);
     }
 
-    // If debugger option is set, then use the OOP JIT execution.
+#ifdef XEUS_CPP_USE_DEBUGGER
+// If debugger option is set, then use the OOP JIT execution.
     return Cpp::CreateInterpreter(ClangArgs, {}, true);
+#else
+    return Cpp::CreateInterpreter(ClangArgs);
+#endif
 }
 
 using namespace std::placeholders;
 
 namespace xcpp
 {
-    struct StreamRedirectRAII
-    {
-        std::string &out, &err;
-
-        StreamRedirectRAII(std::string& o, std::string& e)
-            : out(o)
-            , err(e)
-        {
-            Cpp::BeginStdStreamCapture(Cpp::kStdErr);
-            Cpp::BeginStdStreamCapture(Cpp::kStdOut);
-        }
-
-        ~StreamRedirectRAII()
-        {
-            out = Cpp::EndStdStreamCapture();
-            err = Cpp::EndStdStreamCapture();
-        }
+    struct StreamRedirectRAII {
+      std::string &err;
+      StreamRedirectRAII(std::string &e) : err(e) {
+        Cpp::BeginStdStreamCapture(Cpp::kStdErr);
+        Cpp::BeginStdStreamCapture(Cpp::kStdOut);
+      }
+      ~StreamRedirectRAII() {
+        std::string out = Cpp::EndStdStreamCapture();
+        err = Cpp::EndStdStreamCapture();
+        std::cout << out;
+      }
     };
 
     void interpreter::configure_impl()
@@ -108,10 +86,12 @@ namespace xcpp
         xeus::register_interpreter(this);
     }
 
+#ifdef XEUS_CPP_USE_DEBUGGER
     pid_t interpreter::get_current_pid()
     {
         return Cpp::GetExecutorPID();
     }
+#endif
 
     static std::string get_stdopt()
     {
@@ -140,8 +120,8 @@ __get_cxx_version ()
         return std::to_string(cxx_version);
     }
 
-    interpreter::interpreter(int argc, const char* const* argv)
-        : xmagics()
+    interpreter::interpreter(int argc, const char* const* argv):
+        xmagics()
         , p_cout_strbuf(nullptr)
         , p_cerr_strbuf(nullptr)
         , m_cout_buffer(std::bind(&interpreter::publish_stdout, this, _1))
@@ -202,12 +182,12 @@ __get_cxx_version ()
             std::cerr.rdbuf(&null);
         }
 
-        std::string out, err;
+        std::string err;
 
         // Attempt normal evaluation
         try
         {
-            StreamRedirectRAII R(out, err);
+            StreamRedirectRAII R(err);
             compilation_result = Cpp::Process(code.c_str());
         }
         catch (std::exception& e)
@@ -228,10 +208,6 @@ __get_cxx_version ()
             ename = "Error: ";
             evalue = "Compilation error! " + err;
             std::cerr << err;
-        }
-        else
-        {
-            std::cout << out;
         }
 
         // Flush streams
@@ -254,8 +230,7 @@ __get_cxx_version ()
             //
             // JupyterLab displays the "{ename}: {evalue}" if the traceback is
             // empty.
-            if (evalue.size() < 4)
-            {
+            if (evalue.size() < 4) {
                 ename = " ";
             }
             std::vector<std::string> traceback({ename + evalue});
@@ -301,8 +276,7 @@ __get_cxx_version ()
 
         Cpp::CodeComplete(results, code.c_str(), 1, _cursor_pos + 1);
 
-        return xeus::create_complete_reply(
-            results /*matches*/,
+        return xeus::create_complete_reply(results /*matches*/,
             cursor_pos - to_complete.length() /*cursor_start*/,
             cursor_pos /*cursor_end*/
         );
@@ -514,11 +488,11 @@ __get_cxx_version ()
 
     void interpreter::init_preamble()
     {
-        // NOLINTBEGIN(cppcoreguidelines-owning-memory)
+        //NOLINTBEGIN(cppcoreguidelines-owning-memory)
         preamble_manager.register_preamble("introspection", std::make_unique<xintrospection>());
         preamble_manager.register_preamble("magics", std::make_unique<xmagics_manager>());
         preamble_manager.register_preamble("shell", std::make_unique<xsystem>());
-        // NOLINTEND(cppcoreguidelines-owning-memory)
+        //NOLINTEND(cppcoreguidelines-owning-memory)
     }
 
     void interpreter::init_magic()

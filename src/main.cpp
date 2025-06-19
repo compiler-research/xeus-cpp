@@ -20,11 +20,11 @@
 #endif
 
 #include "nlohmann/json.hpp"
-#include "xeus/xhelper.hpp"
-#include "xeus/xkernel.hpp"
-#include "xeus/xkernel_configuration.hpp"
+#include <xeus/xhelper.hpp>
+#include <xeus/xkernel.hpp>
+#include <xeus/xkernel_configuration.hpp>
 #include "xeus-zmq/xzmq_context.hpp"
-#include "xeus-zmq/xserver_zmq.hpp"
+#include <xeus-zmq/xserver_zmq.hpp>
 #include "xeus-cpp/xeus_cpp_config.hpp"
 #include "xeus-cpp/xinterpreter.hpp"
 #include "xeus-cpp/xutils.hpp"
@@ -60,11 +60,12 @@ int main(int argc, char* argv[])
 #endif
     signal(SIGINT, xcpp::stop_handler);
 
-    // Debugger configuration for LLDB-DAP
+#ifdef XEUS_CPP_USE_DEBUGGER
     nl::json debugger_config;
     debugger_config["lldb"]["initCommands"] = {
         "settings set plugin.jit-loader.gdb.enable on"
     };
+#endif
 
     std::string file_name = xeus::extract_filename(argc, argv);
     auto interpreter = std::make_unique<xcpp::interpreter>(argc, argv);
@@ -85,9 +86,13 @@ int main(int argc, char* argv[])
             xeus::make_console_logger(
                 xeus::xlogger::msg_type,
                 xeus::make_file_logger(xeus::xlogger::content, "xeus.log")
+#ifdef XEUS_CPP_USE_DEBUGGER
             ),
             xcpp::make_cpp_debugger,
             debugger_config
+#else
+            )
+#endif
         );
 
         std::clog << "Starting xcpp kernel...\n\n"
@@ -108,9 +113,13 @@ int main(int argc, char* argv[])
             xeus::make_console_logger(
                 xeus::xlogger::msg_type,
                 xeus::make_file_logger(xeus::xlogger::content, "xeus.log")
+#ifdef XEUS_CPP_USE_DEBUGGER
             ),
             xcpp::make_cpp_debugger,
             debugger_config
+#else
+            )
+#endif
         );
 
         std::cout << "Getting config" << std::endl;
