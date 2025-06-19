@@ -46,9 +46,17 @@ void* createInterpreter(const Args &ExtraArgs = {}) {
     ClangArgs.push_back(CxxInclude.c_str());
   }
   ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
+
   // FIXME: We should process the kernel input options and conditionally pass
   // the gpu args here.
-  return Cpp::CreateInterpreter(ClangArgs/*, {"-cuda"}*/);
+  if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
+    return s == "-gdwarf-4";}) == ExtraArgs.end()) {
+    // If no debugger option, then use the non-OOP JIT execution.
+    return Cpp::CreateInterpreter(ClangArgs/*, {"-cuda"}*/);
+  }
+  
+  // If debugger option is set, then use the OOP JIT execution.
+  return Cpp::CreateInterpreter(ClangArgs, {}, true);
 }
 
 using namespace std::placeholders;
@@ -56,21 +64,47 @@ using namespace std::placeholders;
 namespace xcpp
 {
     struct StreamRedirectRAII {
-      std::string &err;
-      StreamRedirectRAII(std::string &e) : err(e) {
+      std::string &out, &err;
+      StreamRedirectRAII(std::string &o, std::string &e) : out(o), err(e) {
         Cpp::BeginStdStreamCapture(Cpp::kStdErr);
         Cpp::BeginStdStreamCapture(Cpp::kStdOut);
       }
       ~StreamRedirectRAII() {
-        std::string out = Cpp::EndStdStreamCapture();
+        out = Cpp::EndStdStreamCapture();
         err = Cpp::EndStdStreamCapture();
-        std::cout << out;
       }
     };
 
     void interpreter::configure_impl()
     {
         xeus::register_interpreter(this);
+    }
+
+    std::string interpreter::get_current_pid() 
+    {
+        const char* code = R"(
+#include <iostream>
+#include <unistd.h>
+std::cout << getpid() << std::endl;
+    )";
+
+        std::string pid_str, err;
+        bool compilation_result = false;
+        {
+            StreamRedirectRAII R(pid_str, err);
+            compilation_result = Cpp::Process(code);
+        }
+        if (compilation_result) {
+            std::cerr << "Error getting OOP JIT pid: " << err << std::endl;
+            return "";
+        } else {
+            std::cout << "Current OOP JIT PID: " << pid_str << std::endl;
+        }
+        // Remove trailing newline from pid_str if present
+        if (!pid_str.empty() && pid_str.back() == '\n') {
+            pid_str.pop_back();
+        }
+        return pid_str;
     }
 
     static std::string get_stdopt()
@@ -109,7 +143,7 @@ __get_cxx_version ()
     {
         //NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-pointer-arithmetic)
         createInterpreter(Args(argv ? argv + 1 : argv, argv + argc));
-        m_version = get_stdopt();
+        // m_version = get_stdopt();
         redirect_output();
         init_preamble();
         init_magic();
@@ -162,12 +196,12 @@ __get_cxx_version ()
             std::cerr.rdbuf(&null);
         }
 
-        std::string err;
+        std::string out, err;
 
         // Attempt normal evaluation
         try
         {
-            StreamRedirectRAII R(err);
+            StreamRedirectRAII R(out, err);
             compilation_result = Cpp::Process(code.c_str());
         }
         catch (std::exception& e)
@@ -188,6 +222,9 @@ __get_cxx_version ()
             ename = "Error: ";
             evalue = "Compilation error! " + err;
             std::cerr << err;
+        } else {
+            std::cout << "EHLLOE" << std::endl;
+            std::cout << out;
         }
 
         // Flush streams

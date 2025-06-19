@@ -1,13 +1,13 @@
 #include "xeus-cpp/xdebugger.hpp"
 
-#include <arpa/inet.h>  // For inet_pton(), htons()
-#include <chrono>       // For std::chrono (used in sleep_for)
+#include <arpa/inet.h>
+#include <chrono>
 #include <cstdlib>
 #include <fcntl.h>
 #include <fstream>
 #include <iostream>
-#include <netinet/in.h>  // For sockaddr_in, AF_INET
-#include <sys/socket.h>  // For socket(), connect(), send(), recv()
+#include <netinet/in.h>
+#include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <thread>
@@ -15,6 +15,7 @@
 
 #include "nlohmann/json.hpp"
 #include "xdebuglldb_client.hpp"
+#include "xeus-cpp/xinterpreter.hpp"
 #include "xeus-zmq/xmiddleware.hpp"
 #include "xeus/xsystem.hpp"
 #include "xinternal_utils.hpp"
@@ -56,8 +57,6 @@ namespace xcpp
             std::bind(&debugger::configuration_done_request, this, _1),
             true
         );
-
-        std::cout << "Debugger initialized with config: " << m_debugger_config.dump() << std::endl;
     }
 
     debugger::~debugger()
@@ -70,6 +69,7 @@ namespace xcpp
     bool debugger::start_lldb()
     {
         std::cout << "debugger::start_lldb" << std::endl;
+        jit_process_pid = xcpp::interpreter::get_current_pid();
 
         // Find a free port for LLDB-DAP
         m_lldb_port = xeus::find_free_port(100, 9999, 10099);
@@ -263,23 +263,6 @@ namespace xcpp
         );
         client.detach();
 
-        // Now test direct TCP communication
-        nl::json init_request = {
-            {"seq", 1},
-            {"type", "request"},
-            {"command", "initialize"},
-            {"arguments",
-             {{"adapterID", "xcpp17"},
-              {"clientID", "jupyterlab"},
-              {"clientName", "JupyterLab"},
-              {"columnsStartAt1", true},
-              {"linesStartAt1", true},
-              {"locale", "en"},
-              {"pathFormat", "path"},
-              {"supportsRunInTerminalRequest", true},
-              {"supportsVariablePaging", true},
-              {"supportsVariableType", true}}}
-        };
         // Also test ZMQ path
         send_recv_request("REQ");
 
@@ -295,42 +278,8 @@ namespace xcpp
     // Dummy implementations for other methods
     nl::json debugger::inspect_variables_request(const nl::json& message)
     {
-        // Placeholder DAP response
-        // std::cout << "Sending setBreakpoints request..." << std::endl;
-        // nl::json breakpoint_request = {
-        //     {"seq", 3},
-        //     {"type", "request"},
-        //     {"command", "setBreakpoints"},
-        //     {"arguments", {
-        //         {"source", {
-        //             {"name", "input_line_1"},
-        //             {"path", "/Users/abhinavkumar/Desktop/Coding/Testing/input_line_1"}
-        //         }},
-        //         {"breakpoints", {{{"line", 8}}}},
-        //         {"lines", {8}},
-        //         {"sourceModified", false}
-        //     }}
-        // };
-        // nl::json breakpoint_reply = forward_message(breakpoint_request);
-        // std::cout << "Breakpoint reply: " << breakpoint_reply.dump() << std::endl;
-        // nl::json config_done_request = {
-        //     {"seq", 4},
-        //     {"type", "request"},
-        //     {"command", "configurationDone"}
-        // };
-        // nl::json config_reply = forward_message(config_done_request);
-        // std::cout << "Configuration done reply: " << config_reply.dump() << std::endl;
-
-        // nl::json run_request = {
-        //     {"seq", 5},
-        //     {"type", "request"},
-        //     {"command", "continue"},
-        //     {"arguments", nl::json::object()}
-        // };
-        // nl::json run_reply = forward_message(run_request);
-        // std::cout << "Continue reply: " << run_reply.dump() << std::endl;
-
-        std::cout << "inspect_variables_request not implemented" << std::endl;
+        std::cout << "[debugger::inspect_variables_request] inspect_variables_request not implemented"
+                  << std::endl;
         std::cout << message.dump() << std::endl;
         nl::json reply = {
             {"type", "response"},
@@ -339,16 +288,12 @@ namespace xcpp
             {"command", message["command"]},
             {"body",
              {{"variables",
-               {{{"name", "a"},
-             {"value", "100"},
-             {"type", "int"},
-             {"evaluateName", "a"},
-             {"variablesReference", 0}},
-            {{"name", "b"},
-             {"value", "1000"},
-             {"type", "int"},
-             {"evaluateName", "b"},
-             {"variablesReference", 0}}}}}}
+               {{{"name", "a"}, {"value", "100"}, {"type", "int"}, {"evaluateName", "a"}, {"variablesReference", 0}},
+                {{"name", "b"},
+                 {"value", "1000"},
+                 {"type", "int"},
+                 {"evaluateName", "b"},
+                 {"variablesReference", 0}}}}}}
         };
         return reply;
     }
@@ -372,17 +317,16 @@ namespace xcpp
     {
         // Placeholder DAP response
         std::cout << "debugger::attach_request" << std::endl;
+        std::cout << "Message: " << message.dump() << std::endl;
         nl::json attach_request = {
             {"seq", 2},
             {"type", "request"},
             {"command", "attach"},
             {"arguments", {
-            {"pid", message["arguments"].value("pid", 0)},
-            {"program", message["arguments"].value("program", "")},
-            {"stopOnEntry", message["arguments"].value("stopOnEntry", false)},
-            {"initCommands", message["arguments"].value("initCommands", nl::json::array())}
+                {"pid", jit_process_pid}
             }}
         };
+        std::cout << "Sending attach request: " << attach_request.dump() << std::endl;
         nl::json reply = forward_message(attach_request);
         std::cout << "Attach request sent: " << reply.dump() << std::endl;
         return reply;

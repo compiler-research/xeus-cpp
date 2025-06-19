@@ -69,6 +69,7 @@ namespace xcpp
         bool m_is_running;
         int m_tcp_socket;
         bool m_tcp_connected;
+        std::string jit_process_pid;
     };
 
     XEUS_CPP_API

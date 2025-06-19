@@ -13,6 +13,6 @@
       "-std=c++17"
   ],
   "language": "cpp",
-  "metadata": {"debugger": true
+  "metadata": {"debugger": false
   }
 }
