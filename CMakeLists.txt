@@ -180,6 +180,9 @@ else()
     configure_native_kernel("/share/jupyter/kernels/xcpp17/")
     configure_native_kernel("/share/jupyter/kernels/xcpp20/")
     configure_native_kernel("/share/jupyter/kernels/xcpp23/")
+    if(XEUS_CPP_USE_DEBUGGER)
+        configure_native_kernel("/share/jupyter/kernels/xcpp17-debugger/")
+    endif()
 endif()
 
 # Source files
@@ -201,6 +204,12 @@ set(XEUS_CPP_HEADERS
     #src/xparser.hpp
 )
 
+if(XEUS_CPP_USE_DEBUGGER)
+    list(APPEND XEUS_CPP_HEADERS
+        include/xeus-cpp/xdebugger.hpp
+    )
+endif()
+
 set(XEUS_CPP_SRC
     src/xholder.cpp
     src/xinput.cpp
@@ -215,6 +224,14 @@ set(XEUS_CPP_SRC
 if(NOT EMSCRIPTEN)
     list(APPEND XEUS_CPP_SRC
         src/xmagics/xassist.cpp
+    )
+endif()
+
+if(XEUS_CPP_USE_DEBUGGER)
+    list(APPEND XEUS_CPP_SRC
+        src/xdebugger.cpp
+        src/xdebuglldb_client.cpp
+        src/xinternal_utils.cpp
     )
 endif()
 
@@ -547,3 +564,9 @@ if(EMSCRIPTEN)
             "$<TARGET_FILE_DIR:xcpp>/xcpp.data"
             DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
+
+if(XEUS_CPP_USE_DEBUGGER)
+    add_definitions(
+        -DXEUS_CPP_USE_DEBUGGER
+    )
+endif()

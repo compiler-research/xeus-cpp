@@ -27,28 +27,41 @@
 
 using Args = std::vector<const char*>;
 
-void* createInterpreter(const Args &ExtraArgs = {}) {
-  Args ClangArgs = {/*"-xc++"*/"-v"};
-  if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
-    return s == "-resource-dir";}) == ExtraArgs.end()) {
-    std::string resource_dir = Cpp::DetectResourceDir();
-    if (!resource_dir.empty()) {
-        ClangArgs.push_back("-resource-dir");
-        ClangArgs.push_back(resource_dir.c_str());
-    } else {
-        std::cerr << "Failed to detect the resource-dir\n";
+void* createInterpreter(const Args& ExtraArgs = {})
+{
+    Args ClangArgs = {/*"-xc++"*/"-v"};
+    if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
+        return s == "-resource-dir";}) == ExtraArgs.end()) {
+        std::string resource_dir = Cpp::DetectResourceDir();
+        if (!resource_dir.empty()) {
+            ClangArgs.push_back("-resource-dir");
+            ClangArgs.push_back(resource_dir.c_str());
+        } else {
+            std::cerr << "Failed to detect the resource-dir\n";
+        }
     }
-  }
-  std::vector<std::string> CxxSystemIncludes;
-  Cpp::DetectSystemCompilerIncludePaths(CxxSystemIncludes);
-  for (const std::string& CxxInclude : CxxSystemIncludes) {
-    ClangArgs.push_back("-isystem");
-    ClangArgs.push_back(CxxInclude.c_str());
-  }
-  ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
-  // FIXME: We should process the kernel input options and conditionally pass
-  // the gpu args here.
-  return Cpp::CreateInterpreter(ClangArgs/*, {"-cuda"}*/);
+    std::vector<std::string> CxxSystemIncludes;
+    Cpp::DetectSystemCompilerIncludePaths(CxxSystemIncludes);
+    for (const std::string& CxxInclude : CxxSystemIncludes) {
+        ClangArgs.push_back("-isystem");
+        ClangArgs.push_back(CxxInclude.c_str());
+    }
+    ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
+
+    // FIXME: We should process the kernel input options and conditionally pass
+    // the gpu args here.
+    if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
+        return s == "-gdwarf-4";}) == ExtraArgs.end()) {
+        // If no debugger option, then use the non-OOP JIT execution.
+        return Cpp::CreateInterpreter(ClangArgs /*, {"-cuda"}*/);
+    }
+
+#ifdef XEUS_CPP_USE_DEBUGGER
+// If debugger option is set, then use the OOP JIT execution.
+    return Cpp::CreateInterpreter(ClangArgs, {}, true);
+#else
+    return Cpp::CreateInterpreter(ClangArgs);
+#endif
 }
 
 using namespace std::placeholders;
@@ -72,6 +85,13 @@ namespace xcpp
     {
         xeus::register_interpreter(this);
     }
+
+#ifdef XEUS_CPP_USE_DEBUGGER
+    pid_t interpreter::get_current_pid()
+    {
+        return Cpp::GetExecutorPID();
+    }
+#endif
 
     static std::string get_stdopt()
     {
@@ -100,16 +120,20 @@ __get_cxx_version ()
         return std::to_string(cxx_version);
     }
 
-    interpreter::interpreter(int argc, const char* const* argv) :
+    interpreter::interpreter(int argc, const char* const* argv):
         xmagics()
         , p_cout_strbuf(nullptr)
         , p_cerr_strbuf(nullptr)
         , m_cout_buffer(std::bind(&interpreter::publish_stdout, this, _1))
         , m_cerr_buffer(std::bind(&interpreter::publish_stderr, this, _1))
     {
-        //NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        // NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-pointer-arithmetic)
         createInterpreter(Args(argv ? argv + 1 : argv, argv + argc));
+#ifdef XEUS_CPP_USE_DEBUGGER
+        // m_version = get_stdopt();
+#else 
         m_version = get_stdopt();
+#endif
         redirect_output();
         init_preamble();
         init_magic();
@@ -213,7 +237,7 @@ __get_cxx_version ()
             if (evalue.size() < 4) {
                 ename = " ";
             }
-            std::vector<std::string> traceback({ename  + evalue});
+            std::vector<std::string> traceback({ename + evalue});
             if (!config.silent)
             {
                 publish_execution_error(ename, evalue, traceback);
@@ -277,13 +301,17 @@ __get_cxx_version ()
 
     nl::json interpreter::is_complete_request_impl(const std::string& code)
     {
-        if (!code.empty() && code[code.size() - 1] == '\\') {
+        if (!code.empty() && code[code.size() - 1] == '\\')
+        {
             auto found = code.rfind('\n');
             if (found == std::string::npos)
+            {
                 found = -1;
+            }
             auto found1 = found++;
-            while (isspace(code[++found1])) ;
-            return xeus::create_is_complete_reply("incomplete", code.substr(found, found1-found));
+            while (isspace(code[++found1]))
+                ;
+            return xeus::create_is_complete_reply("incomplete", code.substr(found, found1 - found));
         }
 
         return xeus::create_is_complete_reply("complete");
@@ -312,6 +340,7 @@ __get_cxx_version ()
                              "\n"
                              "  xeus-cpp: a C++ Jupyter kernel - based on Clang-repl\n";
         result["banner"] = banner;
+        result["debugger"] = true;
         result["language_info"]["name"] = "C++";
         result["language_info"]["version"] = m_version;
         result["language_info"]["mimetype"] = "text/x-c++src";
@@ -328,6 +357,112 @@ __get_cxx_version ()
     void interpreter::shutdown_request_impl()
     {
         restore_output();
+    }
+
+    nl::json interpreter::internal_request_impl(const nl::json& content)
+    {
+        std::string code = content.value("code", "");
+        nl::json reply;
+        try
+        {
+            // Create temporary files for compilation
+            std::string temp_dir = xeus::get_temp_directory_path();
+            std::string temp_source = temp_dir + "/xcpp_temp_" + std::to_string(xeus::get_current_pid())
+                                      + ".cpp";
+            std::string temp_executable = temp_dir + "/xcpp_temp_" + std::to_string(xeus::get_current_pid());
+            std::string temp_output = temp_dir + "/xcpp_output_" + std::to_string(xeus::get_current_pid())
+                                      + ".txt";
+            std::string temp_error = temp_dir + "/xcpp_error_" + std::to_string(xeus::get_current_pid())
+                                     + ".txt";
+
+            // Write C++ code to temporary file
+            std::ofstream source_file(temp_source);
+            if (!source_file.is_open())
+            {
+                throw std::runtime_error("Failed to create temporary source file");
+            }
+
+            source_file << code;
+            source_file.close();
+
+            // Compile the C++ code using clang++
+            std::string compile_cmd = "clang++ " + temp_source + " -o " + temp_executable + " 2>" + temp_error;
+
+            int compile_result = std::system(compile_cmd.c_str());
+
+            if (compile_result != 0)
+            {
+                // Compilation failed - read error messages
+                std::ifstream error_file(temp_error);
+                std::string error_msg;
+                std::string line;
+                while (std::getline(error_file, line))
+                {
+                    error_msg += line + "\n";
+                }
+                error_file.close();
+
+                // Clean up temporary files
+                std::remove(temp_source.c_str());
+                std::remove(temp_error.c_str());
+
+                reply["status"] = "error";
+                reply["ename"] = "CompilationError";
+                reply["evalue"] = "C++ compilation failed";
+                reply["traceback"] = std::vector<std::string>{error_msg};
+                return reply;
+            }
+
+            // Execute the compiled program
+            std::string execute_cmd = temp_executable + " >" + temp_output + " 2>" + temp_error;
+            int execute_result = std::system(execute_cmd.c_str());
+
+            // Read output
+            std::ifstream output_file(temp_output);
+            std::string output;
+            std::string line;
+            while (std::getline(output_file, line))
+            {
+                output += line + "\n";
+            }
+            output_file.close();
+
+            // Read errors
+            std::ifstream error_file(temp_error);
+            std::string error_output;
+            while (std::getline(error_file, line))
+            {
+                error_output += line + "\n";
+            }
+            error_file.close();
+
+            // Clean up temporary files
+            std::remove(temp_source.c_str());
+            std::remove(temp_executable.c_str());
+            std::remove(temp_output.c_str());
+            std::remove(temp_error.c_str());
+
+            if (execute_result != 0)
+            {
+                reply["status"] = "error";
+                reply["ename"] = "RuntimeError";
+                reply["evalue"] = "C++ program execution failed";
+                reply["traceback"] = std::vector<std::string>{error_output};
+            }
+            else
+            {
+                reply["status"] = "ok";
+            }
+        }
+        catch (const std::exception& e)
+        {
+            reply["status"] = "error";
+            reply["ename"] = "SystemError";
+            reply["evalue"] = e.what();
+            reply["traceback"] = std::vector<std::string>{e.what()};
+        }
+
+        return reply;
     }
 
     void interpreter::redirect_output()

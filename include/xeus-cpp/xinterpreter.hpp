@@ -40,6 +40,8 @@ namespace xcpp
         void publish_stdout(const std::string&);
         void publish_stderr(const std::string&);
 
+        static pid_t get_current_pid();
+
     private:
 
         void configure_impl() override;
@@ -61,6 +63,8 @@ namespace xcpp
         nl::json kernel_info_request_impl() override;
 
         void shutdown_request_impl() override;
+
+        nl::json internal_request_impl(const nl::json& content) override;
 
         nl::json get_error_reply(
             const std::string& ename,
