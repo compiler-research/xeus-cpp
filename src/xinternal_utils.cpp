@@ -53,13 +53,6 @@ namespace xcpp
 #endif
     }
 
-    std::string highlight(const std::string& code)
-    {
-        // Placeholder: No syntax highlighting implemented
-        // In a real implementation, use a C++ library (e.g., libclang or a custom highlighter)
-        return code;
-    }
-
     std::string get_tmp_prefix()
     {
         return xeus::get_tmp_prefix("xcpp");

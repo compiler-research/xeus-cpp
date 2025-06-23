@@ -8,7 +8,7 @@
       "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
       "-f",
       "{connection_file}",
-      "-gdwarf-4",
+      "-g",
       "-O0",
       "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
       "-I", "@XEUS_CPP_INCLUDE_DIR@",

@@ -60,16 +60,15 @@ int main(int argc, char* argv[])
 #endif
     signal(SIGINT, xcpp::stop_handler);
 
-#ifdef XEUS_CPP_USE_DEBUGGER
+    std::string file_name = xeus::extract_filename(argc, argv);
+    auto interpreter = std::make_unique<xcpp::interpreter>(argc, argv);
+    std::unique_ptr<xeus::xcontext> context = xeus::make_zmq_context();
+
     nl::json debugger_config;
     debugger_config["lldb"]["initCommands"] = {
         "settings set plugin.jit-loader.gdb.enable on"
     };
-#endif
-
-    std::string file_name = xeus::extract_filename(argc, argv);
-    auto interpreter = std::make_unique<xcpp::interpreter>(argc, argv);
-    std::unique_ptr<xeus::xcontext> context = xeus::make_zmq_context();
+    debugger_config["interpreter_ptr"] = reinterpret_cast<std::uintptr_t>(interpreter.get());
 
     if (!file_name.empty())
     {
@@ -86,13 +85,9 @@ int main(int argc, char* argv[])
             xeus::make_console_logger(
                 xeus::xlogger::msg_type,
                 xeus::make_file_logger(xeus::xlogger::content, "xeus.log")
-#ifdef XEUS_CPP_USE_DEBUGGER
             ),
             xcpp::make_cpp_debugger,
             debugger_config
-#else
-            )
-#endif
         );
 
         std::clog << "Starting xcpp kernel...\n\n"
@@ -113,13 +108,9 @@ int main(int argc, char* argv[])
             xeus::make_console_logger(
                 xeus::xlogger::msg_type,
                 xeus::make_file_logger(xeus::xlogger::content, "xeus.log")
-#ifdef XEUS_CPP_USE_DEBUGGER
             ),
             xcpp::make_cpp_debugger,
             debugger_config
-#else
-            )
-#endif
         );
 
         std::cout << "Getting config" << std::endl;

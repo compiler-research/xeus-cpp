@@ -23,6 +23,7 @@
 #include "nlohmann/json.hpp"
 #include "xeus-zmq/xdebugger_base.hpp"
 #include "xeus_cpp_config.hpp"
+#include "xeus-cpp/xinterpreter.hpp"
 
 namespace xcpp
 {
@@ -48,6 +49,8 @@ namespace xcpp
         nl::json stack_trace_request(const nl::json& message);
         nl::json attach_request(const nl::json& message);
         nl::json configuration_done_request(const nl::json& message);
+        nl::json set_breakpoints_request(const nl::json& message);
+        nl::json dump_cell_request(const nl::json& message);
 
         nl::json variables_request_impl(const nl::json& message) override;
 
@@ -55,7 +58,7 @@ namespace xcpp
         bool start() override;
         void stop() override;
         xeus::xdebugger_info get_debugger_info() const override;
-        std::string get_cell_temporary_file(const std::string& code) const override;
+        virtual std::string get_cell_temporary_file(const std::string& code) const override;
 
         bool connect_to_lldb_tcp();
         std::string send_dap_message(const nl::json& message);
@@ -64,12 +67,19 @@ namespace xcpp
         xdebuglldb_client* p_debuglldb_client;
         std::string m_lldb_host;
         std::string m_lldb_port;
-        std::string m_lldbdap_port;
         nl::json m_debugger_config;
         bool m_is_running;
         int m_tcp_socket;
         bool m_tcp_connected;
         pid_t jit_process_pid;
+
+        using breakpoint_list_t = std::map<std::string, std::vector<nl::json>>;
+        breakpoint_list_t m_breakpoint_list;
+
+        xcpp::interpreter* m_interpreter;
+
+        std::unordered_map<std::string, std::vector<std::string>> m_hash_to_sequential;
+        std::unordered_map<std::string, std::string> m_sequential_to_hash;
     };
 
     XEUS_CPP_API

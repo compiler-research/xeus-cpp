@@ -22,6 +22,15 @@
 
 using namespace std::placeholders;
 
+// ***** ONLY FOR DEBUGGING PURPOSES. NOT TO BE COMMITTED *****
+static std::ofstream log_stream("/Users/abhinavkumar/Desktop/Coding/CERN_HSF_COMPILER_RESEARCH/xeus-cpp/build/xeus-cpp-logs.log", std::ios::app);
+
+void log_debug(const std::string& msg) {
+    log_stream << "[xeus-cpp] " << msg << std::endl;
+    log_stream.flush();  // Ensure immediate write
+}
+// ******* (END) ONLY FOR DEBUGGING PURPOSES. NOT TO BE COMMITTED *******
+
 namespace xcpp
 {
     debugger::debugger(
@@ -57,6 +66,12 @@ namespace xcpp
             std::bind(&debugger::configuration_done_request, this, _1),
             true
         );
+        register_request_handler("setBreakpoints", std::bind(&debugger::set_breakpoints_request, this, _1), true);
+        register_request_handler("dumpCell", std::bind(&debugger::dump_cell_request, this, _1), true);
+
+        m_interpreter = reinterpret_cast<xcpp::interpreter*>(
+            debugger_config["interpreter_ptr"].get<std::uintptr_t>()
+        );
     }
 
     debugger::~debugger()
@@ -90,9 +105,12 @@ namespace xcpp
         xeus::create_directory(log_dir);
         std::string log_file = log_dir + "/lldb-dap.log";
 
+        // std::cout << "Log file for LLDB-DAP: " << log_file << std::endl;
+
         pid_t pid = fork();
         if (pid == 0)
         {
+            // ***** ONLY FOR DEBUGGING PURPOSES. NOT TO BE COMMITTED *****
             int fd = open(log_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
             if (fd != -1)
             {
@@ -100,6 +118,7 @@ namespace xcpp
                 dup2(fd, STDERR_FILENO);
                 close(fd);
             }
+            // ******* (END) ONLY FOR DEBUGGING PURPOSES. NOT TO BE COMMITTED ******
 
             int null_fd = open("/dev/null", O_RDONLY);
             if (null_fd != -1)
@@ -174,36 +193,49 @@ namespace xcpp
     nl::json debugger::attach_request(const nl::json& message)
     {
         // Placeholder DAP response
-        nl::json attach_request =
-            {{"seq", 2}, {"type", "request"}, {"command", "attach"}, {"arguments", {{"pid", jit_process_pid}}}};
-        std::cout << "Sending attach request: " << attach_request.dump() << std::endl;
+        nl::json attach_request = {
+            {"seq", message["seq"]},
+            {"type", "request"},
+            {"command", "attach"},
+            {"arguments",
+             {{"pid", jit_process_pid}, {"initCommands", {"settings set plugin.jit-loader.gdb.enable on"}}}}
+        };
         nl::json reply = forward_message(attach_request);
         return reply;
     }
 
     nl::json debugger::inspect_variables_request(const nl::json& message)
     {
-        std::cout << "[debugger::inspect_variables_request] inspect_variables_request not implemented"
-                  << std::endl;
-        nl::json reply = {
-            {"type", "response"},
-            {"request_seq", message["seq"]},
-            {"success", true},
-            {"command", message["command"]},
-            {"body",
-             {{"variables",
-               {{{"name", "a"}, {"value", "100"}, {"type", "int"}, {"evaluateName", "a"}, {"variablesReference", 0}},
-                {{"name", "b"},
-                 {"value", "1000"},
-                 {"type", "int"},
-                 {"evaluateName", "b"},
-                 {"variablesReference", 0}}}}}}
+        log_debug("[debugger] Inspect variable not implemented.");
+        nl::json inspect_request = {
+            {"seq", message["seq"]},
+            {"type", "request"},
+            {"command", "variables"},
+            {"arguments", {{"variablesReference", 0}}}
         };
+        nl::json reply = forward_message(inspect_request);
         return reply;
+    }
+
+    nl::json debugger::set_breakpoints_request(const nl::json& message)
+    {
+        std::string source = message["arguments"]["source"]["path"].get<std::string>();
+        m_breakpoint_list.erase(source);
+        nl::json bp_json = message["arguments"]["breakpoints"];
+        std::vector<nl::json> bp_list(bp_json.begin(), bp_json.end());
+        std::string sequential_source = m_hash_to_sequential[source][0];
+        m_breakpoint_list.insert(std::make_pair(std::move(source), std::move(bp_list)));
+        nl::json mod_message = message;
+        mod_message["arguments"]["source"]["path"] = sequential_source;
+        log_debug("Set breakpoints request received:\n" + mod_message.dump(4));
+        nl::json breakpoint_reply = forward_message(mod_message);
+        log_debug("Set breakpoints reply sent:\n" + breakpoint_reply.dump(4));
+        return breakpoint_reply;
     }
 
     nl::json debugger::stack_trace_request(const nl::json& message)
     {
+        log_debug("Stack trace request received:\n" + message.dump(4));
         nl::json reply = {
             {"type", "response"},
             {"request_seq", message["seq"]},
@@ -217,17 +249,15 @@ namespace xcpp
 
     nl::json debugger::configuration_done_request(const nl::json& message)
     {
-        nl::json reply = {
-            {"type", "response"},
-            {"request_seq", message["seq"]},
-            {"success", true},
-            {"command", message["command"]}
-        };
+        log_debug("Configuration done request received:\n" + message.dump(4));
+        nl::json reply = forward_message(message);
+        log_debug("Configuration done reply sent:\n" + reply.dump(4));
         return reply;
     }
 
     nl::json debugger::variables_request_impl(const nl::json& message)
     {
+        log_debug("Variables request received:\n" + message.dump(4));
         nl::json reply = {
             {"type", "response"},
             {"request_seq", message["seq"]},
@@ -259,14 +289,52 @@ namespace xcpp
         );
     }
 
+    nl::json debugger::dump_cell_request(const nl::json& message)
+    {
+        std::string code;
+        try
+        {
+            code = message["arguments"]["code"].get<std::string>();
+            // std::cout << "Execution Count is: " << m_interpreter->get_execution_count(code)[0] << std::endl;
+        }
+        catch (nl::json::type_error& e)
+        {
+            std::clog << e.what() << std::endl;
+        }
+        catch (...)
+        {
+            std::clog << "XDEBUGGER: Unknown issue" << std::endl;
+        }
+        std::string hash_file_name = get_cell_temporary_file(code);
+        for(auto& exec_count: m_interpreter->get_execution_count(code))
+        {
+            m_hash_to_sequential[hash_file_name].push_back("input_line_" + std::to_string(exec_count));
+            m_sequential_to_hash["input_line_" + std::to_string(exec_count)] = hash_file_name;
+        }
+
+        // std::string next_file_name = "input_line_" + std::to_string(m_interpreter->get_execution_count(code).size() ? m_interpreter->get_execution_count(code)[0] : 0);
+
+        std::fstream fs(hash_file_name, std::ios::in);
+        if (!fs.is_open())
+        {
+            fs.clear();
+            fs.open(hash_file_name, std::ios::out);
+            fs << code;
+        }
+
+        nl::json reply = {
+            {"type", "response"},
+            {"request_seq", message["seq"]},
+            {"success", true},
+            {"command", message["command"]},
+            {"body", {{"sourcePath", hash_file_name}}}
+        };
+        return reply;
+    }
+
     std::string debugger::get_cell_temporary_file(const std::string& code) const
     {
-        // Placeholder: Return a dummy temporary file path
-        std::string tmp_file = get_tmp_prefix() + "/cell_tmp.cpp";
-        std::ofstream out(tmp_file);
-        out << code;
-        out.close();
-        return tmp_file;
+        return get_cell_tmp_file(code);
     }
 
     std::unique_ptr<xeus::xdebugger> make_cpp_debugger(

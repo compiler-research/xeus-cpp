@@ -42,6 +42,16 @@ namespace xcpp
 
         static pid_t get_current_pid();
 
+        std::vector<int> get_execution_count(const std::string& code) const
+        {
+            auto it = m_code_to_execution_count_map.find(code);
+            if (it != m_code_to_execution_count_map.end())
+            {
+                return it->second;
+            }
+            return {};
+        }
+
     private:
 
         void configure_impl() override;
@@ -63,8 +73,6 @@ namespace xcpp
         nl::json kernel_info_request_impl() override;
 
         void shutdown_request_impl() override;
-
-        nl::json internal_request_impl(const nl::json& content) override;
 
         nl::json get_error_reply(
             const std::string& ename,
@@ -89,6 +97,8 @@ namespace xcpp
 
         xoutput_buffer m_cout_buffer;
         xoutput_buffer m_cerr_buffer;
+
+        std::map<std::string, std::vector<int>> m_code_to_execution_count_map;
     };
 }
 

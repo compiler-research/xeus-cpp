@@ -12,9 +12,6 @@ namespace xcpp
     std::string green_text(const std::string& text);
     std::string blue_text(const std::string& text);
 
-    // Placeholder for C++ syntax highlighting
-    std::string highlight(const std::string& code);
-
     // Temporary file utilities for Jupyter cells
     std::string get_tmp_prefix();
     std::string get_tmp_suffix();
