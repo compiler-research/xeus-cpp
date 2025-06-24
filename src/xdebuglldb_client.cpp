@@ -11,8 +11,21 @@
 #include "nlohmann/json.hpp"
 #include "xeus/xmessage.hpp"
 #include <iostream>
+#include <fstream>
 
 namespace nl = nlohmann;
+
+// ***** ONLY FOR DEBUGGING PURPOSES. NOT TO BE COMMITTED *****
+static std::ofstream log_stream_client("/Users/abhinavkumar/Desktop/Coding/CERN_HSF_COMPILER_RESEARCH/xeus-cpp/build/xeus-cpp-xdebuglldb_client-logs.log", std::ios::app);
+
+void log_debug_client(const std::string& msg) {
+    log_stream_client << "[xeus-cpp-debuglldb_client] " << msg << std::endl;
+    log_stream_client.flush();  // Ensure immediate write
+}
+// ******* (END) ONLY FOR DEBUGGING PURPOSES. NOT TO BE COMMITTED *******
+
+void log_debug(const std::string& msg);
+
 
 namespace xcpp
 {
@@ -32,12 +45,15 @@ namespace xcpp
     void xdebuglldb_client::handle_event(nl::json message)
     {
         // Forward DAP events to the base class (e.g., "stopped" events from LLDB-DAP)
+        log_debug_client("[xdebuglldb_client::handle_event] Handling event:\n" + message.dump(4));
         forward_event(std::move(message));
     }
 
     nl::json xdebuglldb_client::get_stack_frames(int thread_id, int seq)
     {
         // Construct a DAP stackTrace request
+        log_debug_client("Requesting stack frames for thread ID: " + std::to_string(thread_id) + " with sequence number: " + std::to_string(seq));
+        // std::cout << "Requesting stack frames for thread ID: " << thread_id << " with sequence number: " << seq << std::endl;
         nl::json request = {
             {"type", "request"},
             {"seq", seq},
