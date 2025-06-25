@@ -40,6 +40,18 @@ namespace xcpp
         void publish_stdout(const std::string&);
         void publish_stderr(const std::string&);
 
+        static pid_t get_current_pid();
+
+        std::vector<int> get_execution_count(const std::string& code) const
+        {
+            auto it = m_code_to_execution_count_map.find(code);
+            if (it != m_code_to_execution_count_map.end())
+            {
+                return it->second;
+            }
+            return {};
+        }
+
     private:
 
         void configure_impl() override;
@@ -85,6 +97,8 @@ namespace xcpp
 
         xoutput_buffer m_cout_buffer;
         xoutput_buffer m_cerr_buffer;
+
+        std::map<std::string, std::vector<int>> m_code_to_execution_count_map;
     };
 }
 
