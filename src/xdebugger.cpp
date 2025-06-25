@@ -207,7 +207,6 @@ namespace xcpp
             {"arguments",
              {
              {"pid", jit_process_pid},
-             {"stopOnEntry", true},
              {"initCommands", {"settings set plugin.jit-loader.gdb.enable on"}}
              }
             }
@@ -226,8 +225,8 @@ namespace xcpp
             {"command", "variables"},
             {"arguments", {{"variablesReference", 0}}}
         };
-        nl::json reply = forward_message(inspect_request);
-        return reply;
+        nl::json dummy_reply = forward_message(inspect_request);
+        return dummy_reply;
     }
 
     nl::json debugger::set_breakpoints_request(const nl::json& message)
@@ -321,10 +320,12 @@ namespace xcpp
         nl::json continue_request = {
             {"type", "request"},
             {"command", "continue"},
-            {"seq", message["seq"].get<int>() + 1},
+            {"seq", message["seq"].get<int>() + 2},
             {"arguments", {{"threadId", *stopped_threads.begin()}}}
         };
         log_debug("[debugger::configuration_done_request] Sending continue request:\n" + continue_request.dump(4));
+        // // wait for 3 seconds before sending continue request
+        // std::this_thread::sleep_for(std::chrono::seconds(3));
         nl::json continue_reply = forward_message(continue_request);
         log_debug("[debugger::configuration_done_request] Continue reply received:\n" + continue_reply.dump(4));
         return reply;
@@ -333,14 +334,7 @@ namespace xcpp
     nl::json debugger::variables_request_impl(const nl::json& message)
     {
         log_debug("[debugger::variables_request_impl] Variables request received:\n" + message.dump(4));
-        nl::json reply = {
-            {"type", "response"},
-            {"request_seq", message["seq"]},
-            {"success", false},
-            {"command", message["command"]},
-            {"message", "variables not implemented"},
-            {"body", {{"variables", {}}}}
-        };
+        nl::json reply = forward_message(message);
         return reply;
     }
 
@@ -439,15 +433,8 @@ namespace xcpp
         auto stopped_threads = base_type::get_stopped_threads();
         
         if (stopped_threads.empty()) {
-            nl::json error_reply = {
-                {"command", "stackTrace"},
-                {"request_seq", message["seq"]},
-                {"seq", message["seq"]},
-                {"success", false},
-                {"message", "No threads are currently stopped"},
-                {"type", "response"}
-            };
-            return error_reply;
+            nl::json reply = forward_message(message);
+            return reply;
         }
         
         int actual_thread_id;
