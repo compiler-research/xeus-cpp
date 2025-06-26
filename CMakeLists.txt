@@ -120,11 +120,14 @@ if (NOT DEFINED XEUS_CPP_KERNELSPEC_PATH)
     set(XEUS_CPP_KERNELSPEC_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/")
 endif ()
 
-function(configure_native_kernel kernel)
-  set(XEUS_CPP_PATH "$ENV{PATH}")
-  set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
-  set(XEUS_CPP_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include)
-
+function(configure_kernel kernel)
+  if(EMSCRIPTEN)
+    set(prefix "wasm_")
+  else()
+    set(XEUS_CPP_PATH "$ENV{PATH}")
+    set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
+    set(XEUS_CPP_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include)
+  endif()
   if (WIN32)
     string(REPLACE "\\" "/" kernel "${kernel}")
     string(REPLACE "\\" "/" XEUS_CPP_PATH "${XEUS_CPP_PATH}")
@@ -132,55 +135,31 @@ function(configure_native_kernel kernel)
     string(REPLACE "\\" "/" XEUS_CPP_RESOURCE_DIR "${XEUS_CPP_RESOURCE_DIR}")
     string(REPLACE "\\" "/" XEUS_CPP_INCLUDE_DIR "${XEUS_CPP_INCLUDE_DIR}")
   endif()
-
-  configure_file (
-    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}kernel.json.in"
-    "${CMAKE_CURRENT_BINARY_DIR}${kernel}kernel.json")
-
-  configure_file (
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}${prefix}kernel.json.in"
+    "${CMAKE_CURRENT_BINARY_DIR}${kernel}kernel.json"
+  )
+  configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}${kernel}logo-32x32.png"
     "${CMAKE_CURRENT_BINARY_DIR}${kernel}"
-    COPYONLY)
-  configure_file (
+    COPYONLY
+  )
+  configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}${kernel}logo-64x64.png"
     "${CMAKE_CURRENT_BINARY_DIR}${kernel}"
-    COPYONLY)
-  configure_file (
+    COPYONLY
+  )
+  configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}${kernel}logo-svg.svg"
     "${CMAKE_CURRENT_BINARY_DIR}${kernel}"
-    COPYONLY)
-endfunction()
-
-function(configure_wasm_kernel kernel)
-
-  configure_file (
-    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}wasm_kernel.json.in"
-    "${CMAKE_CURRENT_BINARY_DIR}${kernel}kernel.json")
-
-  configure_file (
-    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}logo-32x32.png"
-    "${CMAKE_CURRENT_BINARY_DIR}${kernel}"
-    COPYONLY)
-  configure_file (
-    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}logo-64x64.png"
-    "${CMAKE_CURRENT_BINARY_DIR}${kernel}"
-    COPYONLY)
-  configure_file (
-    "${CMAKE_CURRENT_SOURCE_DIR}${kernel}logo-svg.svg"
-    "${CMAKE_CURRENT_BINARY_DIR}${kernel}"
-    COPYONLY)
+    COPYONLY
+  )
 endfunction()
 
 message("Configure kernels: ...")
-if(EMSCRIPTEN)
-    configure_wasm_kernel("/share/jupyter/kernels/xcpp17/")
-    configure_wasm_kernel("/share/jupyter/kernels/xcpp20/")
-    configure_wasm_kernel("/share/jupyter/kernels/xcpp23/")
-else()
-    configure_native_kernel("/share/jupyter/kernels/xcpp17/")
-    configure_native_kernel("/share/jupyter/kernels/xcpp20/")
-    configure_native_kernel("/share/jupyter/kernels/xcpp23/")
-endif()
+configure_kernel("/share/jupyter/kernels/xcpp17/")
+configure_kernel("/share/jupyter/kernels/xcpp20/")
+configure_kernel("/share/jupyter/kernels/xcpp23/")
 
 # Source files
 # ============
