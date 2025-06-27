@@ -12,10 +12,18 @@ Introduction
 ------------
 
 ``xeus-cpp`` is a Jupyter kernel for cpp based on the native implementation of
-the Jupyter protocol xeus_. Try a Jupyter Lite demo of xeus-cpp by clicking
+the Jupyter protocol xeus_. To try a Jupyter Lite demo based on the main branch
 
 .. image:: https://jupyterlite.rtfd.io/en/latest/_static/badge.svg
    :target: https://compiler-research.github.io/xeus-cpp/lab/index.html
+   :alt: lite-badge
+
+To try a Jupyter Lite demo based on the latest release of xeus-cpp, which shows 
+more of its capabilitities, including working with third party libraries,
+click on the following
+
+.. image:: https://jupyterlite.rtfd.io/en/latest/_static/badge.svg
+   :target: https://compiler-research.org/xeus-cpp-wasm/lab/index.html
    :alt: lite-badge
 
 Licensing
