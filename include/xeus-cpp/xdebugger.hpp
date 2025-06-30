@@ -53,8 +53,12 @@ namespace xcpp
         nl::json dump_cell_request(const nl::json& message);
         nl::json rich_inspect_variables_request(const nl::json& message);
         nl::json copy_to_globals_request(const nl::json& message);
+        nl::json source_request(const nl::json& message);
 
-        nl::json variables_request_impl(const nl::json& message) override;
+        bool get_variable_info_from_lldb(const std::string& var_name, int frame_id, nl::json& data, nl::json& metadata, int sequence);
+        void get_container_info(const std::string& var_name, int frame_id, 
+                                 const std::string& var_type, nl::json& data, nl::json& metadata, int sequence, int size);
+        bool is_container_type(const std::string& type) const;
 
         bool start_lldb();
         bool start() override;

@@ -25,6 +25,7 @@
 #include <xeus/xkernel_configuration.hpp>
 #include "xeus-zmq/xzmq_context.hpp"
 #include <xeus-zmq/xserver_zmq.hpp>
+#include "xeus-zmq/xserver_zmq_split.hpp"
 #include "xeus-cpp/xeus_cpp_config.hpp"
 #include "xeus-cpp/xinterpreter.hpp"
 #include "xeus-cpp/xutils.hpp"
@@ -80,7 +81,7 @@ int main(int argc, char* argv[])
             xeus::get_user_name(),
             std::move(context),
             std::move(interpreter),
-            xeus::make_xserver_default,
+            xeus::make_xserver_control_main,
             xeus::make_in_memory_history_manager(),
             xeus::make_console_logger(
                 xeus::xlogger::msg_type,
@@ -103,7 +104,7 @@ int main(int argc, char* argv[])
             xeus::get_user_name(),
             std::move(context),
             std::move(interpreter),
-            xeus::make_xserver_default,
+            xeus::make_xserver_control_main,
             xeus::make_in_memory_history_manager(),
             xeus::make_console_logger(
                 xeus::xlogger::msg_type,

@@ -178,6 +178,7 @@ __get_cxx_version ()
         std::string err;
 
         m_code_to_execution_count_map[code].push_back(execution_count);
+        m_execution_count_to_code_map[execution_count] = code;
 
         // Attempt normal evaluation
         try

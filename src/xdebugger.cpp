@@ -69,6 +69,7 @@ namespace xcpp
         register_request_handler("dumpCell", std::bind(&debugger::dump_cell_request, this, _1), true);
         register_request_handler("copyToGlobals", std::bind(&debugger::copy_to_globals_request, this, _1), true);
         register_request_handler("stackTrace", std::bind(&debugger::stack_trace_request, this, _1), true);
+        register_request_handler("source", std::bind(&debugger::source_request, this, _1), true);
 
         m_interpreter = reinterpret_cast<xcpp::interpreter*>(
             debugger_config["interpreter_ptr"].get<std::uintptr_t>()
@@ -166,13 +167,13 @@ namespace xcpp
 
     bool debugger::start()
     {
-        static bool lldb_started = start_lldb();
+        bool lldb_started = start_lldb();
         if (!lldb_started)
         {
             std::cerr << "Failed to start LLDB-DAP" << std::endl;
             return false;
         }
-
+    
         std::string controller_end_point = xeus::get_controller_end_point("debugger");
         std::string controller_header_end_point = xeus::get_controller_end_point("debugger_header");
         std::string publisher_end_point = xeus::get_publisher_end_point();
@@ -259,20 +260,6 @@ namespace xcpp
         return breakpoint_reply;
     }
 
-    // nl::json debugger::stack_trace_request(const nl::json& message)
-    // {
-    //     log_debug("Stack trace request received:\n" + message.dump(4));
-    //     nl::json reply = {
-    //         {"type", "response"},
-    //         {"request_seq", message["seq"]},
-    //         {"success", false},
-    //         {"command", message["command"]},
-    //         {"message", "stackTrace not implemented"},
-    //         {"body", {{"stackFrames", {}}}}
-    //     };
-    //     return reply;
-    // }
-
     nl::json debugger::copy_to_globals_request(const nl::json& message)
     {
         // This request cannot be processed if the version of debugpy is lower than 1.6.5.
@@ -313,117 +300,276 @@ namespace xcpp
     nl::json debugger::configuration_done_request(const nl::json& message)
     {
         log_debug("[debugger::configuration_done_request] Configuration done request received:\n" + message.dump(4));
+        if(!base_type::get_stopped_threads().empty()) {
+            // Return a dummy reply as per user request.
+            nl::json reply = {
+                {"type", "response"},
+                {"request_seq", message["seq"]},
+                {"success", true},
+                {"command", message["command"]},
+                {"body", {{"info", "Dummy reply: continue request not sent as requested."}}}
+            };
+            log_debug("[debugger::configuration_done_request] Returning dummy reply instead of sending continue request.");
+            return reply;
+        }
         nl::json reply = forward_message(message);
         log_debug("[debugger::configuration_done_request] Configuration done reply sent:\n" + reply.dump(4));
-        // send continue reauest on thread that is stopped
-        auto stopped_threads = base_type::get_stopped_threads();
-        nl::json continue_request = {
-            {"type", "request"},
-            {"command", "continue"},
-            {"seq", message["seq"].get<int>() + 2},
-            {"arguments", {{"threadId", *stopped_threads.begin()}}}
-        };
-        log_debug("[debugger::configuration_done_request] Sending continue request:\n" + continue_request.dump(4));
-        // // wait for 3 seconds before sending continue request
-        // std::this_thread::sleep_for(std::chrono::seconds(3));
-        nl::json continue_reply = forward_message(continue_request);
-        log_debug("[debugger::configuration_done_request] Continue reply received:\n" + continue_reply.dump(4));
         return reply;
     }
 
-    nl::json debugger::variables_request_impl(const nl::json& message)
+    void debugger::get_container_info(const std::string& var_name, int frame_id, 
+                             const std::string& var_type, nl::json& data, nl::json& metadata, int sequence, int size)
     {
-        log_debug("[debugger::variables_request_impl] Variables request received:\n" + message.dump(4));
-        nl::json reply = forward_message(message);
-        return reply;
+        // Create a tree structure for the container
+        nl::json container_tree = {
+            {"type", "container"},
+            {"name", var_name},
+            {"containerType", var_type},
+            {"size", size},
+            {"children", nl::json::array()},
+            {"expanded", false}
+        };
+        
+        // Add elements as children
+        for (int i = 0; i < size; ++i) {
+            nl::json elem_request = {
+                {"type", "request"},
+                {"command", "evaluate"},
+                {"seq", sequence++},
+                {"arguments", {
+                    {"expression", var_name + "[" + std::to_string(i) + "]"},
+                    {"frameId", frame_id},
+                    {"context", "watch"}
+                }}
+            };
+            
+            nl::json elem_reply = forward_message(elem_request);
+            if (elem_reply["success"].get<bool>()) {
+                std::string elem_value = elem_reply["body"]["result"].get<std::string>();
+                std::string elem_type = elem_reply["body"].contains("type") ? 
+                                elem_reply["body"]["type"].get<std::string>() : "unknown";
+                
+                nl::json child_node = {
+                    {"type", "element"},
+                    {"name", "[" + std::to_string(i) + "]"},
+                    {"value", elem_value},
+                    {"valueType", elem_type},
+                    {"index", i},
+                    {"leaf", true}
+                };
+                
+                // Check if element is also a container
+                if (is_container_type(elem_type)) {
+                    child_node["leaf"] = false;
+                    child_node["hasChildren"] = true;
+                    // Size extraction for nested containers
+                    int nested_size = 0;
+                    std::smatch match;
+                    std::regex size_regex(R"(size\s*=\s*(\d+))");
+                    if (std::regex_search(elem_value, match, size_regex) && match.size() > 1) {
+                        nested_size = std::stoi(match[1]);
+                    }
+                    child_node["size"] = nested_size;
+                }
+                
+                container_tree["children"].push_back(child_node);
+            }
+        }
+        
+        // Store the tree structure in JSON format
+        data["application/json"] = container_tree;
+    }
+
+    bool debugger::is_container_type(const std::string& type) const
+    {
+        return type.find("std::vector") != std::string::npos ||
+            type.find("std::array") != std::string::npos ||
+            type.find("std::list") != std::string::npos ||
+            type.find("std::deque") != std::string::npos ||
+            type.find("std::map") != std::string::npos ||
+            type.find("std::set") != std::string::npos ||
+            type.find("std::unordered_map") != std::string::npos ||
+            type.find("std::unordered_set") != std::string::npos;
+    }
+
+    bool debugger::get_variable_info_from_lldb(const std::string& var_name, int frame_id, nl::json& data, nl::json& metadata, int sequence) {
+        try {
+            nl::json eval_request = {
+                {"type", "request"},
+                {"command", "evaluate"},
+                {"seq", sequence},
+                {"arguments", {
+                    {"expression", var_name},
+                    {"frameId", frame_id},
+                    {"context", "watch"}
+                }}
+            };
+
+            nl::json eval_reply = forward_message(eval_request);
+            if (!eval_reply["success"].get<bool>()) {
+                return false;
+            }
+            
+            std::string var_value = eval_reply["body"]["result"].get<std::string>();
+            std::string var_type = eval_reply["body"].contains("type") ? 
+                            eval_reply["body"]["type"].get<std::string>() : "unknown";
+            
+            // Create a unified JSON structure for all variable types
+            nl::json variable_info = {
+                {"type", "variable"},
+                {"name", var_name},
+                {"value", var_value},
+                {"valueType", var_type},
+                {"frameId", frame_id},
+                {"timestamp", std::time(nullptr)}
+            };
+
+            if(is_container_type(var_type)) {
+                // Extract size from var_value, e.g., "size=2"
+                int size = 0;
+                std::smatch match;
+                std::regex size_regex(R"(size\s*=\s*(\d+))");
+                if (std::regex_search(var_value, match, size_regex) && match.size() > 1) {
+                    size = std::stoi(match[1]);
+                }
+                
+                variable_info["isContainer"] = true;
+                variable_info["size"] = size;
+                variable_info["leaf"] = false;
+                variable_info["hasChildren"] = size > 0;
+                
+                // Get detailed container info
+                get_container_info(var_name, frame_id, var_type, data, metadata, sequence + 1, size);
+                
+                // Add container summary to the main variable info
+                if (data["application/json"].contains("children")) {
+                    variable_info["children"] = data["application/json"]["children"];
+                    variable_info["expanded"] = false;
+                }
+            } else {
+                variable_info["isContainer"] = false;
+                variable_info["leaf"] = true;
+                variable_info["hasChildren"] = false;
+            }
+
+            // Store everything in application/json format
+            data["application/json"] = variable_info;
+
+            // Metadata for the frontend renderer
+            metadata["application/json"] = {
+                {"version", "1.0"},
+                {"renderer", "variable-inspector"},
+                {"expandable", variable_info["hasChildren"]},
+                {"rootVariable", var_name},
+                {"capabilities", {
+                    {"tree", true},
+                    {"search", true},
+                    {"filter", true},
+                    {"export", true}
+                }}
+            };
+
+            return true;
+        } catch (const std::exception& e) {
+            log_debug("[get_variable_info_from_lldb] Exception: " + std::string(e.what()));
+            return false;
+        }
     }
 
     nl::json debugger::rich_inspect_variables_request(const nl::json& message)
     {
         log_debug("[debugger::rich_inspect_variables_request] Rich inspect variables request received:\n" + message.dump(4));
-        return {};
-        // nl::json reply = {
-        //     {"type", "response"},
-        //     {"request_seq", message["seq"]},
-        //     {"success", false},
-        //     {"command", message["command"]}
-        // };
+        nl::json reply = {
+            {"type", "response"},
+            {"request_seq", message["seq"]},
+            {"success", false},
+            {"command", message["command"]}
+        };
 
-        // std::string var_name = message["arguments"]["variableName"].get<std::string>();
-        // py::str py_var_name = py::str(var_name);
-        // bool valid_name = PyUnicode_IsIdentifier(py_var_name.ptr()) == 1;
-        // if (!valid_name)
-        // {
-        //     reply["body"] = {
-        //         {"data", {}},
-        //         {"metadata", {}}
-        //     };
-        //     if (var_name == "special variables" || var_name == "function variables")
-        //     {
-        //         reply["success"] = true;
-        //     }
-        //     return reply;
-        // }
+        std::string var_name;
+        try {
+            var_name = message["arguments"]["variableName"].get<std::string>();
+        } catch (const nl::json::exception& e) {
+            reply["body"] = {
+                {"data", {
+                    {"application/json", {
+                        {"type", "error"},
+                        {"message", "Invalid variable name in request"},
+                        {"details", std::string(e.what())}
+                    }}
+                }},
+                {"metadata", {
+                    {"application/json", {
+                        {"error", true},
+                        {"errorType", "invalid_request"}
+                    }}
+                }}
+            };
+            return reply;
+        }
 
-        // std::string var_repr_data = var_name + "_repr_data";
-        // std::string var_repr_metadata = var_name + "_repr_metada";
+        int frame_id = 0;
+        if(message["arguments"].contains("frameId")) {
+            frame_id = message["arguments"]["frameId"].get<int>();
+        }
 
-        // if (base_type::get_stopped_threads().empty())
-        // {
-        //     // The code did not hit a breakpoint, we use the interpreter
-        //     // to get the rich representation of the variable
-        //     std::string code = "from IPython import get_ipython;";
-        //     code += var_repr_data + ',' + var_repr_metadata + "= get_ipython().display_formatter.format(" + var_name + ")";
-        //     py::gil_scoped_acquire acquire;
-        //     exec(py::str(code));
-        // }
-        // else
-        // {
-        //     // The code has stopped on a breakpoint, we use the setExpression request
-        //     // to get the rich representation of the variable
-        //     std::string code = "get_ipython().display_formatter.format(" + var_name + ")";
-        //     int frame_id = message["arguments"]["frameId"].get<int>();
-        //     int seq = message["seq"].get<int>();
-        //     nl::json request = {
-        //         {"type", "request"},
-        //         {"command", "evaluate"},
-        //         {"seq", seq+1},
-        //         {"arguments", {
-        //             {"expression", code},
-        //             {"frameId", frame_id},
-        //             {"context", "clipboard"}
-        //         }}
-        //     };
-        //     nl::json request_reply = forward_message(request);
-        //     std::string result = request_reply["body"]["result"];
+        nl::json var_data, var_metadata;
+        bool success = false;
 
-        //     py::gil_scoped_acquire acquire;
-        //     std::string exec_code = var_repr_data + ',' + var_repr_metadata + "= eval(str(" + result + "))";
-        //     exec(py::str(exec_code));
-        // }
+        auto stopped_threads = base_type::get_stopped_threads();
+        if(!stopped_threads.empty()) {
+            success = get_variable_info_from_lldb(var_name, frame_id, var_data, var_metadata, message["seq"].get<int>() + 1);
+        } else {
+            // When there is no breakpoint hit, return a placeholder structure
+            var_data["application/json"] = {
+                {"type", "unavailable"},
+                {"name", var_name},
+                {"message", "Variable not accessible - no active debugging session"},
+                {"suggestions", {
+                    "Set a breakpoint and run the program",
+                    "Ensure the variable is in scope",
+                    "Check if the program is currently stopped"
+                }}
+            };
+            var_metadata["application/json"] = {
+                {"available", false},
+                {"reason", "no_stopped_threads"}
+            };
+            success = true;
+        }
 
-        // py::gil_scoped_acquire acquire;
-        // py::object variables = py::globals();
-        // py::object repr_data = variables[py::str(var_repr_data)];
-        // py::object repr_metadata = variables[py::str(var_repr_metadata)];
-        // nl::json body = {
-        //     {"data", {}},
-        //     {"metadata", {}}
-        // };
-        // for (const py::handle& key : repr_data)
-        // {
-        //     std::string data_key = py::str(key);
-        //     body["data"][data_key] = repr_data[key];
-        //     if (repr_metadata.contains(key))
-        //     {
-        //         body["metadata"][data_key] = repr_metadata[key];
-        //     }
-        // }
-        // PyDict_DelItem(variables.ptr(), py::str(var_repr_data).ptr());
-        // PyDict_DelItem(variables.ptr(), py::str(var_repr_metadata).ptr());
-        // reply["body"] = body;
-        // reply["success"] = true;
-        // return reply;
+        if(success) {
+            reply["body"] = {
+                {"data", var_data},
+                {"metadata", var_metadata}
+            };
+            reply["success"] = true;
+        } else {
+            reply["body"] = {
+                {"data", {
+                    {"application/json", {
+                        {"type", "error"},
+                        {"name", var_name},
+                        {"message", "Variable '" + var_name + "' not found or not accessible"},
+                        {"frameId", frame_id},
+                        {"suggestions", {
+                            "Check variable name spelling",
+                            "Ensure variable is in current scope",
+                            "Verify the frame ID is correct"
+                        }}
+                    }}
+                }},
+                {"metadata", {
+                    {"application/json", {
+                        {"error", true},
+                        {"errorType", "variable_not_found"}
+                    }}
+                }}
+            };
+        }
+
+        log_debug("[debugger::rich_inspect_variables_request] Reply:\n" + reply.dump(4));
+        return reply;
     }
 
     nl::json debugger::stack_trace_request(const nl::json& message)
@@ -431,15 +577,15 @@ namespace xcpp
         int requested_thread_id = message["arguments"]["threadId"];
 
         auto stopped_threads = base_type::get_stopped_threads();
-        
+
         if (stopped_threads.empty()) {
             nl::json reply = forward_message(message);
             return reply;
         }
-        
+
         int actual_thread_id;
         nl::json modified_message = message;
-        
+
         if (requested_thread_id == 1 && !stopped_threads.empty()) {
             actual_thread_id = *stopped_threads.begin();
             modified_message["arguments"]["threadId"] = actual_thread_id;
@@ -451,11 +597,11 @@ namespace xcpp
         else {
             actual_thread_id = *stopped_threads.begin();
             modified_message["arguments"]["threadId"] = actual_thread_id;
-            std::clog << "XDEBUGGER: Thread " << requested_thread_id 
-                    << " not found in stopped threads, using " << actual_thread_id << std::endl;
+            std::clog << "XDEBUGGER: Thread " << requested_thread_id
+                      << " not found in stopped threads, using " << actual_thread_id << std::endl;
         }
 
-        for(auto x : stopped_threads)
+        for (auto x : stopped_threads)
         {
             log_debug("Stopped thread ID: " + std::to_string(x));
         }
@@ -463,22 +609,67 @@ namespace xcpp
         log_debug("[debugger::stack_trace_request]:\n" + modified_message.dump(4));
 
         nl::json reply = forward_message(modified_message);
-        
+
         if (!reply.contains("body") || !reply["body"].contains("stackFrames")) {
             return reply;
         }
-        
+
         auto& stack_frames = reply["body"]["stackFrames"];
-        for (auto it = stack_frames.begin(); it != stack_frames.end(); ++it) {
-            if (it->contains("source") && (*it)["source"].contains("path") && 
-                (*it)["source"]["path"] == "<string>") {
-                stack_frames.erase(it);
-                break;
+        nl::json filtered_frames = nl::json::array();
+
+        for (auto& frame : stack_frames)
+        {
+            if (frame.contains("source") && frame["source"].contains("path"))
+            {
+                std::string path = frame["source"]["path"];
+                std::string name = frame["source"]["name"];
+                // Check if path is in the format input_line_<number>
+                if (name.find("input_line_") != std::string::npos)
+                {
+                    // Map sequential filename to hash if mapping exists
+                    auto it = m_sequential_to_hash.find(name);
+                    if (it != m_sequential_to_hash.end())
+                    {
+                        frame["source"]["path"] = it->second;
+                        // Set name to last part of path (filename)
+                        std::string filename = it->second.substr(it->second.find_last_of("/\\") + 1);
+                        frame["source"]["name"] = filename;
+                    } else {
+                        std::string code, hash_file_name;
+                        // Extract execution count number from "input_line_<number>"
+                        int exec_count = -1;
+                        std::string prefix = "input_line_";
+                        if (name.compare(0, prefix.size(), prefix) == 0)
+                        {
+                            try
+                            {
+                                exec_count = std::stoi(name.substr(prefix.size()));
+                            }
+                            catch (...)
+                            {
+                                exec_count = 0;
+                            }
+                        }
+                        
+                        if (exec_count != -1) {
+                            code = m_interpreter->get_code_from_execution_count(exec_count);
+                            hash_file_name = get_cell_temporary_file(code);
+                            frame["source"]["path"] = hash_file_name;
+                            frame["source"]["name"] = hash_file_name.substr(hash_file_name.find_last_of("/\\") + 1);
+                            // Update mappings if not already present
+                            m_hash_to_sequential[hash_file_name].push_back(name);
+                            m_sequential_to_hash[name] = hash_file_name;
+                        }
+                    }
+                    filtered_frames.push_back(frame);
+                }
             }
         }
-        
+
+        reply["body"]["stackFrames"] = filtered_frames;
+
     #ifdef WIN32
-        for (auto& frame : stack_frames) {
+        for (auto& frame : reply["body"]["stackFrames"]) {
             if (frame.contains("source") && frame["source"].contains("path")) {
                 std::string path = frame["source"]["path"];
                 std::replace(path.begin(), path.end(), '\\', '/');
@@ -486,7 +677,9 @@ namespace xcpp
             }
         }
     #endif
-        
+
+        log_debug("Stack trace response: " + reply.dump(4));
+
         return reply;
     }
 
@@ -552,6 +745,51 @@ namespace xcpp
             {"command", message["command"]},
             {"body", {{"sourcePath", hash_file_name}}}
         };
+        return reply;
+    }
+
+    nl::json debugger::source_request(const nl::json& message)
+    {
+        std::string sourcePath;
+        try
+        {
+            sourcePath = message["arguments"]["source"]["path"].get<std::string>();
+        }
+        catch(nl::json::type_error& e)
+        {
+            std::clog << e.what() << std::endl;
+        }
+        catch(...)
+        {
+            std::clog << "XDEBUGGER: Unknown issue" << std::endl;
+        }
+
+        std::ifstream ifs(sourcePath, std::ios::in);
+        if(!ifs.is_open())
+        {
+            nl::json reply = {
+                {"type", "response"},
+                {"request_seq", message["seq"]},
+                {"success", false},
+                {"command", message["command"]},
+                {"message", "source unavailable"},
+                {"body", {{}}}
+            };
+            return reply;
+        }
+
+        std::string content((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+
+        nl::json reply = {
+            {"type", "response"},
+            {"request_seq", message["seq"]},
+            {"success", true},
+            {"command", message["command"]},
+            {"body", {
+                {"content", content}
+            }}
+        };
+        log_debug("[debugger::source_request reply]:\n" + reply.dump(4));
         return reply;
     }
 
