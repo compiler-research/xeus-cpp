@@ -126,13 +126,13 @@ To do this on Ubuntu x86 execute the following
     echo "Running test_xeus_cpp in Google Chrome"
     python $BUILD_PREFIX/bin/emrun.py --browser="google-chrome" --kill_exit --timeout 60 --browser-args="--headless --no-sandbox"  test_xeus_cpp.html
 
-To build Jupyter Lite with this kernel without creating a website you can execute the following
+To build and test Jupyter Lite with this kernel locally you can execute the following
 
 .. code-block:: bash
 
     micromamba create -n xeus-lite-host jupyterlite-core=0.6 jupyter_server jupyterlite-xeus -c conda-forge
     micromamba activate xeus-lite-host
-    jupyter lite build --XeusAddon.prefix=$PREFIX
+    jupyter lite serve --XeusAddon.prefix=$PREFIX
                        --XeusAddon.mounts="$PREFIX/share/xeus-cpp/tagfiles:/share/xeus-cpp/tagfiles" \
                        --XeusAddon.mounts="$PREFIX/etc/xeus-cpp/tags.d:/etc/xeus-cpp/tags.d" \
                        --contents README.md \
@@ -140,12 +140,6 @@ To build Jupyter Lite with this kernel without creating a website you can execut
                        --contents notebooks/smallpt.ipynb \
                        --contents notebooks/images/marie.png \
                        --contents notebooks/audio/audio.wav
-
-Once the Jupyter Lite site has built you can test the website locally by executing
-
-.. code-block:: bash
-
-    jupyter lite serve --XeusAddon.prefix=$PREFIX
 
 Installing from conda-forge
 ===========================
