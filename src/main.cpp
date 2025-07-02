@@ -19,16 +19,19 @@
 #include <unistd.h>
 #endif
 
-#include "xeus/xhelper.hpp"
+#include "nlohmann/json.hpp"
+#include <xeus/xhelper.hpp>
 #include <xeus/xkernel.hpp>
 #include <xeus/xkernel_configuration.hpp>
-
 #include "xeus-zmq/xzmq_context.hpp"
 #include <xeus-zmq/xserver_zmq.hpp>
-
+#include "xeus-zmq/xserver_zmq_split.hpp"
 #include "xeus-cpp/xeus_cpp_config.hpp"
 #include "xeus-cpp/xinterpreter.hpp"
 #include "xeus-cpp/xutils.hpp"
+#include "xeus-cpp/xdebugger.hpp"
+
+namespace nl = nlohmann;
 
 int main(int argc, char* argv[])
 {
@@ -62,6 +65,12 @@ int main(int argc, char* argv[])
     auto interpreter = std::make_unique<xcpp::interpreter>(argc, argv);
     std::unique_ptr<xeus::xcontext> context = xeus::make_zmq_context();
 
+    nl::json debugger_config;
+    debugger_config["lldb"]["initCommands"] = {
+        "settings set plugin.jit-loader.gdb.enable on"
+    };
+    debugger_config["interpreter_ptr"] = reinterpret_cast<std::uintptr_t>(interpreter.get());
+
     if (!file_name.empty())
     {
         xeus::xconfiguration config = xeus::load_configuration(file_name);
@@ -72,18 +81,19 @@ int main(int argc, char* argv[])
             xeus::get_user_name(),
             std::move(context),
             std::move(interpreter),
-            xeus::make_xserver_default,
+            xeus::make_xserver_control_main,
             xeus::make_in_memory_history_manager(),
             xeus::make_console_logger(
                 xeus::xlogger::msg_type,
                 xeus::make_file_logger(xeus::xlogger::content, "xeus.log")
-            )
+            ),
+            xcpp::make_cpp_debugger,
+            debugger_config
         );
 
         std::clog << "Starting xcpp kernel...\n\n"
                      "If you want to connect to this kernel from an other client, you can use"
-                     " the "
-                         + file_name + " file."
+                     " the " + file_name + " file."
                   << std::endl;
 
         kernel.start();
@@ -94,12 +104,14 @@ int main(int argc, char* argv[])
             xeus::get_user_name(),
             std::move(context),
             std::move(interpreter),
-            xeus::make_xserver_default,
+            xeus::make_xserver_control_main,
             xeus::make_in_memory_history_manager(),
             xeus::make_console_logger(
                 xeus::xlogger::msg_type,
                 xeus::make_file_logger(xeus::xlogger::content, "xeus.log")
-            )
+            ),
+            xcpp::make_cpp_debugger,
+            debugger_config
         );
 
         std::cout << "Getting config" << std::endl;
@@ -109,34 +121,17 @@ int main(int argc, char* argv[])
                      " and paste the following content inside of a `kernel.json` file. And then run for example:\n\n"
                      "# jupyter console --existing kernel.json\n\n"
                      "kernel.json\n```\n{\n"
-                     "    \"transport\": \""
-                         + config.m_transport
-                         + "\",\n"
-                           "    \"ip\": \""
-                         + config.m_ip
-                         + "\",\n"
-                           "    \"control_port\": "
-                         + config.m_control_port
-                         + ",\n"
-                           "    \"shell_port\": "
-                         + config.m_shell_port
-                         + ",\n"
-                           "    \"stdin_port\": "
-                         + config.m_stdin_port
-                         + ",\n"
-                           "    \"iopub_port\": "
-                         + config.m_iopub_port
-                         + ",\n"
-                           "    \"hb_port\": "
-                         + config.m_hb_port
-                         + ",\n"
-                           "    \"signature_scheme\": \""
-                         + config.m_signature_scheme
-                         + "\",\n"
-                           "    \"key\": \""
-                         + config.m_key
-                         + "\"\n"
-                           "}\n```\n";
+                     "    \"transport\": \"" + config.m_transport + "\",\n"
+                     "    \"ip\": \"" + config.m_ip + "\",\n"
+                     "    \"control_port\": " + config.m_control_port + ",\n"
+                     "    \"shell_port\": " + config.m_shell_port + ",\n"
+                     "    \"stdin_port\": " + config.m_stdin_port + ",\n"
+                     "    \"iopub_port\": " + config.m_iopub_port + ",\n"
+                     "    \"hb_port\": " + config.m_hb_port + ",\n"
+                     "    \"signature_scheme\": \"" + config.m_signature_scheme + "\",\n"
+                     "    \"key\": \"" + config.m_key + "\"\n"
+                     "}\n```"
+                  << std::endl;
 
         kernel.start();
     }

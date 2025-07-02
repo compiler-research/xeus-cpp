@@ -19,6 +19,8 @@
 #include "xinspect.hpp"
 #include "xmagics/os.hpp"
 #include <iostream>
+#include <fcntl.h>
+#include <unistd.h>
 #ifndef EMSCRIPTEN
 #include "xmagics/xassist.hpp"
 #endif
@@ -27,34 +29,106 @@
 
 using Args = std::vector<const char*>;
 
-void* createInterpreter(const Args &ExtraArgs = {}) {
-  Args ClangArgs = {/*"-xc++"*/"-v"};
-  if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
-    return s == "-resource-dir";}) == ExtraArgs.end()) {
-    std::string resource_dir = Cpp::DetectResourceDir();
-    if (!resource_dir.empty()) {
-        ClangArgs.push_back("-resource-dir");
-        ClangArgs.push_back(resource_dir.c_str());
-    } else {
-        std::cerr << "Failed to detect the resource-dir\n";
+static int g_stdin_pipe[2] = {-1, -1};
+static int g_stdout_pipe[2] = {-1, -1};
+static int g_stderr_pipe[2] = {-1, -1};
+static bool g_pipes_initialized = false;
+
+// Initialize global pipes once
+void init_global_pipes() {
+    if (!g_pipes_initialized) {
+        if (pipe(g_stdin_pipe) == 0 && pipe(g_stdout_pipe) == 0 && pipe(g_stderr_pipe) == 0) {
+            g_pipes_initialized = true;
+        } else {
+            throw std::runtime_error("Failed to create global pipes");
+        }
     }
-  }
-  std::vector<std::string> CxxSystemIncludes;
-  Cpp::DetectSystemCompilerIncludePaths(CxxSystemIncludes);
-  for (const std::string& CxxInclude : CxxSystemIncludes) {
-    ClangArgs.push_back("-isystem");
-    ClangArgs.push_back(CxxInclude.c_str());
-  }
-  ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
-  // FIXME: We should process the kernel input options and conditionally pass
-  // the gpu args here.
-  return Cpp::CreateInterpreter(ClangArgs/*, {"-cuda"}*/);
+}
+
+void* createInterpreter(const Args& ExtraArgs = {})
+{
+    Args ClangArgs = {/*"-xc++"*/"-v"};
+    if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
+        return s == "-resource-dir";}) == ExtraArgs.end()) {
+        std::string resource_dir = Cpp::DetectResourceDir();
+        if (!resource_dir.empty()) {
+            ClangArgs.push_back("-resource-dir");
+            ClangArgs.push_back(resource_dir.c_str());
+        } else {
+            std::cerr << "Failed to detect the resource-dir\n";
+        }
+    }
+    std::vector<std::string> CxxSystemIncludes;
+    Cpp::DetectSystemCompilerIncludePaths(CxxSystemIncludes);
+    for (const std::string& CxxInclude : CxxSystemIncludes) {
+        ClangArgs.push_back("-isystem");
+        ClangArgs.push_back(CxxInclude.c_str());
+    }
+    ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
+
+    // FIXME: We should process the kernel input options and conditionally pass
+    // the gpu args here.
+    if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
+        return s == "-g";}) == ExtraArgs.end()) {
+        // If no debugger option, then use the non-OOP JIT execution.
+        return Cpp::CreateInterpreter(ClangArgs /*, {"-cuda"}*/);
+    }
+
+    init_global_pipes();
+
+    return Cpp::CreateInterpreter(ClangArgs, {}, true, g_stdin_pipe[0], g_stdout_pipe[1], g_stderr_pipe[1]);
 }
 
 using namespace std::placeholders;
 
 namespace xcpp
 {
+    class GlobalPipeRedirectRAII {
+    private:
+        std::string captured_stderr;
+        
+        std::string read_all_from_fd(int fd) {
+            std::string result;
+            char buffer[4096];
+            ssize_t bytes_read;
+            
+            // Set non-blocking to avoid hanging
+            int flags = fcntl(fd, F_GETFL, 0);
+            fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+            
+            while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0) {
+                result.append(buffer, bytes_read);
+            }
+            
+            // Restore original flags
+            fcntl(fd, F_SETFL, flags);
+            return result;
+        }
+
+        void write_to_fd(int fd, const std::string& data) {
+            write(fd, data.c_str(), data.length());
+        }
+        
+    public:
+        GlobalPipeRedirectRAII(const std::string& input_data = "") {
+            if (!input_data.empty() && g_stdin_pipe[1] != -1) {
+                write_to_fd(g_stdin_pipe[1], input_data);
+                close(g_stdin_pipe[1]); // Close write end to signal EOF
+            }
+        }
+        ~GlobalPipeRedirectRAII() {
+            // Read any pending output from pipes
+            std::string stdout_content = read_all_from_fd(g_stdout_pipe[0]);
+            captured_stderr = read_all_from_fd(g_stderr_pipe[0]);
+            
+            // Output captured stdout content
+            if (!stdout_content.empty()) {
+                std::cout << stdout_content;
+            }
+        }
+        
+        const std::string& get_captured_stderr() const { return captured_stderr; }
+    };
     struct StreamRedirectRAII {
       std::string &err;
       StreamRedirectRAII(std::string &e) : err(e) {
@@ -71,6 +145,11 @@ namespace xcpp
     void interpreter::configure_impl()
     {
         xeus::register_interpreter(this);
+    }
+
+    pid_t interpreter::get_current_pid()
+    {
+        return Cpp::GetExecutorPID();
     }
 
     static std::string get_stdopt()
@@ -100,16 +179,16 @@ __get_cxx_version ()
         return std::to_string(cxx_version);
     }
 
-    interpreter::interpreter(int argc, const char* const* argv) :
+    interpreter::interpreter(int argc, const char* const* argv):
         xmagics()
         , p_cout_strbuf(nullptr)
         , p_cerr_strbuf(nullptr)
         , m_cout_buffer(std::bind(&interpreter::publish_stdout, this, _1))
         , m_cerr_buffer(std::bind(&interpreter::publish_stderr, this, _1))
     {
-        //NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        // NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-pointer-arithmetic)
         createInterpreter(Args(argv ? argv + 1 : argv, argv + argc));
-        m_version = get_stdopt();
+        // m_version = get_stdopt();
         redirect_output();
         init_preamble();
         init_magic();
@@ -122,7 +201,7 @@ __get_cxx_version ()
 
     void interpreter::execute_request_impl(
         send_reply_callback cb,
-        int /*execution_count*/,
+        int execution_count,
         const std::string& code,
         xeus::execute_request_config config,
         nl::json /*user_expressions*/
@@ -164,11 +243,23 @@ __get_cxx_version ()
 
         std::string err;
 
+        m_code_to_execution_count_map[code].push_back(execution_count);
+        m_execution_count_to_code_map[execution_count] = code;
+
+        bool use_out_of_process = g_pipes_initialized;
+
         // Attempt normal evaluation
         try
         {
-            StreamRedirectRAII R(err);
-            compilation_result = Cpp::Process(code.c_str());
+            if (use_out_of_process) {
+                std::string input_for_process = "";
+                GlobalPipeRedirectRAII redirect(input_for_process);
+                compilation_result = Cpp::Process(code.c_str());
+                err = redirect.get_captured_stderr();
+            } else {
+                StreamRedirectRAII R(err);
+                compilation_result = Cpp::Process(code.c_str());
+            }
         }
         catch (std::exception& e)
         {
@@ -213,7 +304,7 @@ __get_cxx_version ()
             if (evalue.size() < 4) {
                 ename = " ";
             }
-            std::vector<std::string> traceback({ename  + evalue});
+            std::vector<std::string> traceback({ename + evalue});
             if (!config.silent)
             {
                 publish_execution_error(ename, evalue, traceback);
@@ -277,13 +368,17 @@ __get_cxx_version ()
 
     nl::json interpreter::is_complete_request_impl(const std::string& code)
     {
-        if (!code.empty() && code[code.size() - 1] == '\\') {
+        if (!code.empty() && code[code.size() - 1] == '\\')
+        {
             auto found = code.rfind('\n');
             if (found == std::string::npos)
+            {
                 found = -1;
+            }
             auto found1 = found++;
-            while (isspace(code[++found1])) ;
-            return xeus::create_is_complete_reply("incomplete", code.substr(found, found1-found));
+            while (isspace(code[++found1]))
+                ;
+            return xeus::create_is_complete_reply("incomplete", code.substr(found, found1 - found));
         }
 
         return xeus::create_is_complete_reply("complete");
@@ -312,6 +407,7 @@ __get_cxx_version ()
                              "\n"
                              "  xeus-cpp: a C++ Jupyter kernel - based on Clang-repl\n";
         result["banner"] = banner;
+        result["debugger"] = true;
         result["language_info"]["name"] = "C++";
         result["language_info"]["version"] = m_version;
         result["language_info"]["mimetype"] = "text/x-c++src";
