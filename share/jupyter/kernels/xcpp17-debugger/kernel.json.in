@@ -10,6 +10,7 @@
       "{connection_file}",
       "-g",
       "-O0",
+      "--use-oop-jit",
       "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
       "-I", "@XEUS_CPP_INCLUDE_DIR@",
       "-std=c++17"

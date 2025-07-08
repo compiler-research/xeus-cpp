@@ -29,22 +29,6 @@
 
 using Args = std::vector<const char*>;
 
-static int g_stdin_pipe[2] = {-1, -1};
-static int g_stdout_pipe[2] = {-1, -1};
-static int g_stderr_pipe[2] = {-1, -1};
-static bool g_pipes_initialized = false;
-
-// Initialize global pipes once
-void init_global_pipes() {
-    if (!g_pipes_initialized) {
-        if (pipe(g_stdin_pipe) == 0 && pipe(g_stdout_pipe) == 0 && pipe(g_stderr_pipe) == 0) {
-            g_pipes_initialized = true;
-        } else {
-            throw std::runtime_error("Failed to create global pipes");
-        }
-    }
-}
-
 void* createInterpreter(const Args& ExtraArgs = {})
 {
     Args ClangArgs = {/*"-xc++"*/"-v"};
@@ -68,67 +52,13 @@ void* createInterpreter(const Args& ExtraArgs = {})
 
     // FIXME: We should process the kernel input options and conditionally pass
     // the gpu args here.
-    if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
-        return s == "-g";}) == ExtraArgs.end()) {
-        // If no debugger option, then use the non-OOP JIT execution.
-        return Cpp::CreateInterpreter(ClangArgs /*, {"-cuda"}*/);
-    }
-
-    init_global_pipes();
-
-    return Cpp::CreateInterpreter(ClangArgs, {}, true, g_stdin_pipe[0], g_stdout_pipe[1], g_stderr_pipe[1]);
+    return Cpp::CreateInterpreter(ClangArgs /*, {"-cuda"}*/);
 }
 
 using namespace std::placeholders;
 
 namespace xcpp
 {
-    class GlobalPipeRedirectRAII {
-    private:
-        std::string captured_stderr;
-        
-        std::string read_all_from_fd(int fd) {
-            std::string result;
-            char buffer[4096];
-            ssize_t bytes_read;
-            
-            // Set non-blocking to avoid hanging
-            int flags = fcntl(fd, F_GETFL, 0);
-            fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-            
-            while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0) {
-                result.append(buffer, bytes_read);
-            }
-            
-            // Restore original flags
-            fcntl(fd, F_SETFL, flags);
-            return result;
-        }
-
-        void write_to_fd(int fd, const std::string& data) {
-            write(fd, data.c_str(), data.length());
-        }
-        
-    public:
-        GlobalPipeRedirectRAII(const std::string& input_data = "") {
-            if (!input_data.empty() && g_stdin_pipe[1] != -1) {
-                write_to_fd(g_stdin_pipe[1], input_data);
-                close(g_stdin_pipe[1]); // Close write end to signal EOF
-            }
-        }
-        ~GlobalPipeRedirectRAII() {
-            // Read any pending output from pipes
-            std::string stdout_content = read_all_from_fd(g_stdout_pipe[0]);
-            captured_stderr = read_all_from_fd(g_stderr_pipe[0]);
-            
-            // Output captured stdout content
-            if (!stdout_content.empty()) {
-                std::cout << stdout_content;
-            }
-        }
-        
-        const std::string& get_captured_stderr() const { return captured_stderr; }
-    };
     struct StreamRedirectRAII {
       std::string &err;
       StreamRedirectRAII(std::string &e) : err(e) {
@@ -246,20 +176,12 @@ __get_cxx_version ()
         m_code_to_execution_count_map[code].push_back(execution_count);
         m_execution_count_to_code_map[execution_count] = code;
 
-        bool use_out_of_process = g_pipes_initialized;
-
         // Attempt normal evaluation
         try
         {
-            if (use_out_of_process) {
-                std::string input_for_process = "";
-                GlobalPipeRedirectRAII redirect(input_for_process);
-                compilation_result = Cpp::Process(code.c_str());
-                err = redirect.get_captured_stderr();
-            } else {
-                StreamRedirectRAII R(err);
-                compilation_result = Cpp::Process(code.c_str());
-            }
+
+            StreamRedirectRAII R(err);
+            compilation_result = Cpp::Process(code.c_str());
         }
         catch (std::exception& e)
         {
