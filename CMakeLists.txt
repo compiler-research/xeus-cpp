@@ -432,11 +432,8 @@ endif()
 
 if(EMSCRIPTEN)
     # Ensure required SDL2 ports (e.g. SDL2) are built before header preloading
-    if (CMAKE_C_COMPILER MATCHES ".bat")
-      set(embuilder_suffix .bat)
-    endif()
     execute_process(
-        COMMAND embuilder${embuilder_suffix} build sdl2
+        COMMAND embuilder${EMCC_SUFFIX} build sdl2
         RESULT_VARIABLE SDL2_RESULT
     )
     if(NOT SDL2_RESULT EQUAL 0)
