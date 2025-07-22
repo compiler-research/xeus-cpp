@@ -297,6 +297,11 @@ jobs:
             python ${{ env.BUILD_PREFIX }}/bin/emrun.py --browser="firefox" --kill_exit --timeout 60 --browser-args="--headless"  test_xeus_cpp.html
             echo "Running test_xeus_cpp in Google Chrome"
             python ${{ env.BUILD_PREFIX }}/bin/emrun.py --browser="Google Chrome" --kill_exit --timeout 60 --browser-args="--headless  --no-sandbox"  test_xeus_cpp.html
+            sudo safaridriver --enable
+            python -m pip install selenium
+            echo "Running test_xeus_cpp in Safari"
+            python ${{ env.BUILD_PREFIX }}/bin/emrun.py --no_browser --kill_exit --timeout 60 --browser-args="--headless --no-sandbox"  test_xeus_cpp.html &
+            python ../../scripts/browser_tests_safari.py test_xeus_cpp.html
           else
             # Install Google Chrome
             wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
