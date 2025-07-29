@@ -112,7 +112,7 @@ python package. This only needs to be enable once, and then you can execute the 
 .. code-block:: bash
 
     echo "Running test_xeus_cpp in Safari"
-    emrun --no_browser --kill_exit --timeout 60 --browser-args="--headless --no-sandbox"  test_xeus_cpp.html &
+    python $BUILD_PREFIX/bin/emrun.py --no_browser --kill_exit --timeout 60 --browser-args="--headless --no-sandbox"  test_xeus_cpp.html &
     python browser_tests_safari.py test_xeus_cpp.html
 
 To do this on Ubuntu x86 execute the following
