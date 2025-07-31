@@ -433,7 +433,7 @@ endif()
 if(EMSCRIPTEN)
     # Ensure required SDL2 ports (e.g. SDL2) are built before header preloading
     execute_process(
-        COMMAND embuilder build sdl2
+        COMMAND embuilder${EMCC_SUFFIX} build sdl2
         RESULT_VARIABLE SDL2_RESULT
     )
     if(NOT SDL2_RESULT EQUAL 0)
@@ -448,6 +448,8 @@ if(EMSCRIPTEN)
     xeus_wasm_link_options(xcpp "web,worker")
     string(REPLACE "@" "@@" ESCAPED_SYSROOT_PATH "${SYSROOT_PATH}")
     string(REPLACE "@" "@@" ESCAPED_XEUS_CPP_RESOURCE_DIR "${XEUS_CPP_RESOURCE_DIR}")
+    string(REPLACE "\\" "/" ESCAPED_XEUS_CPP_RESOURCE_DIR "${ESCAPED_XEUS_CPP_RESOURCE_DIR}")
+    string(REPLACE "\\" "/" ESCAPED_SYSROOT_PATH "${ESCAPED_SYSROOT_PATH}")
     target_link_options(xcpp
         PUBLIC "SHELL: -s USE_SDL=2"
         PUBLIC "SHELL: --preload-file ${ESCAPED_SYSROOT_PATH}/include@/include"
