@@ -51,6 +51,7 @@ set(XEUS_CPP_TESTS
 add_executable(test_xeus_cpp ${XEUS_CPP_TESTS})
 
 if(EMSCRIPTEN)
+    file(COPY ${CMAKE_SOURCE_DIR}/scripts/browser_tests_safari.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
     target_link_libraries(test_xeus_cpp PRIVATE xeus-cpp-static doctest::doctest)
 
     target_compile_options(test_xeus_cpp
