@@ -19,6 +19,8 @@
 #include "xinspect.hpp"
 #include "xmagics/os.hpp"
 #include <iostream>
+#include <fcntl.h>
+#include <unistd.h>
 #ifndef EMSCRIPTEN
 #include "xmagics/xassist.hpp"
 #endif
@@ -27,28 +29,30 @@
 
 using Args = std::vector<const char*>;
 
-void* createInterpreter(const Args &ExtraArgs = {}) {
-  Args ClangArgs = {/*"-xc++"*/"-v"};
-  if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
-    return s == "-resource-dir";}) == ExtraArgs.end()) {
-    std::string resource_dir = Cpp::DetectResourceDir();
-    if (!resource_dir.empty()) {
-        ClangArgs.push_back("-resource-dir");
-        ClangArgs.push_back(resource_dir.c_str());
-    } else {
-        std::cerr << "Failed to detect the resource-dir\n";
+void* createInterpreter(const Args& ExtraArgs = {})
+{
+    Args ClangArgs = {/*"-xc++"*/"-v"};
+    if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
+        return s == "-resource-dir";}) == ExtraArgs.end()) {
+        std::string resource_dir = Cpp::DetectResourceDir();
+        if (!resource_dir.empty()) {
+            ClangArgs.push_back("-resource-dir");
+            ClangArgs.push_back(resource_dir.c_str());
+        } else {
+            std::cerr << "Failed to detect the resource-dir\n";
+        }
     }
-  }
-  std::vector<std::string> CxxSystemIncludes;
-  Cpp::DetectSystemCompilerIncludePaths(CxxSystemIncludes);
-  for (const std::string& CxxInclude : CxxSystemIncludes) {
-    ClangArgs.push_back("-isystem");
-    ClangArgs.push_back(CxxInclude.c_str());
-  }
-  ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
-  // FIXME: We should process the kernel input options and conditionally pass
-  // the gpu args here.
-  return Cpp::CreateInterpreter(ClangArgs/*, {"-cuda"}*/);
+    std::vector<std::string> CxxSystemIncludes;
+    Cpp::DetectSystemCompilerIncludePaths(CxxSystemIncludes);
+    for (const std::string& CxxInclude : CxxSystemIncludes) {
+        ClangArgs.push_back("-isystem");
+        ClangArgs.push_back(CxxInclude.c_str());
+    }
+    ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
+
+    // FIXME: We should process the kernel input options and conditionally pass
+    // the gpu args here.
+    return Cpp::CreateInterpreter(ClangArgs /*, {"-cuda"}*/);
 }
 
 using namespace std::placeholders;
@@ -71,6 +75,11 @@ namespace xcpp
     void interpreter::configure_impl()
     {
         xeus::register_interpreter(this);
+    }
+
+    pid_t interpreter::get_current_pid()
+    {
+        return Cpp::GetExecutorPID();
     }
 
     static std::string get_stdopt()
@@ -100,16 +109,16 @@ __get_cxx_version ()
         return std::to_string(cxx_version);
     }
 
-    interpreter::interpreter(int argc, const char* const* argv) :
+    interpreter::interpreter(int argc, const char* const* argv):
         xmagics()
         , p_cout_strbuf(nullptr)
         , p_cerr_strbuf(nullptr)
         , m_cout_buffer(std::bind(&interpreter::publish_stdout, this, _1))
         , m_cerr_buffer(std::bind(&interpreter::publish_stderr, this, _1))
     {
-        //NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        // NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-pointer-arithmetic)
         createInterpreter(Args(argv ? argv + 1 : argv, argv + argc));
-        m_version = get_stdopt();
+        // m_version = get_stdopt();
         redirect_output();
         init_preamble();
         init_magic();
@@ -122,7 +131,7 @@ __get_cxx_version ()
 
     void interpreter::execute_request_impl(
         send_reply_callback cb,
-        int /*execution_count*/,
+        int execution_count,
         const std::string& code,
         xeus::execute_request_config config,
         nl::json /*user_expressions*/
@@ -164,9 +173,13 @@ __get_cxx_version ()
 
         std::string err;
 
+        m_code_to_execution_count_map[code].push_back(execution_count);
+        m_execution_count_to_code_map[execution_count] = code;
+
         // Attempt normal evaluation
         try
         {
+
             StreamRedirectRAII R(err);
             compilation_result = Cpp::Process(code.c_str());
         }
@@ -213,7 +226,7 @@ __get_cxx_version ()
             if (evalue.size() < 4) {
                 ename = " ";
             }
-            std::vector<std::string> traceback({ename  + evalue});
+            std::vector<std::string> traceback({ename + evalue});
             if (!config.silent)
             {
                 publish_execution_error(ename, evalue, traceback);
@@ -277,13 +290,17 @@ __get_cxx_version ()
 
     nl::json interpreter::is_complete_request_impl(const std::string& code)
     {
-        if (!code.empty() && code[code.size() - 1] == '\\') {
+        if (!code.empty() && code[code.size() - 1] == '\\')
+        {
             auto found = code.rfind('\n');
             if (found == std::string::npos)
+            {
                 found = -1;
+            }
             auto found1 = found++;
-            while (isspace(code[++found1])) ;
-            return xeus::create_is_complete_reply("incomplete", code.substr(found, found1-found));
+            while (isspace(code[++found1]))
+                ;
+            return xeus::create_is_complete_reply("incomplete", code.substr(found, found1 - found));
         }
 
         return xeus::create_is_complete_reply("complete");
@@ -312,6 +329,7 @@ __get_cxx_version ()
                              "\n"
                              "  xeus-cpp: a C++ Jupyter kernel - based on Clang-repl\n";
         result["banner"] = banner;
+        result["debugger"] = true;
         result["language_info"]["name"] = "C++";
         result["language_info"]["version"] = m_version;
         result["language_info"]["mimetype"] = "text/x-c++src";

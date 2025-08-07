@@ -25,6 +25,8 @@
 #include "xbuffer.hpp"
 #include "xeus_cpp_config.hpp"
 #include "xmanager.hpp"
+#include <thread>
+
 
 namespace nl = nlohmann;
 
@@ -39,6 +41,28 @@ namespace xcpp
 
         void publish_stdout(const std::string&);
         void publish_stderr(const std::string&);
+
+        static pid_t get_current_pid();
+
+        std::vector<int> get_execution_count(const std::string& code) const
+        {
+            auto it = m_code_to_execution_count_map.find(code);
+            if (it != m_code_to_execution_count_map.end())
+            {
+                return it->second;
+            }
+            return {};
+        }
+
+        std::string get_code_from_execution_count(int execution_count) const
+        {
+            auto it = m_execution_count_to_code_map.find(execution_count);
+            if(it != m_execution_count_to_code_map.end()) 
+            {
+                return it->second;
+            }
+            return "";
+        }
 
     private:
 
@@ -85,6 +109,9 @@ namespace xcpp
 
         xoutput_buffer m_cout_buffer;
         xoutput_buffer m_cerr_buffer;
+
+        std::map<std::string, std::vector<int>> m_code_to_execution_count_map;
+        std::map<int, std::string> m_execution_count_to_code_map;
     };
 }
 

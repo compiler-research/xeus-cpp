@@ -8,7 +8,7 @@
   ],
   "language": "cpp",
   "metadata": {
-    "debugger": false,
+    "debugger": true,
     "shared": {
       "libxeus.so": "lib/libxeus.so",
       "libclangCppInterOp.so": "lib/libclangCppInterOp.so"
