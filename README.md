@@ -113,7 +113,7 @@ cd test
 node test_xeus_cpp.js
 ```
 
-It is possible to run the Emscripten tests in a headless browser. We will run our tests in a fresh installed browser. Installing the browsers, and running the tests within the installed browsers will be platform dependent. To do this on MacOS execute the following
+It is possible to run the Emscripten tests in a headless browser. We will run our tests in a fresh installed browser. Installing the browsers, and running the tests within the installed browsers will be platform dependent. To do this for Chrome and Firefox on MacOS execute the following
 
 ```bash
 wget "https://download.mozilla.org/?product=firefox-latest&os=osx&lang=en-US" -O Firefox-latest.dmg
@@ -134,6 +134,16 @@ echo "Running test_xeus_cpp in Firefox"
 python $BUILD_PREFIX/bin/emrun.py --browser="firefox" --kill_exit --timeout 60 --browser-args="--headless"  test_xeus_cpp.html
 echo "Running test_xeus_cpp in Google Chrome"
 python python $BUILD_PREFIX/bin/emrun.py --browser="Google Chrome" --kill_exit --timeout 60 --browser-args="--headless  --no-sandbox"  test_xeus_cpp.html
+```
+
+To run tests in Safari you can make use of safaridriver. How to enable this will depend on
+your MacOS operating system, and is best to consult [safaridriver](https://developer.apple.com/documentation/webkit/testing-with-webdriver-in-safari). You will also need to install the Selenium
+python package. This only needs to be enable once, and then you can execute the following to run the tests in Safari
+
+```bash
+echo "Running test_xeus_cpp in Safari"
+python $BUILD_PREFIX/bin/emrun.py --no_browser --kill_exit --timeout 60 --browser-args="--headless --no-sandbox"  test_xeus_cpp.html &
+python ../../scripts/browser_tests_safari.py test_xeus_cpp.html
 ```
 
 To do this on Ubuntu x86 execute the following
