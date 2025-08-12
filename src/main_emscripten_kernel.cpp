@@ -13,7 +13,7 @@
 
 #include <xeus/xembind.hpp>
 
-#include "xeus-cpp/xinterpreter_wasm.hpp"
+#include "xeus-cpp/xinterpreter.hpp"
 
 template <class interpreter_type>
 static interpreter_type* builder_with_args(emscripten::val js_args)
@@ -39,6 +39,6 @@ static interpreter_type* builder_with_args(emscripten::val js_args)
 EMSCRIPTEN_BINDINGS(my_module)
 {
     xeus::export_core();
-    using interpreter_type = xcpp::wasm_interpreter;
+    using interpreter_type = xcpp::interpreter;
     xeus::export_kernel<interpreter_type, &builder_with_args<interpreter_type>>("xkernel");
 }
