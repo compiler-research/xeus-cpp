@@ -58,7 +58,7 @@ jobs:
             micromamba_shell_init: cmd.exe
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -204,7 +204,7 @@ jobs:
             os: macos-15
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
