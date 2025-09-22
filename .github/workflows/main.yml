@@ -41,8 +41,8 @@ jobs:
           - name: ubu22-arm
             os: ubuntu-22.04-arm
             micromamba_shell_init: bash
-          - name: osx13-x86
-            os: macos-13
+          - name: osx15-x86
+            os: macos-15-intel
             micromamba_shell_init: bash
           - name: osx14-arm
             os: macos-14
