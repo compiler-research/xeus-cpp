@@ -189,6 +189,7 @@ set(XEUS_CPP_SRC
     src/xparser.cpp
     src/xutils.cpp
     src/xmagics/os.cpp
+    src/xmagics/multi_interpreter.cpp
 )
 
 if(NOT EMSCRIPTEN)
