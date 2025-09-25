@@ -105,6 +105,9 @@ if(CppInterOp_FOUND)
   message(STATUS "Found CppInterOp: config=${CPPINTEROP_CMAKE_DIR} dir=${CPPINTEROP_INSTALL_PREFIX} (found version=${CPPINTEROP_VERSION} compatible with Clang ${CPPINTEROP_LLVM_VERSION_MAJOR}.x)")
 endif()
 
+find_package(Python REQUIRED COMPONENTS Interpreter Development)
+message(STATUS "Found Python Version: ${Python_VERSION} Include: ${Python_INCLUDE_DIRS} Link: ${Python_LIBRARIES} Flags: ${Python_CFLAGS_OTHER}")
+
 find_package(argparse REQUIRED)
 find_package(pugixml REQUIRED)
 
@@ -164,9 +167,20 @@ message("Configure kernels: ...")
 configure_kernel("/share/jupyter/kernels/xcpp17/")
 configure_kernel("/share/jupyter/kernels/xcpp20/")
 configure_kernel("/share/jupyter/kernels/xcpp23/")
+configure_kernel("/share/jupyter/kernels/xcpp17-cuda/")
+configure_kernel("/share/jupyter/kernels/xcpp20-cuda/")
+configure_kernel("/share/jupyter/kernels/xcpp23-cuda/")
 configure_kernel("/share/jupyter/kernels/xc11/")
 configure_kernel("/share/jupyter/kernels/xc17/")
 configure_kernel("/share/jupyter/kernels/xc23/")
+if(NOT EMSCRIPTEN)
+  configure_kernel("/share/jupyter/kernels/xcpp17-omp/")
+  configure_kernel("/share/jupyter/kernels/xcpp20-omp/")
+  configure_kernel("/share/jupyter/kernels/xcpp23-omp/")
+  # configure_kernel("/share/jupyter/kernels/xc11-omp/")
+  # configure_kernel("/share/jupyter/kernels/xc17-omp/")
+  # configure_kernel("/share/jupyter/kernels/xc23-omp/")
+endif()
 
 # Source files
 # ============
@@ -194,6 +208,7 @@ set(XEUS_CPP_SRC
     src/xparser.cpp
     src/xutils.cpp
     src/xmagics/os.cpp
+    src/xmagics/multi_interpreter.cpp
 )
 
 if(NOT EMSCRIPTEN)
@@ -353,6 +368,29 @@ macro(xeus_cpp_create_target target_name linkage output_name)
     if(NOT EMSCRIPTEN)
         find_package(Threads) # TODO: add Threads as a dependence of xeus-static?
         target_link_libraries(${target_name} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+    endif()
+
+    # Python Stuff
+    if(NOT EMSCRIPTEN)
+        target_include_directories(${target_name} PRIVATE ${Python_INCLUDE_DIRS})
+        target_link_libraries(${target_name} PUBLIC ${Python_LIBRARIES})
+        target_compile_options(${target_name} PRIVATE ${Python_CFLAGS_OTHER})
+    else()
+        set(Python_INCLUDE_DIRS
+            "${CMAKE_PREFIX_PATH}/include/python3.11")
+        set(Python_LIBRARIES
+            "python3.11"
+            "m"
+            "bz2"
+            "libz.a"
+            "sqlite3"
+            "ffi"
+            )
+        set(Python_CFLAGS_OTHER "-sUSE_ZLIB=1" "-sUSE_BZIP2=1")
+
+        target_include_directories(${target_name} PRIVATE ${Python_INCLUDE_DIRS})
+        target_link_libraries(${target_name} PUBLIC ${Python_LIBRARIES})
+        target_compile_options(${target_name} PRIVATE ${Python_CFLAGS_OTHER})
     endif()
 
 endmacro()
