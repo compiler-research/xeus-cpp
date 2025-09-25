@@ -9,7 +9,8 @@ dependencies:
   # Host dependencies
   - xeus>=5.0.0
   - xeus-zmq<4.0
-  - nlohmann_json=3.12.0
+  - nlohmann_json
+  - nlohmann_json-abi
   - CppInterOp
   - pugixml
   - cpp-argparse
