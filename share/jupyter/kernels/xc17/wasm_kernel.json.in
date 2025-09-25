@@ -1,0 +1,19 @@
+{
+  "display_name": "C17",
+  "argv": [
+      "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
+      "-resource-dir", "/lib/clang/@CPPINTEROP_LLVM_VERSION_MAJOR@",
+      "-xc",
+      "-std=c17",
+      "-mllvm", "-enable-emscripten-sjlj",
+      "-msimd128"
+  ],
+  "language": "c",
+  "metadata": {
+    "debugger": false,
+    "shared": {
+      "libxeus.so": "lib/libxeus.so",
+      "libclangCppInterOp.so": "lib/libclangCppInterOp.so"
+    }
+  }
+}
