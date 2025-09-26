@@ -160,6 +160,9 @@ message("Configure kernels: ...")
 configure_kernel("/share/jupyter/kernels/xcpp17/")
 configure_kernel("/share/jupyter/kernels/xcpp20/")
 configure_kernel("/share/jupyter/kernels/xcpp23/")
+configure_kernel("/share/jupyter/kernels/xc11/")
+configure_kernel("/share/jupyter/kernels/xc17/")
+configure_kernel("/share/jupyter/kernels/xc23/")
 
 # Source files
 # ============
