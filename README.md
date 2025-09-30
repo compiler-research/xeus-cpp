@@ -15,6 +15,10 @@
 `xeus-cpp` is a Jupyter kernel for cpp based on the native implementation of the
 Jupyter protocol [xeus](https://github.com/jupyter-xeus/xeus).
 
+Join our discord for discussions and collaboration.
+
+<a target="_blank" href="https://discord.gg/Vkv3ne4zVK"><img src="discord.svg" alt="Discord" /></a>
+
 To try a Jupyter Lite demo based on the main branch
 
 <div align="center">
