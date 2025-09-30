@@ -42,7 +42,7 @@ jobs:
         run: |
           echo "ncpus=$(nproc --all)" >> $GITHUB_ENV
 
-      - name: Build xeus-cpp
+      - name: Build and test xeus-cpp in node, then install
         shell: bash -l {0}
         run: |
           micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
@@ -64,9 +64,10 @@ jobs:
             -DSYSROOT_PATH=$SYSROOT_PATH                      \
             -DCMAKE_COMPILE_WARNING_AS_ERROR=ON            \
             ..
+          emmake make -j ${{ env.ncpus }} check-xeus-cpp
           emmake make -j ${{ env.ncpus }} install
 
-      - name: Test xeus-cpp C++ Emscripten
+      - name: Test Emscripten xeus-cpp in browser
         shell: bash -l {0}
         run: |
           set -e
@@ -134,7 +135,6 @@ jobs:
             echo "Running test_xeus_cpp in Google Chrome"
             python ${{ env.BUILD_PREFIX }}/bin/emrun.py --browser="google-chrome" --kill_exit --timeout 60 --browser-args="--headless  --no-sandbox"  test_xeus_cpp.html
           fi
-          node test_xeus_cpp.js
         timeout-minutes: 4
 
       - name: Jupyter Lite integration
