@@ -57,24 +57,23 @@ micromamba create -f environment-dev.yml
 micromamba activate xeus-cpp
 micromamba install jupyterlab -c conda-forge
 ```
-Now you can compile the kernel from the source by executing (replace `$CONDA_PREFIX` with a custom installation prefix if need be)
+Now you can compile the kernel from the source and run the C++ tests by executing (replace `$CONDA_PREFIX` with a custom installation prefix if need be)
 ```bash
 mkdir build
 cd build
 cmake .. -D CMAKE_PREFIX_PATH=$CONDA_PREFIX -D CMAKE_INSTALL_PREFIX=$CONDA_PREFIX -D CMAKE_INSTALL_LIBDIR=lib
-make install
-```
-To test the build you execute the following to test the C++ tests
-```bash
-cd test
-./test_xeus_cpp
+make check-xeus-cpp
 ```
 and
 ```bash
 cd ../../test
 pytest -sv test_xcpp_kernel.py
 ```
-to perform the python tests.
+to perform the python tests. After you have checked that the kernel passes all the tests, you can install it by executing
+
+```bash
+make install
+```
 
 ## Installation within a mamba environment (wasm build instructions)
 
@@ -91,7 +90,7 @@ micromamba create -f environment-wasm-build.yml -y
 micromamba activate xeus-cpp-wasm-build
 ```
 
-You are now in a position to build the xeus-cpp kernel. You build it by executing the following
+You are now in a position to build the xeus-cpp kernel. You build and test it in node by executing the following
 ```bash
 micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
 mkdir build
@@ -107,14 +106,7 @@ emcmake cmake \
         -DCMAKE_FIND_ROOT_PATH=$PREFIX                    \
         -DSYSROOT_PATH=$SYSROOT_PATH                      \
         ..
-emmake make install
-```
-
-To test the lite build you can execute the following to run the C++ tests built against emscripten in node
-
-```bash
-cd test
-node test_xeus_cpp.js
+emmake make check-xeus-cpp
 ```
 
 It is possible to run the Emscripten tests in a headless browser. We will run our tests in a fresh installed browser. Installing the browsers, and running the tests within the installed browsers will be platform dependent. To do this for Chrome and Firefox on MacOS execute the following
@@ -169,6 +161,12 @@ echo "Running test_xeus_cpp in Firefox"
 python $BUILD_PREFIX/bin/emrun.py --browser="firefox" --kill_exit --timeout 60 --browser-args="--headless"  test_xeus_cpp.html
 echo "Running test_xeus_cpp in Google Chrome"
 python $BUILD_PREFIX/bin/emrun.py --browser="google-chrome" --kill_exit --timeout 60 --browser-args="--headless --no-sandbox"  test_xeus_cpp.html
+```
+
+After you have checked that the kernel passes all the tests, you can install it by executing
+
+```bash
+emmake make install
 ```
 
 To build and test Jupyter Lite with this kernel locally you can execute the following

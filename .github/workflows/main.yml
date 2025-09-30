@@ -113,37 +113,23 @@ jobs:
           -DCMAKE_COMPILE_WARNING_AS_ERROR=ON            \
            ${{ matrix.extra_cmake_flags }} 
 
-      - name: build & install
+      - name: build, run C++ tests & install
         if: ${{ runner.os == 'windows' }}
         shell: cmd /C call {0}
         run: |
           call C:\Users\runneradmin\micromamba-root\condabin\micromamba.bat activate xeus-cpp
           cd build
           set CL=/MP
+          nmake check-xeus-cpp
           nmake install
 
-      - name: build & install
+      - name: build, run C++ tests & install
         if: ${{ runner.os != 'windows' }}
         shell: bash -l {0}
         run: |
           cd build
+          make -j ${{ env.ncpus }} check-xeus-cpp
           make install -j ${{ env.ncpus }}
-
-      - name: Test xeus-cpp C++ Unix Systems
-        if: ${{ runner.os != 'windows' }}
-        shell: bash -l {0}
-        run: |
-          cd build/test
-          ./test_xeus_cpp
-        timeout-minutes: 4
-
-      - name: Test xeus-cpp C++ Windows Systems
-        if: ${{ runner.os == 'windows' }}
-        shell: cmd /C call {0}
-        run: |
-          call C:\Users\runneradmin\micromamba-root\condabin\micromamba.bat activate xeus-cpp
-          cd build\test
-          .\test_xeus_cpp.exe
 
       - name: Python tests Unix Systems
         if: ${{ runner.os != 'windows' }}
@@ -225,7 +211,7 @@ jobs:
             echo "ncpus=$(nproc --all)" >> $GITHUB_ENV
           fi
 
-      - name: Build xeus-cpp
+      - name: Build and test xeus-cpp in node, then install
         shell: bash -l {0}
         run: |
           micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
@@ -247,9 +233,10 @@ jobs:
             -DSYSROOT_PATH=$SYSROOT_PATH                      \
             -DCMAKE_COMPILE_WARNING_AS_ERROR=ON            \
             ..
+          emmake make -j ${{ env.ncpus }} check-xeus-cpp
           emmake make -j ${{ env.ncpus }} install
 
-      - name: Test xeus-cpp C++ Emscripten
+      - name: Test Emscripten xeus-cpp in browser
         shell: bash -l {0}
         run: |
           export BUILD_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build
@@ -323,7 +310,6 @@ jobs:
             echo "Running test_xeus_cpp in Google Chrome"
             python ${{ env.BUILD_PREFIX }}/bin/emrun.py --browser="google-chrome" --kill_exit --timeout 60 --browser-args="--headless --no-sandbox"  test_xeus_cpp.html
           fi
-          node test_xeus_cpp.js
         timeout-minutes: 4
 
       - name: Jupyter Lite integration
