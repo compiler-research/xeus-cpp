@@ -12,10 +12,9 @@ import platform
 import nbformat
 import papermill as pm
 
-class XCppCompleteTests(jupyter_kernel_test.KernelTests):
-
-    kernel_name = 'xcpp20'
-
+class BaseXCppCompleteTests(jupyter_kernel_test.KernelTests):
+    __test__ = False
+    
     # language_info.name in a kernel_info_reply should match this
     language_name = 'C++'
 
@@ -64,12 +63,22 @@ class XCppCompleteTests(jupyter_kernel_test.KernelTests):
         self.assertEqual(str(reply["content"]["indent"]), "")
         self.assertEqual(reply["content"]["status"], "complete")
 
+kernel_names = ['xcpp17', 'xcpp20', 'xcpp23']
+
+for name in kernel_names:
+    class_name = f"XCppCompleteTests_{name}"
+    globals()[class_name] = type(
+        class_name,
+        (BaseXCppCompleteTests,),
+        {
+            'kernel_name': name,
+            '__test__': True
+        }
+    )
 
 if platform.system() != 'Windows':
-    class XCppTests(jupyter_kernel_test.KernelTests):
-
-        kernel_name = 'xcpp20'
-
+    class BaseXCppTests(jupyter_kernel_test.KernelTests):
+        __test__ = False
         # language_info.name in a kernel_info_reply should match this
         language_name = 'C++'
 
@@ -130,9 +139,20 @@ if platform.system() != 'Windows':
             }
         ]
 
-    # Tests for Notebooks
-    class XCppNotebookTests(unittest.TestCase):
+    for name in kernel_names:
+        class_name = f"XCppTests_{name}"
+        globals()[class_name] = type(
+            class_name,
+            (BaseXCppTests,),
+            {
+                'kernel_name': name,
+                '__test__': True
+            }
+        )
 
+    # Tests for Notebooks
+    class BaseXCppNotebookTests(unittest.TestCase):
+        __test__ = False
         notebook_names = [
             'xeus-cpp'
             # Add more notebook names as needed
@@ -153,7 +173,7 @@ if platform.system() != 'Windows':
                         inp, 
                         out,
                         log_output=True,
-                        kernel_name='xcpp20'
+                        kernel_name=self.kernel_name
                     )
 
                     if executed_notebook is None:  # Explicit check for None or any other condition
@@ -174,10 +194,19 @@ if platform.system() != 'Windows':
                             if input_cell.outputs != output_cell.outputs:
                                 self.fail(f"{input_output.get('text')} != {output_output.get('text')} Cell {i} in notebook {name} has mismatched output type")
 
+    for name in kernel_names:
+        class_name = f"XCppNotebookTests_{name}"
+        globals()[class_name] = type(
+            class_name,
+            (BaseXCppNotebookTests,),
+            {
+                'kernel_name': name,
+                '__test__': True
+            }
+        )
 
-class XCppTests2(jupyter_kernel_test.KernelTests):
-
-    kernel_name = 'xcpp20'
+class BaseXCppTests2(jupyter_kernel_test.KernelTests):
+    __test__ = False
 
     # language_info.name in a kernel_info_reply should match this
     language_name = 'C++'
@@ -185,6 +214,16 @@ class XCppTests2(jupyter_kernel_test.KernelTests):
     # Code that should write the exact string `hello, world` to STDOUT
     code_hello_world = '#include <stdio.h>\nprintf("hello, world");'
 
+for name in kernel_names:
+    class_name = f"XCppTests2_{name}"
+    globals()[class_name] = type(
+        class_name,
+        (BaseXCppTests2,),
+        {
+            'kernel_name': name,
+            '__test__': True
+        }
+    )
 
 if __name__ == '__main__':
     unittest.main()
