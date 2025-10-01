@@ -96,6 +96,10 @@ if(EMSCRIPTEN)
         ${CMAKE_CURRENT_BINARY_DIR}/libxeus.so
         COMMENT "Copying libxeus.so to the test directory"
     )
+    add_custom_target(check-xeus-cpp
+        COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_CURRENT_BINARY_DIR} node test_xeus_cpp.js
+        DEPENDS test_xeus_cpp
+    )
 else()
     find_package(Threads)
 
@@ -117,5 +121,5 @@ else()
     target_link_libraries(test_xeus_cpp xeus-cpp doctest::doctest ${CMAKE_THREAD_LIBS_INIT})
     target_include_directories(test_xeus_cpp PRIVATE ${XEUS_CPP_INCLUDE_DIR})
 
-    add_custom_target(xtest COMMAND test_xeus_cpp DEPENDS test_xeus_cpp)
+    add_custom_target(check-xeus-cpp COMMAND test_xeus_cpp DEPENDS test_xeus_cpp)
 endif()
