@@ -129,6 +129,7 @@ jobs:
         run: |
           cd build
           make -j ${{ env.ncpus }} check-xeus-cpp
+          find . -iname "*coverage.info*"
           make install -j ${{ env.ncpus }}
 
       - name: Python tests Unix Systems
