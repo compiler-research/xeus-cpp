@@ -14,6 +14,7 @@ dependencies:
   - CppInterOp>1.7.0
   - pugixml
   - cpp-argparse
+  - llvm-openmp
   # Test dependencies
   - pytest
   - jupyter_kernel_test<0.8
