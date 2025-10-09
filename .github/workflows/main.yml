@@ -50,6 +50,9 @@ jobs:
           - name: osx15-arm
             os: macos-15
             micromamba_shell_init: bash
+          - name: osx26-arm
+            os: macos-26
+            micromamba_shell_init: bash
           - name: Windows22
             os: windows-2022
             micromamba_shell_init: cmd.exe
@@ -202,6 +205,8 @@ jobs:
             os: ubuntu-24.04
           - name: osx15-arm
             os: macos-15
+          - name: osx26-arm
+            os: macos-26
 
     steps:
       - uses: actions/checkout@v5
