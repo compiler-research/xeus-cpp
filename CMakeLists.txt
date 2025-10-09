@@ -177,6 +177,9 @@ if(NOT EMSCRIPTEN)
   configure_kernel("/share/jupyter/kernels/xcpp17-omp/")
   configure_kernel("/share/jupyter/kernels/xcpp20-omp/")
   configure_kernel("/share/jupyter/kernels/xcpp23-omp/")
+  configure_kernel("/share/jupyter/kernels/xc11-omp/")
+  configure_kernel("/share/jupyter/kernels/xc17-omp/")
+  configure_kernel("/share/jupyter/kernels/xc23-omp/")
 endif()
 
 # Source files
