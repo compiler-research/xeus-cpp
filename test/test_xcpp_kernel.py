@@ -63,7 +63,7 @@ class BaseXCppCompleteTests(jupyter_kernel_test.KernelTests):
         self.assertEqual(str(reply["content"]["indent"]), "")
         self.assertEqual(reply["content"]["status"], "complete")
 
-kernel_names = ['xcpp17', 'xcpp20', 'xcpp23']
+kernel_names = ['xcpp17', 'xcpp20', 'xcpp23','xcpp17-omp', 'xcpp20-omp', 'xcpp23-omp']
 
 for name in kernel_names:
     class_name = f"XCppCompleteTests_{name}"
