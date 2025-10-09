@@ -1,0 +1,18 @@
+{
+  "display_name": "C11 + OpenMP",
+  "env": {
+      "PATH":"@XEUS_CPP_PATH@",
+      "LD_LIBRARY_PATH":"@OpenMPLibraryDir@"
+  },
+  "argv": [
+      "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
+      "-f",
+      "{connection_file}",
+      "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@","-xc",
+      "-I", "@XEUS_CPP_INCLUDE_DIR@",
+      "-std=c11","@XEUS_CPP_OMP@"
+  ],
+  "language": "c",
+  "metadata": {"debugger": false
+  }
+}
