@@ -171,7 +171,7 @@ jobs:
           sudo apt install lcov
           # capture coverage info
           lcov --directory build/ --capture --output-file coverage.info --gcov-tool $CONDA_PREFIX/bin/gcov
-          lcov --remove coverage.info '/usr/*' "${HOME}"'/.cache/*' ${{ github.workspace }}'/llvm-project/*' ${{ github.workspace }}'/test/*' --output-file coverage.info
+          lcov --remove coverage.info '/usr/*' "${HOME}"'/.cache/*' ${{ github.workspace }}'/test/*' --output-file coverage.info
           # output coverage data for debugging (optional)
           lcov --list coverage.info
 
