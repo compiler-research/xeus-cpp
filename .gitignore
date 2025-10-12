@@ -48,3 +48,36 @@ bld
 
 # MacOS specific files
 *.DS_Store
+.cache/clangd/index/main.cpp.C5F1E851FC2F017E.idx
+.cache/clangd/index/main.cpp.F633FA5A615D9F3C.idx
+.cache/clangd/index/os.cpp.58B71FE094D1981D.idx
+.cache/clangd/index/os.hpp.C05D7048C634F034.idx
+.cache/clangd/index/test_interpreter.cpp.3E4913A69EF2EE9C.idx
+.cache/clangd/index/xassist.cpp.B2B126B28459AD45.idx
+.cache/clangd/index/xassist.hpp.C2D8ADBC61941C0D.idx
+.cache/clangd/index/xbuffer.hpp.6E827D42FBE5D6B3.idx
+.cache/clangd/index/xdebugger.cpp.AA9703EE100ED475.idx
+.cache/clangd/index/xdebugger.hpp.1B9E2522AC995272.idx
+.cache/clangd/index/xdebuglldb_client.cpp.496B0E64F9233699.idx
+.cache/clangd/index/xdebuglldb_client.hpp.7CBB5F5A508E5332.idx
+.cache/clangd/index/xeus_cpp_config.hpp.4025BDA7AA4E4E03.idx
+.cache/clangd/index/xholder.cpp.24CAFA71D84892C0.idx
+.cache/clangd/index/xholder.hpp.1047E192CEAD973D.idx
+.cache/clangd/index/xinput.cpp.63A55B1E05B59220.idx
+.cache/clangd/index/xinput.hpp.E8BF695AFD2C04ED.idx
+.cache/clangd/index/xinspect.cpp.7591E9CCCABA22BD.idx
+.cache/clangd/index/xinspect.hpp.2A063CEF520D796C.idx
+.cache/clangd/index/xinternal_utils.cpp.95393A8E723F1717.idx
+.cache/clangd/index/xinternal_utils.hpp.3CC7E09A7110F7D2.idx
+.cache/clangd/index/xinterpreter.cpp.4DF465387441EC40.idx
+.cache/clangd/index/xinterpreter.hpp.16669401F08C57F0.idx
+.cache/clangd/index/xmagics.hpp.25EBF1043A7A90F0.idx
+.cache/clangd/index/xmanager.hpp.5EA2DAF79E810368.idx
+.cache/clangd/index/xoptions.cpp.F3B88792CB73F498.idx
+.cache/clangd/index/xoptions.hpp.E57D92CFB9CAD784.idx
+.cache/clangd/index/xparser.cpp.10FE68FA30F1AE6E.idx
+.cache/clangd/index/xparser.hpp.AF0B360B7829A360.idx
+.cache/clangd/index/xpreamble.hpp.1909C43AD89189BB.idx
+.cache/clangd/index/xsystem.hpp.68C5A7D03AE0F66A.idx
+.cache/clangd/index/xutils.cpp.07EA3B324B81BA7B.idx
+.cache/clangd/index/xutils.hpp.99656F6D48127A1B.idx

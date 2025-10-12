@@ -16,7 +16,7 @@
 namespace nl = nlohmann;
 
 // ***** ONLY FOR DEBUGGING PURPOSES. NOT TO BE COMMITTED *****
-static std::ofstream log_stream_client("/Users/abhinavkumar/Desktop/Coding/CERN_HSF_COMPILER_RESEARCH/xeus-cpp/build/xeus-cpp-xdebuglldb_client-logs.log", std::ios::app);
+static std::ofstream log_stream_client("/Users/abhinav/Desktop/Coding/CERN/xeus-cpp/build/xeus-cpp-xdebuglldb_client-logs.log", std::ios::app);
 
 void log_debug_client(const std::string& msg) {
     log_stream_client << "[xeus-cpp-debuglldb_client] " << msg << std::endl;

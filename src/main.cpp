@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
             xeus::get_user_name(),
             std::move(context),
             std::move(interpreter),
-            xeus::make_xserver_control_main,
+            xeus::make_xserver_shell_main,
             xeus::make_in_memory_history_manager(),
             xeus::make_console_logger(
                 xeus::xlogger::msg_type,
@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
             xeus::get_user_name(),
             std::move(context),
             std::move(interpreter),
-            xeus::make_xserver_control_main,
+            xeus::make_xserver_shell_main,
             xeus::make_in_memory_history_manager(),
             xeus::make_console_logger(
                 xeus::xlogger::msg_type,
