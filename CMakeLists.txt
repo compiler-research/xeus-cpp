@@ -164,6 +164,10 @@ configure_kernel("/share/jupyter/kernels/xc11/")
 configure_kernel("/share/jupyter/kernels/xc17/")
 configure_kernel("/share/jupyter/kernels/xc23/")
 
+if(NOT EMSCRIPTEN AND NOT WIN32)
+    configure_kernel("/share/jupyter/kernels/xcpp17-debugger/")
+endif()
+
 # Source files
 # ============
 
@@ -178,6 +182,7 @@ set(XEUS_CPP_HEADERS
     include/xeus-cpp/xmagics.hpp
     include/xeus-cpp/xoptions.hpp
     include/xeus-cpp/xpreamble.hpp
+    include/xeus-cpp/xdebugger.hpp
     #src/xinspect.hpp
     #src/xsystem.hpp
     #src/xparser.hpp
@@ -192,6 +197,9 @@ set(XEUS_CPP_SRC
     src/xparser.cpp
     src/xutils.cpp
     src/xmagics/os.cpp
+    src/xdebugger.cpp
+    src/xdebuglldb_client.cpp
+    src/xinternal_utils.cpp
 )
 
 if(NOT EMSCRIPTEN)

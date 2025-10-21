@@ -46,6 +46,9 @@ find_package(doctest)
 set(XEUS_CPP_TESTS
     main.cpp
     test_interpreter.cpp
+    test_debugger.cpp
+    xeus_client.hpp
+    xeus_client.cpp
 )
 
 add_executable(test_xeus_cpp ${XEUS_CPP_TESTS})
@@ -114,7 +117,7 @@ else()
         INSTALL_RPATH_USE_LINK_PATH TRUE
     )
 
-    target_link_libraries(test_xeus_cpp xeus-cpp doctest::doctest ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(test_xeus_cpp xeus-cpp xeus-zmq doctest::doctest ${CMAKE_THREAD_LIBS_INIT})
     target_include_directories(test_xeus_cpp PRIVATE ${XEUS_CPP_INCLUDE_DIR})
 
     add_custom_target(xtest COMMAND test_xeus_cpp DEPENDS test_xeus_cpp)

@@ -1,0 +1,16 @@
+{'header': {'date': datetime.datetime(2025,
+        10,
+        18,
+        14,
+        27,
+        51,
+        315667, tzinfo=tzutc()), 'msg_id': 'dab29c56c1564118969e17dd57368818', 'msg_type': 'kernel_info_reply', 'session': '8fc3e1ee796e4bc09e668f57f6c1275e', 'username': 'abhinav', 'version': '5.3'
+    }, 'msg_id': 'dab29c56c1564118969e17dd57368818', 'msg_type': 'kernel_info_reply', 'parent_header': {'date': datetime.datetime(2025,
+        10,
+        18,
+        14,
+        27,
+        51,
+        315437, tzinfo=tzutc()), 'msg_id': '875bed24-938f5cb8f579d7c5e04515f7_29098_3', 'msg_type': 'kernel_info_request', 'session': '875bed24-938f5cb8f579d7c5e04515f7', 'username': 'abhinav', 'version': '5.3'
+    }, 'metadata': {}, 'content': {'banner': '  __  _____ _   _ ___\n  \\ \\/ / _ \\ | | / __|\n   >  <  __/ |_| \\__ \\\n  /_/\\_\\___|\\__,_|___/\n\n  xeus-cpp: a C++ Jupyter kernel - based on Clang-repl\n', 'debugger': True, 'help_links': [
+            {'text': 'Xeus-cpp Reference', 'url': 'https: //xeus-cpp.readthedocs.io'}], 'implementation': 'xeus-cpp', 'implementation_version': '0.7.2', 'language_info': {'codemirror_mode': 'text/x-c++src', 'file_extension': '.cpp', 'mimetype': 'text/x-c++src', 'name': 'C++', 'version': ''}, 'protocol_version': '5.3', 'status': 'ok'}, 'buffers': []}
