@@ -86,10 +86,6 @@ int __get_cxx_version () {
     return 20;
 #elif __cplusplus > 201402L
     return 17;
-#elif __cplusplus > 201103L || (defined(_WIN32) && _MSC_VER >= 1900)
-    return 14;
-#elif __cplusplus >= 201103L
-   return 11;
 #else
   return 0;
 #endif
