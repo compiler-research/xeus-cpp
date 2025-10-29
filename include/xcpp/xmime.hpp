@@ -40,7 +40,7 @@ namespace xcpp
     template <class T>
     nl::json mime_bundle_repr(const T& value)
     {
-        return detail::mime_bundle_repr_via_sstream(&value);
+        return detail::mime_bundle_repr_via_sstream(value);
     }
 }
 

@@ -15,6 +15,7 @@
 #include "xeus-cpp/xutils.hpp"
 #include "xeus-cpp/xoptions.hpp"
 #include "xeus-cpp/xeus_cpp_config.hpp"
+#include "xcpp/xmime.hpp"
 
 #include "../src/xparser.hpp"
 #include "../src/xsystem.hpp"
@@ -1077,5 +1078,19 @@ TEST_SUITE("file") {
         REQUIRE(lines[0] == "Hello, World!");
         REQUIRE(lines[1] == "Hello, again!");
         infile.close();
+    }
+}
+
+TEST_SUITE("mime_bundle_repr")
+{
+    TEST_CASE("int")
+    {
+        int value = 42;
+        nl::json res = xcpp::mime_bundle_repr(value);
+        nl::json expected = {
+            {"text/plain", "42"}
+        };
+
+        REQUIRE(res == expected);
     }
 }
