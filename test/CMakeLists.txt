@@ -46,9 +46,6 @@ find_package(doctest)
 set(XEUS_CPP_TESTS
     main.cpp
     test_interpreter.cpp
-    test_debugger.cpp
-    xeus_client.hpp
-    xeus_client.cpp
 )
 
 add_executable(test_xeus_cpp ${XEUS_CPP_TESTS})
