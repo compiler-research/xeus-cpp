@@ -110,7 +110,7 @@ emcmake cmake \
 emmake make install
 ```
 
-To test the lite build you can execute the following to run the C++ tests built against emscripten in node
+To test the lite build you can execute the following to run the C++ tests built against emscripten in node. Prefer using node 22 and above as prior versions lead to flaky test runs.
 
 ```bash
 cd test
