@@ -56,15 +56,17 @@ using namespace std::placeholders;
 namespace xcpp
 {
     struct StreamRedirectRAII {
+      std::string &out;
       std::string &err;
-      StreamRedirectRAII(std::string &e) : err(e) {
-        Cpp::BeginStdStreamCapture(Cpp::kStdErr);
+      StreamRedirectRAII(std::string &o, std::string &e)
+        : out(o), err(e)
+      {
         Cpp::BeginStdStreamCapture(Cpp::kStdOut);
+        Cpp::BeginStdStreamCapture(Cpp::kStdErr);
       }
       ~StreamRedirectRAII() {
-        std::string out = Cpp::EndStdStreamCapture();
         err = Cpp::EndStdStreamCapture();
-        std::cout << out;
+        out = Cpp::EndStdStreamCapture();
       }
     };
 
@@ -163,11 +165,12 @@ __get_cxx_version ()
         }
 
         std::string err;
+        std::string out;
 
         // Attempt normal evaluation
         try
         {
-            StreamRedirectRAII R(err);
+            StreamRedirectRAII R(out, err);
             compilation_result = Cpp::Process(code.c_str());
         }
         catch (std::exception& e)
@@ -182,13 +185,8 @@ __get_cxx_version ()
             ename = "Error: ";
         }
 
-        if (compilation_result)
-        {
-            errorlevel = 1;
-            ename = "Error: ";
-            evalue = "Compilation error! " + err;
-            std::cerr << err;
-        }
+        if (!out.empty())  std::cout << out;
+        if (!err.empty())  std::cerr << err;
 
         // Flush streams
         std::cout << std::flush;
@@ -199,6 +197,13 @@ __get_cxx_version ()
         {
             std::cout.rdbuf(cout_strbuf);
             std::cerr.rdbuf(cerr_strbuf);
+        }
+
+        if (compilation_result)
+        {
+            errorlevel = 1;
+            ename = "Error: ";
+            evalue = "Compilation error! " + err;
         }
 
         // Depending of error level, publish execution result or execution
