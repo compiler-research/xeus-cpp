@@ -246,6 +246,7 @@ jobs:
       - name: Test Emscripten xeus-cpp in browser
         shell: bash -l {0}
         run: |
+          set -e
           cd build/test
           # Fresh install browsers, and run Emscripten tests in them
           # This is to match the Emscripten build instructions, where
@@ -318,7 +319,6 @@ jobs:
       - name: Jupyter Lite integration
         shell: bash -l {0}
         run: |
-          set -e
           micromamba create -n xeus-lite-host jupyterlite-core=0.6 jupyterlite-xeus -c conda-forge
           micromamba activate xeus-lite-host
           jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }}
