@@ -191,8 +191,6 @@ jobs:
             os: ubuntu-24.04
           - name: osx15-arm
             os: macos-15
-          - name: osx26-arm
-            os: macos-26
 
     steps:
       - uses: actions/checkout@v5
@@ -238,16 +236,17 @@ jobs:
             -DSYSROOT_PATH=$SYSROOT_PATH                      \
             -DCMAKE_COMPILE_WARNING_AS_ERROR=ON            \
             ..
-          emmake make -j ${{ env.ncpus }} check-xeus-cpp
+
+          micromamba create -n node-env -c conda-forge nodejs=22
+          export PATH="$MAMBA_ROOT_PREFIX/envs/node-env/bin:$PATH"
+
+          make check-xeus-cpp
           emmake make -j ${{ env.ncpus }} install
 
       - name: Test Emscripten xeus-cpp in browser
         shell: bash -l {0}
         run: |
-          export BUILD_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build
           set -e
-          micromamba create -n xeus-lite-host jupyterlite-core=0.6 jupyterlite-xeus
-          micromamba activate xeus-lite-host
           cd build/test
           # Fresh install browsers, and run Emscripten tests in them
           # This is to match the Emscripten build instructions, where
@@ -320,6 +319,7 @@ jobs:
       - name: Jupyter Lite integration
         shell: bash -l {0}
         run: |
+          micromamba create -n xeus-lite-host jupyterlite-core=0.6 jupyterlite-xeus -c conda-forge
           micromamba activate xeus-lite-host
           jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }}
 
