@@ -56,18 +56,22 @@ using namespace std::placeholders;
 namespace xcpp
 {
     struct StreamRedirectRAII {
-      std::string &out;
-      std::string &err;
-      StreamRedirectRAII(std::string &o, std::string &e)
-        : out(o), err(e)
-      {
-        Cpp::BeginStdStreamCapture(Cpp::kStdOut);
-        Cpp::BeginStdStreamCapture(Cpp::kStdErr);
-      }
-      ~StreamRedirectRAII() {
-        err = Cpp::EndStdStreamCapture();
-        out = Cpp::EndStdStreamCapture();
-      }
+        std::string& out;
+        std::string& err;
+
+        StreamRedirectRAII(std::string& o, std::string& e)
+            : out(o)
+            , err(e)
+        {
+            Cpp::BeginStdStreamCapture(Cpp::kStdOut);
+            Cpp::BeginStdStreamCapture(Cpp::kStdErr);
+        }
+
+        ~StreamRedirectRAII()
+        {
+            err = Cpp::EndStdStreamCapture();
+            out = Cpp::EndStdStreamCapture();
+        }
     };
 
     void interpreter::configure_impl()
@@ -185,8 +189,14 @@ __get_cxx_version ()
             ename = "Error: ";
         }
 
-        if (!out.empty())  std::cout << out;
-        if (!err.empty())  std::cerr << err;
+        if (!out.empty())
+        {
+            std::cout << out;
+        }
+        if (!err.empty())
+        {
+            std::cerr << err;
+        }
 
         // Flush streams
         std::cout << std::flush;
