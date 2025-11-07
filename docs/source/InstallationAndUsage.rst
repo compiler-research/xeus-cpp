@@ -79,6 +79,9 @@ You are now in a position to build the xeus-cpp kernel. You build and test it in
     export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host
     export SYSROOT_PATH=$BUILD_PREFIX/opt/emsdk/upstream/emscripten/cache/sysroot
 
+    micromamba create -n node-env -c conda-forge nodejs=22
+    export PATH="$MAMBA_ROOT_PREFIX/envs/node-env/bin:$PATH"
+
     emcmake cmake \
 		-DCMAKE_BUILD_TYPE=Release                        \
 		-DCMAKE_INSTALL_PREFIX=$PREFIX                    \
@@ -87,10 +90,7 @@ You are now in a position to build the xeus-cpp kernel. You build and test it in
 		-DSYSROOT_PATH=$SYSROOT_PATH                      \
 		..
 
-    micromamba create -n node-env -c conda-forge nodejs=22
-    export PATH="$MAMBA_ROOT_PREFIX/envs/node-env/bin:$PATH"
-
-    make check-xeus-cpp
+    emmake make check-xeus-cpp
     emmake make install
 
 It is possible to run the Emscripten tests in a headless browser. We will run our tests in a fresh installed browser. Installing the browsers, and running the tests within the installed browsers will be platform dependent. To do this for Chrome and Firefox on MacOS execute the following
