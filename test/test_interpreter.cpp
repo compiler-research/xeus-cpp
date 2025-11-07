@@ -1079,3 +1079,78 @@ TEST_SUITE("file") {
         infile.close();
     }
 }
+
+
+TEST_SUITE("undo_and_redefinition")
+{
+#if defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+    TEST_CASE("RedefinitionAndUndoErrors"
+            * doctest::should_fail(true)
+            * doctest::description("TODO: Currently fails for the Emscripten build"))
+#else
+    TEST_CASE("RedefinitionAndUndoErrors")
+#endif
+    {
+        std::vector<const char*> Args = {/*"-v", "resource-dir", "..."*/};
+        xcpp::interpreter interpreter((int) Args.size(), Args.data());
+        std::string code = R"(
+            int x = 5;
+        )";
+        nl::json user_expressions = nl::json::object();
+        xeus::execute_request_config config;
+        config.silent = false;
+        config.store_history = false;
+        config.allow_stdin = false;
+        nl::json header = nl::json::object();
+        xeus::xrequest_context::guid_list id = {};
+        xeus::xrequest_context context(header, id);
+
+        // Execute first code: define int x = 5
+        std::promise<nl::json> promise1;
+        std::future<nl::json> future1 = promise1.get_future();
+        auto callback1 = [&promise1](nl::json result)
+        {
+            promise1.set_value(result);
+        };
+        interpreter
+            .execute_request(std::move(context), std::move(callback1), code, std::move(config), user_expressions);
+        nl::json execute1 = future1.get();
+        REQUIRE(execute1["status"] == "ok");
+
+        code = R"(%undo)";
+        std::promise<nl::json> promise2;
+        std::future<nl::json> future2 = promise2.get_future();
+        auto callback2 = [&promise2](nl::json result)
+        {
+            promise2.set_value(result);
+        };
+        interpreter
+            .execute_request(std::move(context), std::move(callback2), code, std::move(config), user_expressions);
+        nl::json execute2 = future2.get();
+        REQUIRE(execute2["status"] == "ok");
+
+        code = "int x = 10;";
+        std::promise<nl::json> promise3;
+        std::future<nl::json> future3 = promise3.get_future();
+        auto callback3 = [&promise3](nl::json result)
+        {
+            promise3.set_value(result);
+        };
+        interpreter
+            .execute_request(std::move(context), std::move(callback3), code, std::move(config), user_expressions);
+        nl::json execute3 = future3.get();
+        REQUIRE(execute3["status"] == "ok");
+
+        code = "int x = 20;";
+        std::promise<nl::json> promise4;
+        std::future<nl::json> future4 = promise4.get_future();
+        auto callback4 = [&promise4](nl::json result)
+        {
+            promise4.set_value(result);
+        };
+        interpreter
+            .execute_request(std::move(context), std::move(callback4), code, std::move(config), user_expressions);
+        nl::json execute4 = future4.get();
+        REQUIRE(execute4["status"] == "error");
+    }
+}
