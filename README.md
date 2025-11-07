@@ -99,6 +99,9 @@ export BUILD_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build
 export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host
 export SYSROOT_PATH=$BUILD_PREFIX/opt/emsdk/upstream/emscripten/cache/sysroot
 
+micromamba create -n node-env -c conda-forge nodejs=22
+export PATH="$MAMBA_ROOT_PREFIX/envs/node-env/bin:$PATH"
+
 emcmake cmake \
         -DCMAKE_BUILD_TYPE=Release                        \
         -DCMAKE_INSTALL_PREFIX=$PREFIX                    \
@@ -107,10 +110,7 @@ emcmake cmake \
         -DSYSROOT_PATH=$SYSROOT_PATH                      \
         ..
 
-micromamba create -n node-env -c conda-forge nodejs=22
-export PATH="$MAMBA_ROOT_PREFIX/envs/node-env/bin:$PATH"
-
-make check-xeus-cpp
+emmake check-xeus-cpp
 emmake make install
 ```
 
