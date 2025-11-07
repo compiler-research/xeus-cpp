@@ -83,12 +83,12 @@ You are now in a position to build the xeus-cpp kernel. You build and test it in
     export PATH="$MAMBA_ROOT_PREFIX/envs/node-env/bin:$PATH"
 
     emcmake cmake \
-            -DCMAKE_BUILD_TYPE=Release                        \
-            -DCMAKE_INSTALL_PREFIX=$PREFIX                    \
-            -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
-            -DCMAKE_FIND_ROOT_PATH=$PREFIX                    \
-            -DSYSROOT_PATH=$SYSROOT_PATH                      \
-            ..
+		-DCMAKE_BUILD_TYPE=Release                        \
+		-DCMAKE_INSTALL_PREFIX=$PREFIX                    \
+		-DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
+		-DCMAKE_FIND_ROOT_PATH=$PREFIX                    \
+		-DSYSROOT_PATH=$SYSROOT_PATH                      \
+		..
 
     emmake check-xeus-cpp
     emmake make install
