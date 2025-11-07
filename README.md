@@ -110,7 +110,7 @@ emcmake cmake \
         -DSYSROOT_PATH=$SYSROOT_PATH                      \
         ..
 
-emmake check-xeus-cpp
+emmake make check-xeus-cpp
 emmake make install
 ```
 

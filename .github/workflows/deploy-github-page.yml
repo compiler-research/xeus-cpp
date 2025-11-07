@@ -68,7 +68,7 @@ jobs:
             -DCMAKE_COMPILE_WARNING_AS_ERROR=ON               \
             ..
 
-          emmake check-xeus-cpp -j ${{ env.ncpus }}
+          emmake make check-xeus-cpp -j ${{ env.ncpus }}
           emmake make -j ${{ env.ncpus }} install
 
       - name: Test Emscripten xeus-cpp in browser

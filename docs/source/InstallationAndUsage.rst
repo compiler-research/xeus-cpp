@@ -90,7 +90,7 @@ You are now in a position to build the xeus-cpp kernel. You build and test it in
 		-DSYSROOT_PATH=$SYSROOT_PATH                      \
 		..
 
-    emmake check-xeus-cpp
+    emmake make check-xeus-cpp
     emmake make install
 
 It is possible to run the Emscripten tests in a headless browser. We will run our tests in a fresh installed browser. Installing the browsers, and running the tests within the installed browsers will be platform dependent. To do this for Chrome and Firefox on MacOS execute the following
