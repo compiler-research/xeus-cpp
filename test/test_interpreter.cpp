@@ -1136,3 +1136,44 @@ TEST_CASE("C and C++ stdout/stderr capture")
     REQUIRE(captured_err.find("C stderr") != std::string::npos);
     REQUIRE(captured_err.find("C++ stderr") != std::string::npos);
 }
+
+TEST_CASE("Silent mode suppresses C and C++ stdout/stderr")
+{
+    std::vector<const char*> Args = {};
+    xcpp::interpreter interpreter((int)Args.size(), Args.data());
+
+    xeus::execute_request_config config;
+    // forcing silent as true
+    config.silent = true;
+    config.store_history = false;
+    config.allow_stdin = false;
+
+    nl::json header = nl::json::object();
+    xeus::xrequest_context::guid_list id = {};
+    xeus::xrequest_context context(header, id);
+
+    std::promise<nl::json> promise;
+    auto callback = [&promise](nl::json result) { promise.set_value(result); };
+
+    StreamRedirectRAII cout_redirect(std::cout);
+    StreamRedirectRAII cerr_redirect(std::cerr);
+
+    std::string code = R"(
+        #include <stdio.h>
+        #include <iostream>
+        printf("C stdout\n");
+        fprintf(stderr, "C stderr\n");
+        std::cout << "C++ stdout\n";
+        std::cerr << "C++ stderr\n";
+    )";
+
+    interpreter.execute_request(context, callback, code, config, nl::json::object());
+    (void)promise.get_future().get();
+
+    std::string captured_out = cout_redirect.getCaptured();
+    std::string captured_err = cerr_redirect.getCaptured();
+
+    // Nothing should reach the redirected streams in silent mode
+    REQUIRE(captured_out.empty());
+    REQUIRE(captured_err.empty());
+}
