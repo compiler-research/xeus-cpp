@@ -99,6 +99,39 @@ TEST_SUITE("execute_request")
         REQUIRE(result["status"] == "ok");
     }
 
+#if defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+    TEST_CASE("headers found in sysroot/include/compat")
+    {
+        std::vector<const char*> Args = {};
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+        std::string code = "#include <xlocale.h>";
+        nl::json user_expressions = nl::json::object();
+        xeus::execute_request_config config;
+        config.silent = false;
+        config.store_history = false;
+        config.allow_stdin = false;
+        nl::json header = nl::json::object();
+        xeus::xrequest_context::guid_list id = {};
+        xeus::xrequest_context context(header, id);
+
+        std::promise<nl::json> promise;
+        std::future<nl::json> future = promise.get_future();
+        auto callback = [&promise](nl::json result) {
+            promise.set_value(result);
+        };
+
+        interpreter.execute_request(
+            std::move(context),
+            std::move(callback),
+            code,
+            std::move(config),
+            user_expressions
+        );
+        nl::json result = future.get();
+        REQUIRE(result["status"] == "ok");
+    }
+#endif
+
     TEST_CASE("fetch_documentation")
     {
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};

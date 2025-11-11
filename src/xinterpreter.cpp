@@ -45,6 +45,7 @@ void* createInterpreter(const Args &ExtraArgs = {}) {
     ClangArgs.push_back("-isystem");
     ClangArgs.push_back(CxxInclude.c_str());
   }
+
   ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
   // FIXME: We should process the kernel input options and conditionally pass
   // the gpu args here.
