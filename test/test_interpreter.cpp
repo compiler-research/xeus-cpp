@@ -102,7 +102,11 @@ TEST_SUITE("execute_request")
 #if defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
     TEST_CASE("headers found in sysroot/include/compat")
     {
-        std::vector<const char*> Args = {};
+        std::vector<const char*> Args = {
+            "-v",
+            "-Xclang", "-iwithsysroot/include/compat"
+        };
+
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
         std::string code = "#include <xlocale.h>";
         nl::json user_expressions = nl::json::object();
