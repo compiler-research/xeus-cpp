@@ -161,11 +161,12 @@ __get_cxx_version ()
         auto cout_strbuf = std::cout.rdbuf();
         auto cerr_strbuf = std::cerr.rdbuf();
 
+        std::unique_ptr<xnull> nullbuf;
         if (config.silent)
         {
-            auto null = xnull();
-            std::cout.rdbuf(&null);
-            std::cerr.rdbuf(&null);
+            nullbuf = std::make_unique<xnull>();
+            std::cout.rdbuf(nullbuf.get());
+            std::cerr.rdbuf(nullbuf.get());
         }
 
         std::string err;
