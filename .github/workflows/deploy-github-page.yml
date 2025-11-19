@@ -139,21 +139,50 @@ jobs:
           fi
         timeout-minutes: 4
 
-      - name: Jupyter Lite integration
-        shell: bash -l {0}
-        run: |
-          micromamba create -n xeus-lite-host jupyter_server jupyterlite-xeus -c conda-forge
-          micromamba activate xeus-lite-host
-          jupyter lite build \
-              --XeusAddon.prefix=${{ env.PREFIX }} \
-              --XeusAddon.mounts="${{ env.PREFIX }}/share/xeus-cpp/tagfiles:/share/xeus-cpp/tagfiles" \
-              --XeusAddon.mounts="${{ env.PREFIX }}/etc/xeus-cpp/tags.d:/etc/xeus-cpp/tags.d" \
-              --contents README.md \
-              --contents notebooks/xeus-cpp-lite-demo.ipynb \
-              --contents notebooks/tinyraytracer.ipynb \
-              --contents notebooks/images/marie.png \
-              --contents notebooks/audio/audio.wav \
-              --output-dir dist
+      - name: Serve Jupyter Lite website
+        uses: ./.github/actions/Jupyter-serve
+
+      - name: Test C++17 kernel in xeus-cpp-lite-demo.ipynb
+        uses: ./.github/actions/Emscripten-Notebook-Tests
+        with:
+          notebook: "xeus-cpp-lite-demo.ipynb"
+          kernel: "C++17"
+        timeout-minutes: 5
+
+      - name: Test C++20 kernel in xeus-cpp-lite-demo.ipynb
+        uses: ./.github/actions/Emscripten-Notebook-Tests
+        with:
+          notebook: "xeus-cpp-lite-demo.ipynb"
+          kernel: "C++20"
+        timeout-minutes: 5
+
+      - name: Test C++23 kernel in xeus-cpp-lite-demo.ipynb
+        uses: ./.github/actions/Emscripten-Notebook-Tests
+        with:
+          notebook: "xeus-cpp-lite-demo.ipynb"
+          kernel: "C++23"
+        timeout-minutes: 5
+
+      - name: Test C++17 kernel in tinyraytracer.ipynb
+        uses: ./.github/actions/Emscripten-Notebook-Tests
+        with:
+          notebook: "tinyraytracer.ipynb"
+          kernel: "C++17"
+        timeout-minutes: 5
+
+      - name: Test C++20 kernel in tinyraytracer.ipynb
+        uses: ./.github/actions/Emscripten-Notebook-Tests
+        with:
+          notebook: "tinyraytracer.ipynb"
+          kernel: "C++20"
+        timeout-minutes: 5
+
+      - name: Test C++23 kernel in tinyraytracer.ipynb
+        uses: ./.github/actions/Emscripten-Notebook-Tests
+        with:
+          notebook: "tinyraytracer.ipynb"
+          kernel: "C++23"
+        timeout-minutes: 5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
