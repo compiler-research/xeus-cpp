@@ -4,8 +4,8 @@
       "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
       "-resource-dir", "/lib/clang/@CPPINTEROP_LLVM_VERSION_MAJOR@",
       "-Xclang", "-iwithsysroot/include/compat",
-      "-std=c++20", "-mllvm", "-enable-emscripten-cxx-exceptions",
-      "-mllvm", "-enable-emscripten-sjlj", "-msimd128"
+      "-std=c++20", "-fwasm-exceptions",
+      "-mllvm", "-wasm-enable-sjlj", "-msimd128"
   ],
   "language": "cpp",
   "metadata": {
