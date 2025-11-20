@@ -56,22 +56,16 @@ using namespace std::placeholders;
 namespace xcpp
 {
     struct StreamRedirectRAII {
-        std::string& out;
-        std::string& err;
-
-        StreamRedirectRAII(std::string& o, std::string& e)
-            : out(o)
-            , err(e)
-        {
-            Cpp::BeginStdStreamCapture(Cpp::kStdOut);
-            Cpp::BeginStdStreamCapture(Cpp::kStdErr);
-        }
-
-        ~StreamRedirectRAII()
-        {
-            err = Cpp::EndStdStreamCapture();
-            out = Cpp::EndStdStreamCapture();
-        }
+      std::string &err;
+      StreamRedirectRAII(std::string &e) : err(e) {
+        Cpp::BeginStdStreamCapture(Cpp::kStdErr);
+        Cpp::BeginStdStreamCapture(Cpp::kStdOut);
+      }
+      ~StreamRedirectRAII() {
+        std::string out = Cpp::EndStdStreamCapture();
+        err = Cpp::EndStdStreamCapture();
+        std::cout << out;
+      }
     };
 
     void interpreter::configure_impl()
@@ -169,12 +163,11 @@ __get_cxx_version ()
         }
 
         std::string err;
-        std::string out;
 
         // Attempt normal evaluation
         try
         {
-            StreamRedirectRAII R(out, err);
+            StreamRedirectRAII R(err);
             compilation_result = Cpp::Process(code.c_str());
         }
         catch (std::exception& e)
@@ -189,12 +182,11 @@ __get_cxx_version ()
             ename = "Error: ";
         }
 
-        if (!out.empty())
+        if (compilation_result)
         {
-            std::cout << out;
-        }
-        if (!err.empty())
-        {
+            errorlevel = 1;
+            ename = "Error: ";
+            evalue = "Compilation error! " + err;
             std::cerr << err;
         }
 
@@ -207,13 +199,6 @@ __get_cxx_version ()
         {
             std::cout.rdbuf(cout_strbuf);
             std::cerr.rdbuf(cerr_strbuf);
-        }
-
-        if (compilation_result)
-        {
-            errorlevel = 1;
-            ename = "Error: ";
-            evalue = "Compilation error! " + err;
         }
 
         // Depending of error level, publish execution result or execution
