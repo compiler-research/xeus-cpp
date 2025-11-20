@@ -6,7 +6,8 @@
       "-Xclang", "-iwithsysroot/include/compat",
       "-xc",
       "-std=c17",
-      "-mllvm", "-enable-emscripten-sjlj",
+      "-fwasm-exceptions",
+      "-mllvm", "-wasm-enable-sjlj",
       "-msimd128"
   ],
   "language": "c",
