@@ -70,7 +70,10 @@ TEST_SUITE("execute_request")
 {
     TEST_CASE("stl")
     {
-        std::vector<const char*> Args = {"stl-test-case", "-v"};
+        std::vector<const char*> Args = {
+            "-v",
+            "-Xclang", "-iwithsysroot/include/compat"
+        };
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
         std::string code = "#include <vector>";
         nl::json user_expressions = nl::json::object();
@@ -109,6 +112,45 @@ TEST_SUITE("execute_request")
 
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
         std::string code = "#include <xlocale.h>";
+        nl::json user_expressions = nl::json::object();
+        xeus::execute_request_config config;
+        config.silent = false;
+        config.store_history = false;
+        config.allow_stdin = false;
+        nl::json header = nl::json::object();
+        xeus::xrequest_context::guid_list id = {};
+        xeus::xrequest_context context(header, id);
+
+        std::promise<nl::json> promise;
+        std::future<nl::json> future = promise.get_future();
+        auto callback = [&promise](nl::json result) {
+            promise.set_value(result);
+        };
+
+        interpreter.execute_request(
+            std::move(context),
+            std::move(callback),
+            code,
+            std::move(config),
+            user_expressions
+        );
+        nl::json result = future.get();
+        REQUIRE(result["status"] == "ok");
+    }
+#endif
+
+#if defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+    TEST_CASE("Emscripten Exception Handling")
+    {
+        std::vector<const char*> Args = {
+            "-std=c++20",
+            "-v",
+            "-fwasm-exceptions",
+            "-mllvm", "-wasm-enable-sjlj"
+        };
+
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+        std::string code = "try { throw 1; } catch (...) { 0; }";
         nl::json user_expressions = nl::json::object();
         xeus::execute_request_config config;
         config.silent = false;
@@ -810,7 +852,10 @@ TEST_SUITE("complete_request")
 {
     TEST_CASE("completion_test")
     {
-        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
+        std::vector<const char*> Args = {
+            "-v",
+            "-Xclang", "-iwithsysroot/include/compat"
+        };
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
         std::string code1 = "#include <iostream>";
         nl::json user_expressions = nl::json::object();
