@@ -33,7 +33,7 @@ jobs:
           - name: ubu24-analyzers
             os: ubuntu-24.04
             coverage: true
-            extra_cmake_flags: -DCMAKE_BUILD_TYPE=Debug
+            debug: on
             micromamba_shell_init: bash
           - name: ubu22
             os: ubuntu-22.04
@@ -77,6 +77,9 @@ jobs:
         if: ${{ runner.os != 'windows' }}
         run: |
           os="${{ matrix.os }}"
+          if [[ "${{ matrix.debug }}" == "on" ]]; then
+            echo "BUILD_TYPE=Debug" >> $GITHUB_ENV
+          fi
           if [[ "${os}" == "macos"* ]]; then
             echo "ncpus=$(sysctl -n hw.ncpu)" >> $GITHUB_ENV
           else
@@ -114,7 +117,7 @@ jobs:
            -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
            -DXEUS_CPP_ENABLE_CODE_COVERAGE=${{ matrix.coverage }} \
           -DCMAKE_COMPILE_WARNING_AS_ERROR=ON            \
-           ${{ matrix.extra_cmake_flags }} 
+           -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
 
       - name: build, run C++ tests & install
         if: ${{ runner.os == 'windows' }}
@@ -133,6 +136,16 @@ jobs:
           cd build
           make install -j ${{ env.ncpus }}
           make -j ${{ env.ncpus }} check-xeus-cpp
+          if [[ "${{ matrix.os }}" != "macos"* && "${{ matrix.debug }}" == "on" ]]; then
+              sudo apt update
+              sudo apt install libc6-dbg
+              micromamba install -c conda-forge valgrind
+              valgrind --show-error-list=yes --track-origins=yes --error-exitcode=1 \
+                --show-leak-kinds=definite,possible \
+                --gen-suppressions=all \
+                --suppressions="../etc/xeus-cpp-valgrind_x86.supp" \
+                test/test_xeus_cpp
+          fi
 
       - name: Python tests Unix Systems
         if: ${{ runner.os != 'windows' }}
