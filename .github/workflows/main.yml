@@ -329,7 +329,7 @@ jobs:
       - name: Jupyter Lite integration
         shell: bash -l {0}
         run: |
-          micromamba create -n xeus-lite-host jupyterlite-core=0.6 jupyterlite-xeus -c conda-forge
+          micromamba create -n xeus-lite-host jupyterlite-xeus -c conda-forge
           micromamba activate xeus-lite-host
           jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }}
 
