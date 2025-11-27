@@ -166,7 +166,7 @@ python $BUILD_PREFIX/bin/emrun.py --browser="google-chrome" --kill_exit --timeou
 
 To build and test Jupyter Lite with this kernel locally you can execute the following
 ```bash
-micromamba create -n xeus-lite-host jupyterlite-core=0.6 jupyter_server jupyterlite-xeus -c conda-forge
+micromamba create -n xeus-lite-host jupyter_server jupyterlite-xeus -c conda-forge
 micromamba activate xeus-lite-host
 jupyter lite serve --XeusAddon.prefix=$PREFIX \            
                    --XeusAddon.mounts="$PREFIX/share/xeus-cpp/tagfiles:/share/xeus-cpp/tagfiles" \

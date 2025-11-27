@@ -34,9 +34,8 @@ emcmake cmake -DCMAKE_BUILD_TYPE=Release \\
               {XEUS_CPP_ROOT};
 emmake make -j $(nproc --all) install;
 cd {XEUS_CPP_ROOT};
-micromamba create -n xeus-lite-host jupyterlite-core=0.6 jupyter_server jupyterlite-xeus -c conda-forge -y;
+micromamba create -n xeus-lite-host jupyter_server jupyterlite-xeus -c conda-forge -y;
 micromamba activate xeus-lite-host;
-python -m pip install jupyterlite-xeus jupyter_server;
 jupyter lite build --XeusAddon.prefix=$PREFIX \\
                    --XeusAddon.mounts="$PREFIX/share/xeus-cpp/tagfiles:/share/xeus-cpp/tagfiles" \
                    --XeusAddon.mounts="$PREFIX/etc/xeus-cpp/tags.d:/etc/xeus-cpp/tags.d" \
