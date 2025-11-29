@@ -199,23 +199,15 @@ def main():
 
         time.sleep(2)
 
-    if args.driver == "chrome":
-        print("Saving notebook using command + s + enter.")
-        actions.send_keys(Keys.COMMAND, "s")
-        time.sleep(0.5)
+    # This section saves the notebook,
+    print("Saving the notebook")
+    notebook_area.send_keys(Keys.COMMAND, "s")
+    time.sleep(0.5)
 
-        actions.send_keys(Keys.ENTER)
-        time.sleep(0.5)
+    notebook_area.send_keys(Keys.ENTER)
+    time.sleep(0.5)
 
-    elif args.driver == "safari" or args.driver == "firefox":
-        print("Saving notebook using command + s + enter.")
-        notebook_area.send_keys(Keys.COMMAND, "s")
-        time.sleep(0.5)
-
-        notebook_area.send_keys(Keys.ENTER)
-        time.sleep(0.5)
-
-    # This downloads the notebook, so it can be compared
+    # This section downloads the notebook, so it can be compared
     # to a reference notebook
     print("Downloading notebook by clicking download button")
     search_script = """
