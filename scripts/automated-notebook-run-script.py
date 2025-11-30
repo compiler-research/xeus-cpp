@@ -80,7 +80,7 @@ def run_notebook(driver, notebook_area, args):
             )
             input_box.click()
             input_box.send_keys(f"{args.stdin}")
-            time.sleep(0.1)
+            time.sleep(0.2)
             input_box.send_keys(Keys.CONTROL, Keys.ENTER)
             next_cell = current_cell.find_element(
                 By.XPATH,
