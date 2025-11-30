@@ -24,7 +24,7 @@ def cell_is_waiting_for_input(driver):
 
     return False
 
-def wait_for_idle_status(driver, current_cell, start_time):
+def wait_for_idle_status(driver, current_cell, start_time, timeout):
     """
     This function checks whether the kernel is Idle. Used to decide when to move
     onto executing the next cell. The 0.01 seconds sleep between checks, is to limit
@@ -40,6 +40,74 @@ def wait_for_idle_status(driver, current_cell, start_time):
 
     print(current_cell.text)
 
+def run_notebook(driver):
+    """This functions runs all the cells of the notebook """
+    print("Running Cells")
+    # This timeout is provided in case the notebppks stalls during
+    # its execution.
+    timeout = 360
+    start_time = time.time()
+    while True:
+        current_cell = driver.find_element(
+            By.CSS_SELECTOR, ".jp-Notebook-cell.jp-mod-selected"
+        )
+        editor_divs = current_cell.find_elements(
+            By.CSS_SELECTOR, ".jp-InputArea-editor div"
+        )
+
+        cell_content = "".join(
+            div.get_attribute("textContent") for div in editor_divs
+        ).strip()
+
+        if not cell_content:
+            # An empty cell is used to determine the end of the notebook
+            # that is being executed.
+            print("Empty cell reached")
+            break
+
+        if cell_is_waiting_for_input(driver):
+            print("Cell requesting input")
+            input_box = WebDriverWait(driver, 5).until(
+                EC.visibility_of_element_located(
+                    (By.CSS_SELECTOR, ".jp-Stdin-input")
+                )
+            )
+            input_box.click()
+            input_box.send_keys(f"{args.stdin}")
+            time.sleep(0.1)
+            input_box.send_keys(Keys.CONTROL, Keys.ENTER)
+            next_cell = current_cell.find_element(
+                By.XPATH,
+                "following-sibling::div[contains(@class,'jp-Notebook-cell')][1]",
+            )
+            driver.execute_script(
+                "arguments[0].scrollIntoView({block:'center'});", next_cell
+            )
+            next_cell.click()
+            if args.driver == "safari":
+                driver.execute_script(
+                    """
+                    const evt = new KeyboardEvent('keydown', {
+                    key: 'Enter',
+                    code: 'Enter',
+                    keyCode: 13,
+                    which: 13,
+                    shiftKey: true,
+                    bubbles: true
+                    });
+                    document.activeElement.dispatchEvent(evt);
+                    """
+                )
+            wait_for_idle_status(driver, current_cell, start_time, timeout)
+            current_cell=next_cell
+
+        notebook_area.send_keys(Keys.SHIFT, Keys.ENTER)
+        # This sleep is there is allow time for the box for standard input
+        # to appear, it if needs to after executing the cell
+        time.sleep(0.1)
+        if not cell_is_waiting_for_input(driver):
+            wait_for_idle_status(driver, current_cell, start_time, timeout)
+    
 def main():
     parser = argparse.ArgumentParser(description="Run Selenium with a chosen driver")
     parser.add_argument(
@@ -115,69 +183,7 @@ def main():
     time.sleep(0.01)
 
     # This will run all the cells of the chosen notebook
-    print("Running Cells")
-    # This timeout is provided in case the notebppks stalls during
-    # its execution.
-    timeout = 360
-    start_time = time.time()
-    while True:
-        current_cell = driver.find_element(
-            By.CSS_SELECTOR, ".jp-Notebook-cell.jp-mod-selected"
-        )
-        editor_divs = current_cell.find_elements(
-            By.CSS_SELECTOR, ".jp-InputArea-editor div"
-        )
-
-        cell_content = "".join(
-            div.get_attribute("textContent") for div in editor_divs
-        ).strip()
-
-        if not cell_content:
-            print("Empty cell reached")
-            break
-
-        if cell_is_waiting_for_input(driver):
-            print("Cell requesting input")
-            input_box = WebDriverWait(driver, 5).until(
-                EC.visibility_of_element_located(
-                    (By.CSS_SELECTOR, ".jp-Stdin-input")
-                )
-            )
-            input_box.click()
-            input_box.send_keys(f"{args.stdin}")
-            time.sleep(0.1)
-            input_box.send_keys(Keys.CONTROL, Keys.ENTER)
-            next_cell = current_cell.find_element(
-                By.XPATH,
-                "following-sibling::div[contains(@class,'jp-Notebook-cell')][1]",
-            )
-            driver.execute_script(
-                "arguments[0].scrollIntoView({block:'center'});", next_cell
-            )
-            next_cell.click()
-            if args.driver == "safari":
-                driver.execute_script(
-                    """
-                    const evt = new KeyboardEvent('keydown', {
-                    key: 'Enter',
-                    code: 'Enter',
-                    keyCode: 13,
-                    which: 13,
-                    shiftKey: true,
-                    bubbles: true
-                    });
-                    document.activeElement.dispatchEvent(evt);
-                    """
-                )
-            wait_for_idle_status(driver, current_cell, start_time)
-            current_cell=next_cell
-
-        notebook_area.send_keys(Keys.SHIFT, Keys.ENTER)
-        # This sleep is there is allow time for the box for standard input
-        # to appear, it if needs to after executing the cell
-        time.sleep(0.1)
-        if not cell_is_waiting_for_input(driver):
-            wait_for_idle_status(driver, current_cell, start_time)
+    run_notebook(driver)
 
     # This section saves the notebook,
     print("Saving the notebook")
