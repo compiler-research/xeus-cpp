@@ -13,18 +13,11 @@ import sys
 
 
 def cell_is_waiting_for_input(driver):
-    dialog_selectors = [".jp-Stdin-input"]
-
-    for selector in dialog_selectors:
-        try:
-            elems = driver.find_elements(By.CSS_SELECTOR, selector)
-            if any(elem.is_displayed() for elem in elems):
-                return True
-        except Exception:
-            pass
-
-    return False
-
+    """
+    This function returns true if Jupyter is currently waiting the user to enter
+    text in a box.
+    """
+    return driver.find_element(By.CSS_SELECTOR, ".jp-Stdin-input").is_displayed()
 
 def main():
     parser = argparse.ArgumentParser(description="Run Selenium with a chosen driver")
