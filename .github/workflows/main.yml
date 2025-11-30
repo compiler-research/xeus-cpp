@@ -390,7 +390,7 @@ jobs:
             cat chrome_diff.txt
             exit 1
           fi
-        timeout-minutes: 15
+        timeout-minutes: 5
 
       - name: Setup tmate session
         if: ${{ failure() && runner.debug }}
