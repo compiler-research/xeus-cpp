@@ -17,7 +17,22 @@ def cell_is_waiting_for_input(driver):
     This function returns true if Jupyter is currently waiting the user to enter
     text in a box.
     """
-    return driver.find_element(By.CSS_SELECTOR, ".jp-Stdin-input").is_displayed()
+    try:
+        return driver.find_element(By.CSS_SELECTOR, ".jp-Stdin-input").is_displayed()
+    except NoSuchElementException:
+        return False
+
+def wait_for_idle_status(driver, current_cell):
+    """
+    This function checks whether the kernel is Idle. Used to decide when to move
+    onto executing the next cell. The 0.01 seconds sleep between checks, is to limit
+    the number of checks per second. After the kernel has gone Idle, we print the contents
+    of the cell (source and output) to the terminal.
+    """
+    while "Idle" not in driver.find_elements(By.CSS_SELECTOR, "span.jp-StatusBar-TextItem")[2].text:
+        time.sleep(0.01)
+
+    print(current_cell.text)
 
 def main():
     parser = argparse.ArgumentParser(description="Run Selenium with a chosen driver")
@@ -96,10 +111,10 @@ def main():
     # This will run all the cells of the chosen notebook
     print("Running Cells")
     while True:
-        focused_cell = driver.find_element(
+        current_cell = driver.find_element(
             By.CSS_SELECTOR, ".jp-Notebook-cell.jp-mod-selected"
         )
-        editor_divs = focused_cell.find_elements(
+        editor_divs = current_cell.find_elements(
             By.CSS_SELECTOR, ".jp-InputArea-editor div"
         )
 
@@ -122,7 +137,7 @@ def main():
             input_box.send_keys(f"{args.stdin}")
             time.sleep(0.1)
             input_box.send_keys(Keys.CONTROL, Keys.ENTER)
-            next_cell = focused_cell.find_element(
+            next_cell = current_cell.find_element(
                 By.XPATH,
                 "following-sibling::div[contains(@class,'jp-Notebook-cell')][1]",
             )
@@ -144,29 +159,13 @@ def main():
                     document.activeElement.dispatchEvent(evt);
                     """
                 )
-            while True:
-                spans = driver.find_elements(By.CSS_SELECTOR, "span.jp-StatusBar-TextItem")
-                status_span = spans[2]
-                text = status_span.text
-                
-                if "Idle" in text:
-                    break
-                time.sleep(0.01)
-            print(focused_cell.text)
-            focused_cell=next_cell
+            wait_for_idle_status(driver, current_cell)
+            current_cell=next_cell
 
         notebook_area.send_keys(Keys.SHIFT, Keys.ENTER)
         time.sleep(0.1)
         if not cell_is_waiting_for_input(driver):
-            while True:
-                spans = driver.find_elements(By.CSS_SELECTOR, "span.jp-StatusBar-TextItem")
-                status_span = spans[2]
-                text = status_span.text
-
-                if "Idle" in text:
-                    print(focused_cell.text)
-                    break
-                time.sleep(0.01)
+            wait_for_idle_status(driver, current_cell)
 
     # In case the notebook stalls during execution
     # this makes it so the notebook moves onto the
