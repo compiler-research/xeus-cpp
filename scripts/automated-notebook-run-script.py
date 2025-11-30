@@ -24,6 +24,7 @@ def cell_is_waiting_for_input(driver):
 
     return False
 
+
 def wait_for_idle_status(driver, current_cell, start_time, timeout):
     """
     This function checks whether the kernel is Idle. Used to decide when to move
@@ -31,17 +32,25 @@ def wait_for_idle_status(driver, current_cell, start_time, timeout):
     the number of checks per second. After the kernel has gone Idle, we print the contents
     of the cell (source and output) to the terminal.
     """
-    while "Idle" not in driver.find_elements(By.CSS_SELECTOR, "span.jp-StatusBar-TextItem")[2].text:
+    while (
+        "Idle"
+        not in driver.find_elements(By.CSS_SELECTOR, "span.jp-StatusBar-TextItem")[
+            2
+        ].text
+    ):
         elapsed = time.time() - start_time
         if elapsed > timeout:
-            print(f"Timeout reached ({elapsed:.1f} seconds). Stopping Notebook execution.")
+            print(
+                f"Timeout reached ({elapsed:.1f} seconds). Stopping Notebook execution."
+            )
             sys.exit(1)
         time.sleep(0.01)
 
     print(current_cell.text)
 
-def run_notebook(driver):
-    """This functions runs all the cells of the notebook """
+
+def run_notebook(driver, notebook_area):
+    """This functions runs all the cells of the notebook"""
     print("Running Cells")
     # This timeout is provided in case the notebppks stalls during
     # its execution.
@@ -68,9 +77,7 @@ def run_notebook(driver):
         if cell_is_waiting_for_input(driver):
             print("Cell requesting input")
             input_box = WebDriverWait(driver, 5).until(
-                EC.visibility_of_element_located(
-                    (By.CSS_SELECTOR, ".jp-Stdin-input")
-                )
+                EC.visibility_of_element_located((By.CSS_SELECTOR, ".jp-Stdin-input"))
             )
             input_box.click()
             input_box.send_keys(f"{args.stdin}")
@@ -99,7 +106,7 @@ def run_notebook(driver):
                     """
                 )
             wait_for_idle_status(driver, current_cell, start_time, timeout)
-            current_cell=next_cell
+            current_cell = next_cell
 
         notebook_area.send_keys(Keys.SHIFT, Keys.ENTER)
         # This sleep is there is allow time for the box for standard input
@@ -107,7 +114,8 @@ def run_notebook(driver):
         time.sleep(0.1)
         if not cell_is_waiting_for_input(driver):
             wait_for_idle_status(driver, current_cell, start_time, timeout)
-    
+
+
 def main():
     parser = argparse.ArgumentParser(description="Run Selenium with a chosen driver")
     parser.add_argument(
@@ -166,7 +174,9 @@ def main():
     )
 
     time.sleep(1)
-    actions.context_click(notebook_area).pause(0.01).send_keys(Keys.DOWN * 9).pause(0.01).send_keys(Keys.ENTER).pause(0.01).perform()
+    actions.context_click(notebook_area).pause(0.01).send_keys(Keys.DOWN * 9).pause(
+        0.01
+    ).send_keys(Keys.ENTER).pause(0.01).perform()
 
     # Select Kernel based on input
     kernel_button = driver.find_element(
@@ -183,7 +193,7 @@ def main():
     time.sleep(0.01)
 
     # This will run all the cells of the chosen notebook
-    run_notebook(driver)
+    run_notebook(driver, notebook_area)
 
     # This section saves the notebook,
     print("Saving the notebook")
