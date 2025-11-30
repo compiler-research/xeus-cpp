@@ -195,15 +195,14 @@ jobs:
   emscripten_wasm:
 
     runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os}}-${{ matrix.notebook }}-${{ matrix.kernel }}
 
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - name: ubu24
-            os: ubuntu-24.04
-          - name: osx15-arm
-            os: macos-15
+        os: [ubuntu-24.04, macos-15]
+        notebook: [xeus-cpp-lite-demo.ipynb]
+        kernel: [C++17,C++20,C++23]
 
     steps:
       - uses: actions/checkout@v5
@@ -329,12 +328,69 @@ jobs:
           fi
         timeout-minutes: 4
 
-      - name: Jupyter Lite integration
+      - name: Jupyter Lite integration test
         shell: bash -l {0}
         run: |
+          set -e
           micromamba create -n xeus-lite-host jupyterlite-core=0.6 jupyterlite-xeus -c conda-forge
           micromamba activate xeus-lite-host
-          jupyter lite build --XeusAddon.prefix=${{ env.PREFIX }}
+          if [[ "${{ matrix.os }}" == "macos"* ]]; then
+            brew install coreutils
+            export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
+          fi
+          export INPUT_TEXT="" 
+          if [[ "${{ matrix.notebook }}" == "xeus-cpp-lite-demo.ipynb"* ]]; then
+            export INPUT_TEXT="--stdin Test_Name"
+          fi 
+          timeout 900 jupyter lite serve --settings-overrides=overrides.json --XeusAddon.prefix=${{ env.PREFIX }} \
+                         --XeusAddon.mounts="${{ env.PREFIX }}/share/xeus-cpp/tagfiles:/share/xeus-cpp/tagfiles" \
+                         --XeusAddon.mounts="${{ env.PREFIX }}/etc/xeus-cpp/tags.d:/etc/xeus-cpp/tags.d" \
+                         --contents README.md \
+                         --contents notebooks/xeus-cpp-lite-demo.ipynb \
+                         --contents notebooks/smallpt.ipynb \
+                         --contents notebooks/images/marie.png \
+                         --contents notebooks/audio/audio.wav &
+          # There is a bug in nbdime after 3.2.0 where it will show the filenames as if there was a diff
+          # but there is no diff with the options chosen below (the latest doesn't show a diff, just the filenames with +++
+          # and --- as if it was planning to show a diff. This only happens for xeus-cpp-lite-demo.ipynb.
+          python -m pip install nbdime==3.2.0
+          python -m pip install selenium
+          # This sleep is to force enough time for the jupyter site to build before trying
+          # to run notebooks in it. If you try to run the notebooks before the website is
+          # ready the ci python script will crash saying ti cannot access the url
+          sleep 10
+          echo "Running xeus-cpp in Jupter Lite in Chrome"
+          python -u scripts/automated-notebook-run-script.py --driver chrome --notebook ${{ matrix.notebook }} --kernel ${{ matrix.kernel }} $INPUT_TEXT
+          nbdiff notebooks/${{ matrix.notebook }} $HOME/Downloads/${{ matrix.notebook }} --ignore-id --ignore-metadata >> chrome_diff.txt
+          export CHROME_TESTS_RETURN_VALUE=$( [ -s chrome_diff.txt ] && echo 1 || echo 0 )
+          echo "Running xeus-cpp in Jupter Lite in Firefox"
+          python -u scripts/automated-notebook-run-script.py --driver firefox --notebook ${{ matrix.notebook }} --kernel ${{ matrix.kernel }} $INPUT_TEXT
+          nbdiff notebooks/${{ matrix.notebook }} $HOME/Downloads/${{ matrix.notebook }} --ignore-id --ignore-metadata >> firefox_diff.txt
+          export FIREFOX_TESTS_RETURN_VALUE=$( [ -s firefox_diff.txt ] && echo 1 || echo 0 )
+          rm $HOME/Downloads/${{ matrix.notebook }}      
+          export SAFARI_TESTS_RETURN_VALUE=0
+          touch safari_diff.txt
+          if [[ "${{ matrix.os }}" == "macos"* ]]; then
+            python -m pip install PyAutoGUI
+            python scripts/enable-downloads-safari-github-ci.py
+            echo "Running xeus-cpp in Jupter Lite in  Safari"
+            python -u scripts/automated-notebook-run-script.py --driver safari --notebook ${{ matrix.notebook }} --kernel ${{ matrix.kernel }} $INPUT_TEXT
+            nbdiff notebooks/${{ matrix.notebook }} $HOME/Downloads/${{ matrix.notebook }} --ignore-id --ignore-metadata >> safari_diff.txt
+            export SAFARI_TESTS_RETURN_VALUE=$( [ -s safari_diff.txt ] && echo 1 || echo 0 )
+            rm $HOME/Downloads/${{ matrix.notebook }}
+          fi
+          if [[ $SAFARI_TESTS_RETURN_VALUE -ne 0 || $FIREFOX_TESTS_RETURN_VALUE -ne 0 || $CHROME_TESTS_RETURN_VALUE -ne 0 ]]; then
+            if [[ "${{ matrix.os }}" == "macos"* ]]; then
+               echo "Diff Safari (blank means no diff)"
+               cat safari_diff.txt
+            fi
+            echo "Diff Firefox (blank means no diff)"
+            cat firefox_diff.txt
+            echo "Diff Chrome (blank means no diff)"
+            cat chrome_diff.txt
+            exit 1
+          fi
+        timeout-minutes: 5
 
       - name: Setup tmate session
         if: ${{ failure() && runner.debug }}
