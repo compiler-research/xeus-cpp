@@ -49,7 +49,7 @@ def wait_for_idle_status(driver, current_cell, start_time, timeout):
     print(current_cell.text)
 
 
-def run_notebook(driver, notebook_area):
+def run_notebook(driver, notebook_area, args):
     """This functions runs all the cells of the notebook"""
     print("Running Cells")
     # This timeout is provided in case the notebppks stalls during
@@ -193,7 +193,7 @@ def main():
     time.sleep(0.01)
 
     # This will run all the cells of the chosen notebook
-    run_notebook(driver, notebook_area)
+    run_notebook(driver, notebook_area, args)
 
     # This section saves the notebook,
     print("Saving the notebook")
