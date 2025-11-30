@@ -19,10 +19,12 @@ def cell_is_waiting_for_input(driver):
     """
     try:
         return driver.find_element(By.CSS_SELECTOR, ".jp-Stdin-input").is_displayed()
-    except NoSuchElementException:
-        return False
+    except Exception:
+        pass
 
-def wait_for_idle_status(driver, current_cell):
+    return False
+
+def wait_for_idle_status(driver, current_cell, start_time):
     """
     This function checks whether the kernel is Idle. Used to decide when to move
     onto executing the next cell. The 0.01 seconds sleep between checks, is to limit
@@ -30,6 +32,10 @@ def wait_for_idle_status(driver, current_cell):
     of the cell (source and output) to the terminal.
     """
     while "Idle" not in driver.find_elements(By.CSS_SELECTOR, "span.jp-StatusBar-TextItem")[2].text:
+        elapsed = time.time() - start_time
+        if elapsed > timeout:
+            print(f"Timeout reached ({elapsed:.1f} seconds). Stopping Notebook execution.")
+            sys.exit(1)
         time.sleep(0.01)
 
     print(current_cell.text)
@@ -110,6 +116,10 @@ def main():
 
     # This will run all the cells of the chosen notebook
     print("Running Cells")
+    # This timeout is provided in case the notebppks stalls during
+    # its execution.
+    timeout = 360
+    start_time = time.time()
     while True:
         current_cell = driver.find_element(
             By.CSS_SELECTOR, ".jp-Notebook-cell.jp-mod-selected"
@@ -159,37 +169,15 @@ def main():
                     document.activeElement.dispatchEvent(evt);
                     """
                 )
-            wait_for_idle_status(driver, current_cell)
+            wait_for_idle_status(driver, current_cell, start_time)
             current_cell=next_cell
 
         notebook_area.send_keys(Keys.SHIFT, Keys.ENTER)
+        # This sleep is there is allow time for the box for standard input
+        # to appear, it if needs to after executing the cell
         time.sleep(0.1)
         if not cell_is_waiting_for_input(driver):
-            wait_for_idle_status(driver, current_cell)
-
-    # In case the notebook stalls during execution
-    # this makes it so the notebook moves onto the
-    # save stage after 600 seconds even if the kernel
-    # is still busy
-    timeout = 360
-    start_time = time.time()
-    while True:
-        elapsed = time.time() - start_time
-        if elapsed > timeout:
-            print(f"Timeout reached ({elapsed:.1f} seconds). Stopping loop.")
-            sys.exit(1)
-
-        spans = driver.find_elements(By.CSS_SELECTOR, "span.jp-StatusBar-TextItem")
-        status_span = spans[2]
-        text = status_span.text
-
-        print(f"[{elapsed:.1f}s] Kernel status: {text}")
-
-        if "Idle" in text:
-            print("Kernel is Idle. Stopping loop.")
-            break
-
-        time.sleep(2)
+            wait_for_idle_status(driver, current_cell, start_time)
 
     # This section saves the notebook,
     print("Saving the notebook")
