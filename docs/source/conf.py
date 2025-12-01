@@ -41,7 +41,6 @@ jupyter lite build --XeusAddon.prefix=$PREFIX \\
                    --XeusAddon.mounts="$PREFIX/share/xeus-cpp/tagfiles:/share/xeus-cpp/tagfiles" \
                    --XeusAddon.mounts="$PREFIX/etc/xeus-cpp/tags.d:/etc/xeus-cpp/tags.d" \
                    --contents notebooks/xeus-cpp-lite-demo.ipynb \\
-                   --contents notebooks/smallpt.ipynb \\
                    --contents notebooks/images/marie.png \\
                    --contents notebooks/audio/audio.wav \\
                    --output-dir $READTHEDOCS_OUTPUT/html/xeus-cpp;
