@@ -19,7 +19,10 @@ eval "$__mamba_setup";
 alias micromamba="$MAMBA_EXE";
 micromamba create -f environment-wasm-build.yml -y;
 micromamba activate xeus-cpp-wasm-build;
-micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32;
+micromamba create -f environment-wasm-host.yml \
+--platform=emscripten-wasm32 \
+-c https://prefix.dev/emscripten-forge-4x \
+-c https://prefix.dev/conda-forge
 mkdir -p build;
 cd build;
 export BUILD_PREFIX=$MAMBA_ROOT_PREFIX/xeus-cpp-wasm-build;

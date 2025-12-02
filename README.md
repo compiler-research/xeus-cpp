@@ -89,7 +89,11 @@ micromamba activate xeus-cpp-wasm-build
 
 You are now in a position to build the xeus-cpp kernel. You build and test it in node by executing the following. Once the test pass, run the install command.
 ```bash
-micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
+micromamba create -f environment-wasm-host.yml \
+--platform=emscripten-wasm32 \
+-c https://prefix.dev/emscripten-forge-4x \
+-c https://prefix.dev/conda-forge
+
 mkdir build
 cd build
 export BUILD_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build

@@ -230,7 +230,10 @@ jobs:
       - name: Build and test xeus-cpp in node, then install
         shell: bash -l {0}
         run: |
-          micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
+          micromamba create -f environment-wasm-host.yml \
+          --platform=emscripten-wasm32 \
+          -c https://prefix.dev/emscripten-forge-4x \
+          -c https://prefix.dev/conda-forge
           
           mkdir build
           pushd build
