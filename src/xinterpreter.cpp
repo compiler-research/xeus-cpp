@@ -24,6 +24,10 @@
 #endif
 #include "xparser.hpp"
 #include "xsystem.hpp"
+#ifndef WIN32
+#include <fcntl.h>
+#include <unistd.h>
+#endif
 
 using Args = std::vector<const char*>;
 
@@ -73,6 +77,11 @@ namespace xcpp
         xeus::register_interpreter(this);
     }
 
+    int32_t interpreter::get_current_pid()
+    {
+        return Cpp::GetExecutorPID();
+    }
+
     static std::string get_stdopt()
     {
         // We need to find what's the C++ version the interpreter runs with.
@@ -109,7 +118,7 @@ __get_cxx_version ()
     {
         //NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-pointer-arithmetic)
         createInterpreter(Args(argv ? argv + 1 : argv, argv + argc));
-        m_version = get_stdopt();
+        // m_version = get_stdopt();
         redirect_output();
         init_preamble();
         init_magic();
@@ -122,7 +131,7 @@ __get_cxx_version ()
 
     void interpreter::execute_request_impl(
         send_reply_callback cb,
-        int /*execution_count*/,
+        int execution_count,
         const std::string& code,
         xeus::execute_request_config config,
         nl::json /*user_expressions*/
@@ -163,6 +172,10 @@ __get_cxx_version ()
         }
 
         std::string err;
+
+        m_code_to_execution_count_map[code].push_back(execution_count);
+        m_execution_count_to_code_map[execution_count] = code;
+        std::clog << "In [" << execution_count << "]: " << code << std::endl;
 
         // Attempt normal evaluation
         try
@@ -312,6 +325,7 @@ __get_cxx_version ()
                              "\n"
                              "  xeus-cpp: a C++ Jupyter kernel - based on Clang-repl\n";
         result["banner"] = banner;
+        result["debugger"] = true;
         result["language_info"]["name"] = "C++";
         result["language_info"]["version"] = m_version;
         result["language_info"]["mimetype"] = "text/x-c++src";
