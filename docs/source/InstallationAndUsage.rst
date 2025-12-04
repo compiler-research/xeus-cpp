@@ -158,6 +158,7 @@ To build and test Jupyter Lite with this kernel locally you can execute the foll
                        --XeusAddon.mounts="$PREFIX/etc/xeus-cpp/tags.d:/etc/xeus-cpp/tags.d" \
                        --contents README.md \
                        --contents notebooks/xeus-cpp-lite-demo.ipynb \
+                       --contents notebooks/tinyraytracer.ipynb \
                        --contents notebooks/images/marie.png \
                        --contents notebooks/audio/audio.wav
 
