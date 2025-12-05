@@ -1,0 +1,55 @@
+name: 'Run kernel in notebook within Jupyter Lite'
+description: 'This action runs the chosen kernel in notebook within Jupyter Lite'
+
+inputs:
+  notebook:
+    description: "The notebook to run the kernel in"
+    required: true
+    type: string
+  kernel:
+    description: "The kernel to use"
+    required: true
+    type: string
+
+runs:
+  using: composite
+  steps:
+    - name: Jupyter Lite integration test
+      shell: bash -l {0}
+      run: |
+        set -e
+        micromamba activate xeus-lite-host
+        export INPUT_TEXT="" 
+        if [[ "${{ inputs.notebook }}" == "xeus-cpp-lite-demo.ipynb"* ]]; then
+          export INPUT_TEXT="--stdin Smudge"
+        fi 
+        echo "Running xeus-cpp in Jupter Lite in Chrome"
+        python -u scripts/automated-notebook-run-script.py --driver chrome --notebook ${{ inputs.notebook }} --kernel ${{ inputs.kernel }} $INPUT_TEXT
+        nbdiff notebooks/${{ inputs.notebook }} $HOME/Downloads/${{ inputs.notebook }} --ignore-id --ignore-metadata >> chrome_diff.txt
+        export CHROME_TESTS_RETURN_VALUE=$( [ -s chrome_diff.txt ] && echo 1 || echo 0 )
+        rm $HOME/Downloads/${{ inputs.notebook }}   
+        echo "Running xeus-cpp in Jupter Lite in Firefox"
+        python -u scripts/automated-notebook-run-script.py --driver firefox --notebook ${{ inputs.notebook }} --kernel ${{ inputs.kernel }} $INPUT_TEXT
+        nbdiff notebooks/${{ inputs.notebook }} $HOME/Downloads/${{ inputs.notebook }} --ignore-id --ignore-metadata >> firefox_diff.txt
+        export FIREFOX_TESTS_RETURN_VALUE=$( [ -s firefox_diff.txt ] && echo 1 || echo 0 )
+        rm $HOME/Downloads/${{ inputs.notebook }}      
+        export SAFARI_TESTS_RETURN_VALUE=0
+        touch safari_diff.txt
+        if [[ "${{ matrix.os }}" == "macos"* ]]; then
+          echo "Running xeus-cpp in Jupter Lite in  Safari"
+          python -u scripts/automated-notebook-run-script.py --driver safari --notebook ${{ inputs.notebook }} --kernel ${{ inputs.kernel }} $INPUT_TEXT
+          nbdiff notebooks/${{ inputs.notebook }} $HOME/Downloads/${{ inputs.notebook }} --ignore-id --ignore-metadata >> safari_diff.txt
+          export SAFARI_TESTS_RETURN_VALUE=$( [ -s safari_diff.txt ] && echo 1 || echo 0 )
+          rm $HOME/Downloads/${{ inputs.notebook }}
+        fi
+        if [[ $SAFARI_TESTS_RETURN_VALUE -ne 0 || $FIREFOX_TESTS_RETURN_VALUE -ne 0 || $CHROME_TESTS_RETURN_VALUE -ne 0 ]]; then
+          if [[ "${{ matrix.os }}" == "macos"* ]]; then
+             echo "Diff Safari (blank means no diff)"
+             cat safari_diff.txt
+          fi
+          echo "Diff Firefox (blank means no diff)"
+          cat firefox_diff.txt
+          echo "Diff Chrome (blank means no diff)"
+          cat chrome_diff.txt
+          exit 1
+        fi
