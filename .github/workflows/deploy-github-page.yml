@@ -45,7 +45,10 @@ jobs:
       - name: Build and test xeus-cpp in node, then install
         shell: bash -l {0}
         run: |
-          micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
+          micromamba create -f environment-wasm-host.yml \
+          --platform=emscripten-wasm32 \
+          -c https://prefix.dev/emscripten-forge-4x \
+          -c https://prefix.dev/conda-forge
 
           mkdir build
           pushd build
@@ -55,9 +58,6 @@ jobs:
           export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host 
           echo "PREFIX=$PREFIX" >> $GITHUB_ENV
           export SYSROOT_PATH=$BUILD_PREFIX/opt/emsdk/upstream/emscripten/cache/sysroot
-
-          micromamba create -n node-env -c conda-forge nodejs=22
-          export PATH="$MAMBA_ROOT_PREFIX/envs/node-env/bin:$PATH"
 
           emcmake cmake \
             -DCMAKE_BUILD_TYPE=Release                        \
@@ -142,7 +142,7 @@ jobs:
       - name: Jupyter Lite integration
         shell: bash -l {0}
         run: |
-          micromamba create -n xeus-lite-host jupyterlite-core=0.6 jupyter_server jupyterlite-xeus -c conda-forge
+          micromamba create -n xeus-lite-host jupyter_server jupyterlite-xeus -c conda-forge
           micromamba activate xeus-lite-host
           jupyter lite build \
               --XeusAddon.prefix=${{ env.PREFIX }} \
