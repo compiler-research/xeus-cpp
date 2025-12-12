@@ -163,6 +163,46 @@ To build and test Jupyter Lite with this kernel locally you can execute the foll
                        --contents notebooks/images/marie.png \
                        --contents notebooks/audio/audio.wav
 
+xeus-cpp Jupyter Lite tests
+========================
+
+It is possible to run test the xeus-cpp in Jupyter Lite deployment, using a Selenium based script and the nbdiff Jupyter tool.
+In order to install these dependencies execute the following (you will need the Jupyter Lite website running in the background when
+executing the python script)
+
+.. code-block:: bash
+
+    python -m pip install nbdime==3.2.0 selenium
+
+Then to run the by executing (--run-browser-gui option exists if you want Chrome or Firefox to show a gui browser as they run)
+
+.. code-block:: bash
+
+    python -u scripts/automated-notebook-run-script.py --driver browser --notebook notebook --kernel kernel --stdin Test_Input --timeout timeout
+
+For example
+
+.. code-block:: bash
+
+    python -u scripts/automated-notebook-run-script.py --driver chrome --notebook xeus-cpp-lite-demo.ipynb  --kernel C++20 --stdin Smudge --timeout 200
+
+will run the xeus-cpp-lite-demo.ipynb notebook in chrome, with the C++20 kernel, enter Test_Name in the standard input box in this notebook,
+and stop the script, if the notebook has finished running after 200 seconds. This works for Safari, Chrome and Firefox. It should be noted
+that in the case of Safari, safari driver  must be enabled, and downloads must be enabled from 127.0.0.1 . Once the script has finished
+executing you can compare the notebook download from the one in the repo, to check the deployment works as expected, by executing
+(replace notebook_run with the notebook chosen for the Python script)
+
+.. code-block:: bash
+
+    nbdiff notebook_run $HOME/Downlaods/notebook_run --ignore-id --ignore-metadata
+
+
+For example after running the above test command, to test no changes have occurred, execute
+
+.. code-block:: bash
+
+    nbdiff xeus-cpp-lite-demo.ipynb $HOME/Downlaods/xeus-cpp-lite-demo.ipynb --ignore-id --ignore-metadata
+		       
 Installing from conda-forge
 ===========================
 

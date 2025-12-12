@@ -1,0 +1,39 @@
+name: 'This sets up our Jupyter Lite website, so we can run xeus-cpp in it'
+description: 'This action sets up our Jupyter Lite website, so we can run xeus-cpp in it'
+
+runs:
+  using: composite
+  steps:
+    - name: Jupyter Lite integration test
+      shell: bash -l {0}
+      run: |
+        set -e
+        micromamba create -n xeus-lite-host jupyter_server jupyterlite-xeus -c conda-forge
+        micromamba activate xeus-lite-host
+        if [[ "${{ matrix.os }}" == "macos"* ]]; then
+          brew install coreutils
+          export PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
+        fi
+        timeout 1800 jupyter lite serve --settings-overrides=overrides.json \
+              --XeusAddon.prefix=${{ env.PREFIX }} \
+              --XeusAddon.mounts="${{ env.PREFIX }}/share/xeus-cpp/tagfiles:/share/xeus-cpp/tagfiles" \
+              --XeusAddon.mounts="${{ env.PREFIX }}/etc/xeus-cpp/tags.d:/etc/xeus-cpp/tags.d" \
+              --contents README.md \
+              --contents notebooks/xeus-cpp-lite-demo.ipynb \
+              --contents notebooks/tinyraytracer.ipynb \
+              --contents notebooks/images/marie.png \
+              --contents notebooks/audio/audio.wav \
+              --output-dir dist &
+        # There is a bug in nbdime after 3.2.0 where it will show the filenames as if there was a diff
+        # but there is no diff with the options chosen below (the latest doesn't show a diff, just the filenames with +++
+        # and --- as if it was planning to show a diff. This only happens for xeus-cpp-lite-demo.ipynb.
+        python -m pip install nbdime==3.2.0
+        if [[ "${{ matrix.os }}" == "macos"* ]]; then
+          python -m pip install PyAutoGUI
+          python scripts/enable-downloads-safari-github-ci.py
+        fi
+        python -m pip install selenium
+        # This sleep is to force enough time for the jupyter site to build before trying
+        # to run notebooks in it. If you try to run the notebooks before the website is
+        # ready the ci python script will crash saying ti cannot access the url
+        sleep 10

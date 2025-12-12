@@ -39,7 +39,8 @@ emmake make -j $(nproc --all) install;
 cd {XEUS_CPP_ROOT};
 micromamba create -n xeus-lite-host jupyter_server jupyterlite-xeus -c conda-forge -y;
 micromamba activate xeus-lite-host;
-jupyter lite build --XeusAddon.prefix=$PREFIX \\
+jupyter lite build --settings-overrides=overrides.json \\
+                   --XeusAddon.prefix=$PREFIX \\
                    --XeusAddon.mounts="$PREFIX/share/xeus-cpp/tagfiles:/share/xeus-cpp/tagfiles" \
                    --XeusAddon.mounts="$PREFIX/etc/xeus-cpp/tags.d:/etc/xeus-cpp/tags.d" \
                    --contents notebooks/xeus-cpp-lite-demo.ipynb \\
