@@ -68,7 +68,10 @@ void* createInterpreter(const Args &ExtraArgs = {}) {
       )
       != ClangArgs.end())
   {
-      Cpp::LoadLibrary("libomp");
+      if (!Cpp::LoadLibrary("libomp"))
+      {
+          std::cerr << "Failed to load libomp)" << std::endl;
+      }
   }
   return res;
 }
