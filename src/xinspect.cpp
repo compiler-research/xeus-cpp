@@ -14,7 +14,7 @@
 
 #include "xinspect.hpp"
 
-#include "clang/Interpreter/CppInterOp.h"
+#include <CppInterOp/CppInterOp.h>
 
 namespace xcpp
 {
