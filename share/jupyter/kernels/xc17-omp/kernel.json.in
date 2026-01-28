@@ -1,9 +1,5 @@
 {
   "display_name": "C17 + OpenMP",
-  "env": {
-      "PATH":"@XEUS_CPP_PATH@",
-      "LD_LIBRARY_PATH":"@OpenMPLibraryDir@"
-  },
   "argv": [
       "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
       "-f",
