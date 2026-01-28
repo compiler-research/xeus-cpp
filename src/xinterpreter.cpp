@@ -18,6 +18,8 @@
 #include "xinput.hpp"
 #include "xinspect.hpp"
 #include "xmagics/os.hpp"
+#include <algorithm>
+#include <cstdlib>
 #include <iostream>
 #ifndef EMSCRIPTEN
 #include "xmagics/xassist.hpp"
@@ -48,7 +50,27 @@ void* createInterpreter(const Args &ExtraArgs = {}) {
   ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
   // FIXME: We should process the kernel input options and conditionally pass
   // the gpu args here.
-  return Cpp::CreateInterpreter(ClangArgs/*, {"-cuda"}*/);
+  Cpp::TInterp_t res = Cpp::CreateInterpreter(ClangArgs /*, {"-cuda"}*/);
+  if (!res)
+  {
+      return res;
+  }
+
+  // clang-repl does not load libomp.so when -fopenmp flag is used
+  // we need to explicitly load it
+  if (std::find_if(
+          ClangArgs.begin(),
+          ClangArgs.end(),
+          [](const std::string& s)
+          {
+              return s.find("-fopenmp") == 0;
+          }
+      )
+      != ClangArgs.end())
+  {
+      Cpp::LoadLibrary("libomp");
+  }
+  return res;
 }
 
 using namespace std::placeholders;

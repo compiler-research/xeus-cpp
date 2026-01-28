@@ -237,8 +237,6 @@ if platform.system() != 'Windows':
         code_omp="""
         #include <omp.h>
         #include <iostream>
-        #include <clang/Interpreter/CppInterOp.h>
-        Cpp::LoadLibrary("libomp");
         """
 
         code_omp_2="""
