@@ -44,9 +44,6 @@ jobs:
           - name: osx15-x86
             os: macos-15-intel
             micromamba_shell_init: bash
-          - name: osx14-arm
-            os: macos-14
-            micromamba_shell_init: bash
           - name: osx15-arm
             os: macos-15
             micromamba_shell_init: bash

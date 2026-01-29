@@ -7,7 +7,7 @@ dependencies:
   - nlohmann_json-abi
   - xeus-lite
   - xeus
-  - CppInterOp
+  - CppInterOp>1.7.0
   - cpp-argparse
   - pugixml
   - doctest
