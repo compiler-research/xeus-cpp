@@ -262,8 +262,8 @@ if platform.system() != 'Windows':
                 reply, output_msgs = self.execute_helper(code=self.code_omp,timeout=20)
                 reply, output_msgs = self.execute_helper(code=self.code_omp_2,timeout=20)
                 self.assertEqual(output_msgs[0]['msg_type'], 'stream')
-                self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
                 self.assertEqual(output_msgs[0]['content']['text'], '10')
+                self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
 
     kernel_names = ['xcpp17-omp', 'xcpp20-omp', 'xcpp23-omp']
 
