@@ -109,12 +109,6 @@ find_package(argparse REQUIRED)
 find_package(pugixml REQUIRED)
 find_package(OpenMP)
 
-# Used to configure OpenMP kernels such that Cpp::loadlibrary knows where OpenMP library is
-if (NOT WIN32)
-  list(GET OpenMP_CXX_LIBRARIES 0 FirstOpenMPLibrary)
-  get_filename_component(OpenMPLibraryDir "${FirstOpenMPLibrary}" DIRECTORY)
-endif()
-
 # Configuration
 # =============
 
