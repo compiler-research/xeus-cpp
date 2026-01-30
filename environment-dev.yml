@@ -15,7 +15,6 @@ dependencies:
   - pugixml
   - cpp-argparse
   - llvm-openmp
-  - compiler-rt=21.1.8
   # Test dependencies
   - pytest
   - jupyter_kernel_test<0.8
