@@ -6,7 +6,7 @@
       "{connection_file}",
       "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
       "-I", "@XEUS_CPP_INCLUDE_DIR@",
-      "-std=c++20"
+      "-std=c++20","-D_LIBCPP_DISABLE_AVAILABILITY"
   ],
   "language": "cpp",
   "metadata": {"debugger": false
