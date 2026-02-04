@@ -348,7 +348,7 @@ macro(xeus_cpp_create_target target_name linkage output_name)
         endif()
     elseif (NOT EMSCRIPTEN)
         # Curl initialised specifically for xassist
-        target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse curl)
+        target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse CURL::libcurl)
     else ()
         target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse)
     endif()
