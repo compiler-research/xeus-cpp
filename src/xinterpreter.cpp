@@ -39,9 +39,11 @@ void* createInterpreter(const Args &ExtraArgs = {}) {
       {
           ClangArgs.push_back("-resource-dir");
           ClangArgs.push_back(resource_dir.c_str());
-    } else {
-        std::cerr << "Failed to detect the resource-dir\n";
-    }
+      }
+      else
+      {
+          std::cerr << "Failed to detect the resource-dir\n";
+      }
   }
   std::vector<std::string> CxxSystemIncludes;
   Cpp::DetectSystemCompilerIncludePaths(CxxSystemIncludes);
