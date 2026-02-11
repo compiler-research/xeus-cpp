@@ -30,10 +30,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES Clang OR CMAKE_CXX_COMPILER_ID MATCHES GNU OR C
         add_compile_options(-Wunused-parameter -Wextra -Wreorder -Wconversion -Wsign-conversion)
     endif()
 
-    CHECK_CXX_COMPILER_FLAG(-march=native HAS_MARCH_NATIVE)
-    if (HAS_MARCH_NATIVE)
-        add_compile_options(-march=native)
-    endif()
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES MSVC)
