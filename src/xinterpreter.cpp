@@ -34,10 +34,11 @@ void* createInterpreter(const Args &ExtraArgs = {}) {
   std::string resource_dir;
   if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
     return s == "-resource-dir";}) == ExtraArgs.end()) {
-    resource_dir = Cpp::DetectResourceDir();
-    if (!resource_dir.empty()) {
-        ClangArgs.push_back("-resource-dir");
-        ClangArgs.push_back(resource_dir.c_str());
+      resource_dir = Cpp::DetectResourceDir();
+      if (!resource_dir.empty())
+      {
+          ClangArgs.push_back("-resource-dir");
+          ClangArgs.push_back(resource_dir.c_str());
     } else {
         std::cerr << "Failed to detect the resource-dir\n";
     }
