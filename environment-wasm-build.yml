@@ -1,7 +1,7 @@
 name: xeus-cpp-wasm-build
 channels:
-  - https://prefix.dev/emscripten-forge-dev
+  - https://prefix.dev/emscripten-forge-4x
   - https://prefix.dev/conda-forge
 dependencies:
   - cmake
-  - emscripten_emscripten-wasm32==3.1.73
+  - emscripten_emscripten-wasm32==4.0.9

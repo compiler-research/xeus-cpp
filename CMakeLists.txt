@@ -90,7 +90,7 @@ endif()
 
 set(xeus_REQUIRED_VERSION 5.0.0)
 set(xeus_zmq_REQUIRED_VERSION 3.0.0)
-set(CppInterOp_REQUIRED_VERSION 1.7.0)
+set(CppInterOp_REQUIRED_VERSION 1.8.0)
 set(xeus_lite_REQUIRED_VERSION 3.2.1)
 
 if (NOT TARGET xeus AND NOT TARGET xeus-static)
@@ -219,6 +219,8 @@ macro(xeus_cpp_set_common_options target_name)
         target_compile_options(${target_name} PUBLIC /wd4251 /wd4141)
         target_compile_options(${target_name} PUBLIC /wd4018 /wd4267 /wd4715 /wd4146 /wd4129)
         target_compile_options(${target_name} PUBLIC /EHsc)
+    elseif (EMSCRIPTEN)
+        target_compile_options(${target_name} PUBLIC -fwasm-exceptions)
     else ()
         target_compile_options(${target_name} PUBLIC -fexceptions)
     endif ()
@@ -409,14 +411,6 @@ if (XEUS_CPP_BUILD_EXECUTABLE)
 endif()
 
 if(EMSCRIPTEN)
-    # Ensure required SDL2 ports (e.g. SDL2) are built before header preloading
-    execute_process(
-        COMMAND embuilder${EMCC_SUFFIX} build sdl2
-        RESULT_VARIABLE SDL2_RESULT
-    )
-    if(NOT SDL2_RESULT EQUAL 0)
-        message(FATAL_ERROR "Failed to run 'embuilder build sdl2'")
-    endif()
     include(WasmBuildOptions)
     find_package(xeus-lite ${xeus_lite_REQUIRED_VERSION} REQUIRED)
     add_executable(xcpp src/main_emscripten_kernel.cpp )
@@ -429,7 +423,6 @@ if(EMSCRIPTEN)
     string(REPLACE "\\" "/" ESCAPED_XEUS_CPP_RESOURCE_DIR "${ESCAPED_XEUS_CPP_RESOURCE_DIR}")
     string(REPLACE "\\" "/" ESCAPED_SYSROOT_PATH "${ESCAPED_SYSROOT_PATH}")
     target_link_options(xcpp
-        PUBLIC "SHELL: -s USE_SDL=2"
         PUBLIC "SHELL: --preload-file ${ESCAPED_SYSROOT_PATH}/include@/include"
         PUBLIC "SHELL: --preload-file ${ESCAPED_XEUS_CPP_RESOURCE_DIR}@/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR}"
         PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm_patches/post.js"

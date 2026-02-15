@@ -87,17 +87,18 @@ micromamba create -f environment-wasm-build.yml -y
 micromamba activate xeus-cpp-wasm-build
 ```
 
-You are now in a position to build the xeus-cpp kernel. You build and test it in node by executing the following. Prefer using node 22 and above as prior versions lead to flaky test runs. Once the test pass, run the install command.
+You are now in a position to build the xeus-cpp kernel. You build and test it in node by executing the following. Once the test pass, run the install command.
 ```bash
-micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
+micromamba create -f environment-wasm-host.yml \
+--platform=emscripten-wasm32 \
+-c https://prefix.dev/emscripten-forge-4x \
+-c https://prefix.dev/conda-forge
+
 mkdir build
 cd build
 export BUILD_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build
 export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host
 export SYSROOT_PATH=$BUILD_PREFIX/opt/emsdk/upstream/emscripten/cache/sysroot
-
-micromamba create -n node-env -c conda-forge nodejs=22
-export PATH="$MAMBA_ROOT_PREFIX/envs/node-env/bin:$PATH"
 
 emcmake cmake \
         -DCMAKE_BUILD_TYPE=Release                        \
@@ -169,14 +170,14 @@ python $BUILD_PREFIX/bin/emrun.py --browser="google-chrome" --kill_exit --timeou
 
 To build and test Jupyter Lite with this kernel locally you can execute the following
 ```bash
-micromamba create -n xeus-lite-host jupyterlite-core=0.6 jupyter_server jupyterlite-xeus -c conda-forge
+micromamba create -n xeus-lite-host jupyter_server jupyterlite-xeus -c conda-forge
 micromamba activate xeus-lite-host
 jupyter lite serve --XeusAddon.prefix=$PREFIX \            
                    --XeusAddon.mounts="$PREFIX/share/xeus-cpp/tagfiles:/share/xeus-cpp/tagfiles" \
                    --XeusAddon.mounts="$PREFIX/etc/xeus-cpp/tags.d:/etc/xeus-cpp/tags.d" \
                    --contents README.md \
                    --contents notebooks/xeus-cpp-lite-demo.ipynb \
-                   --contents notebooks/smallpt.ipynb \
+                   --contents notebooks/tinyraytracer.ipynb \
                    --contents notebooks/images/marie.png \
                    --contents notebooks/audio/audio.wav
 ```
@@ -206,7 +207,7 @@ http://xeus-cpp.readthedocs.io
 
 | `xeus-cpp` | `xeus-zmq`      | `CppInterOp` | `pugixml` | `cpp-argparse`| `nlohmann_json` |
 |------------|-----------------|--------------|-----------|---------------|-----------------|
-|  main      |  3.1.0 | 1.7.0      | 1.15    | 3.2    | 3.12.0   |
+|  main      |  3.1.0 | 1.8.0      | 1.15    | 3.2    | 3.12.0   |
 
 ## Contributing
 
