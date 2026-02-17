@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-#include <CppInterOp/CppInterOp.h>
+#include "clang/Interpreter/CppInterOp.h" // from CppInterOp package
 
 #include <nlohmann/json.hpp>
 

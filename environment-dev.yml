@@ -11,7 +11,7 @@ dependencies:
   - xeus-zmq<4.0
   - nlohmann_json
   - nlohmann_json-abi
-  - CppInterOp>=1.8
+  - CppInterOp<1.8
   - pugixml
   - cpp-argparse
   # Test dependencies
