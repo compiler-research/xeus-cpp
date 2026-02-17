@@ -6,9 +6,7 @@
       "-Xclang", "-iwithsysroot/include/compat",
       "-xc",
       "-std=c11",
-      "-fwasm-exceptions",
-      "-mllvm", "-wasm-enable-sjlj",
-      "-msimd128"
+      @XEUS_CPP_WASM_KERNEL_EXTRA_ARGS_JSON@"-msimd128"
   ],
   "language": "c",
   "metadata": {

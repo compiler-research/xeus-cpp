@@ -50,7 +50,7 @@ if(EMSCRIPTEN)
     target_link_libraries(test_xeus_cpp PRIVATE xeus-cpp-static doctest::doctest)
 
     target_compile_options(test_xeus_cpp
-        PUBLIC "SHELL: -fwasm-exceptions"
+        PUBLIC "SHELL: ${XEUS_CPP_WASM_KERNEL_EXTRA_FLAGS}"
     )
     # So we create a html file, as well as the javascript file
     set_target_properties(test_xeus_cpp PROPERTIES
@@ -63,7 +63,7 @@ if(EMSCRIPTEN)
     # Without this MINIFY_HTML=0 flag you end up with the situation where the creation of the
     # test_xeus_cpp.html file breaks on MacOS, but not Ubuntu
     target_link_options(test_xeus_cpp
-        PUBLIC "SHELL: -fwasm-exceptions"
+        PUBLIC "SHELL: ${XEUS_CPP_WASM_KERNEL_EXTRA_FLAGS}"
         PUBLIC "SHELL: -s MAIN_MODULE=1"
         PUBLIC "SHELL: -s WASM_BIGINT"
         PUBLIC "SHELL: -s ASSERTIONS=0"
