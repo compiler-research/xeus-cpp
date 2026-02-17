@@ -5,7 +5,7 @@ dependencies:
   # Build dependencies
   - make
   - cmake
-  - cxx-compiler
+  - cxx-compiler=1.7.0
   # Host dependencies
   - xeus>=5.0.0
   - xeus-zmq<4.0
