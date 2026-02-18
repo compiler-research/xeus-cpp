@@ -1,0 +1,76 @@
+{
+   Suppression 1
+   Memcheck:Overlap
+   fun:__GI_memcpy
+   fun:copy
+   fun:_S_copy
+   fun:_S_copy
+   fun:_S_copy_chars
+   fun:_S_copy_chars
+   fun:_M_construct<__gnu_cxx::__normal_iterator<char const*, std::__cxx11::basic_string<char> > >
+   fun:basic_string<__gnu_cxx::__normal_iterator<char const*, std::__cxx11::basic_string<char> > >
+   fun:str
+   fun:operator std::__cxx11::sub_match<__gnu_cxx::__normal_iterator<char const*, std::__cxx11::basic_string<char> > >::string_type
+   fun:_ZN4xcpp11interpreter20inspect_request_implERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEii
+   fun:_ZN4xeus12xinterpreter15inspect_requestERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEii
+   fun:_ZN21DOCTEST_ANON_SUITE_11L20DOCTEST_ANON_FUNC_12Ev
+   fun:_ZN7doctest7Context3runEv
+   fun:main
+}
+{
+   Suppression 2
+   Memcheck:Addr8
+   fun:__GI_memcpy
+   fun:copy
+   fun:_S_copy
+   fun:_S_copy
+   fun:_S_copy_chars
+   fun:_S_copy_chars
+   fun:_M_construct<__gnu_cxx::__normal_iterator<char const*, std::__cxx11::basic_string<char> > >
+   fun:basic_string<__gnu_cxx::__normal_iterator<char const*, std::__cxx11::basic_string<char> > >
+   fun:str
+   fun:operator std::__cxx11::sub_match<__gnu_cxx::__normal_iterator<char const*, std::__cxx11::basic_string<char> > >::string_type
+   fun:_ZN4xcpp11interpreter20inspect_request_implERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEii
+   fun:_ZN4xeus12xinterpreter15inspect_requestERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEii
+   fun:_ZN21DOCTEST_ANON_SUITE_11L20DOCTEST_ANON_FUNC_14Ev
+   fun:_ZN7doctest7Context3runEv
+   fun:main
+}
+{
+   Suppression 3
+   Memcheck:Addr2
+   fun:__GI_memcpy
+   fun:copy
+   fun:_S_copy
+   fun:_S_copy
+   fun:_S_copy_chars
+   fun:_S_copy_chars
+   fun:_M_construct<__gnu_cxx::__normal_iterator<char const*, std::__cxx11::basic_string<char> > >
+   fun:basic_string<__gnu_cxx::__normal_iterator<char const*, std::__cxx11::basic_string<char> > >
+   fun:str
+   fun:operator std::__cxx11::sub_match<__gnu_cxx::__normal_iterator<char const*, std::__cxx11::basic_string<char> > >::string_type
+   fun:_ZN4xcpp11interpreter20inspect_request_implERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEii
+   fun:_ZN4xeus12xinterpreter15inspect_requestERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEii
+   fun:_ZN21DOCTEST_ANON_SUITE_11L20DOCTEST_ANON_FUNC_14Ev
+   fun:_ZN7doctest7Context3runEv
+   fun:main
+}
+{
+   Suppression 4
+   Memcheck:Addr1
+   fun:__GI_memcpy
+   fun:copy
+   fun:_S_copy
+   fun:_S_copy
+   fun:_S_copy_chars
+   fun:_S_copy_chars
+   fun:_M_construct<__gnu_cxx::__normal_iterator<char const*, std::__cxx11::basic_string<char> > >
+   fun:basic_string<__gnu_cxx::__normal_iterator<char const*, std::__cxx11::basic_string<char> > >
+   fun:str
+   fun:operator std::__cxx11::sub_match<__gnu_cxx::__normal_iterator<char const*, std::__cxx11::basic_string<char> > >::string_type
+   fun:_ZN4xcpp11interpreter20inspect_request_implERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEii
+   fun:_ZN4xeus12xinterpreter15inspect_requestERKNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEEii
+   fun:_ZN21DOCTEST_ANON_SUITE_11L20DOCTEST_ANON_FUNC_14Ev
+   fun:_ZN7doctest7Context3runEv
+   fun:main
+}

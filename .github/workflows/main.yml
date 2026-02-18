@@ -35,6 +35,10 @@ jobs:
             coverage: true
             debug: on
             micromamba_shell_init: bash
+          - name: ubu24-arm-analyzers
+            os: ubuntu-24.04-arm
+            debug: on
+            micromamba_shell_init: bash
           - name: ubu22
             os: ubuntu-22.04
             micromamba_shell_init: bash
@@ -137,10 +141,15 @@ jobs:
               sudo apt update
               sudo apt install libc6-dbg
               micromamba install -c conda-forge valgrind
+              if [[ "${{ matrix.os }}" == *"arm"* ]]; then
+                SUPPRESSION_FILE="${{ github.workspace }}/etc/xeus-cpp-valgrind_arm.supp"
+              else
+                SUPPRESSION_FILE="${{ github.workspace }}/etc/xeus-cpp-valgrind_x86.supp"
+              fi
               valgrind --show-error-list=yes --track-origins=yes --error-exitcode=1 \
                 --show-leak-kinds=definite,possible \
                 --gen-suppressions=all \
-                --suppressions="../etc/xeus-cpp-valgrind_x86.supp" \
+                --suppressions="${SUPPRESSION_FILE}" \
                 test/test_xeus_cpp
           fi
 
