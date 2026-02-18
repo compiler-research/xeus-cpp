@@ -5,13 +5,13 @@ dependencies:
   # Build dependencies
   - make
   - cmake
-  - cxx-compiler=1.7.0
+  - cxx-compiler
   # Host dependencies
   - xeus>=5.0.0
   - xeus-zmq<4.0
   - nlohmann_json
   - nlohmann_json-abi
-  - CppInterOp<1.8
+  - CppInterOp>=1.8
   - pugixml
   - cpp-argparse
   # Test dependencies

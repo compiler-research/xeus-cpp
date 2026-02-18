@@ -207,7 +207,7 @@ http://xeus-cpp.readthedocs.io
 
 | `xeus-cpp` | `xeus-zmq`      | `CppInterOp` | `pugixml` | `cpp-argparse`| `nlohmann_json` |
 |------------|-----------------|--------------|-----------|---------------|-----------------|
-|  main      |  3.1.0 | 1.7.0      | 1.15    | 3.2    | 3.12.0   |
+|  main      |  3.1.0 | 1.8.0      | 1.15    | 3.2    | 3.12.0   |
 
 ## Contributing
 
