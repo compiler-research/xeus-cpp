@@ -58,6 +58,9 @@ option(XEUS_CPP_USE_SHARED_XEUS "Link xcpp with the xeus shared library (instead
 option(XEUS_CPP_USE_SHARED_XEUS_CPP "Link xcpp with the xeus-cpp shared library (instead of the static library)" ON)
 option(XEUS_CPP_EMSCRIPTEN_WASM_BUILD "Build for wasm with emscripten" OFF)
 
+# Plugin system option
+option(XEUS_CPP_XPLUGIN "Enable xplugin integration" OFF)
+
 # Test options
 option(XEUS_CPP_BUILD_TESTS "xeus-cpp test suite" ON)
 option(XEUS_CPP_ENABLE_CODE_COVERAGE "xeus-cpp test suite" OFF)
@@ -109,6 +112,15 @@ endif()
 
 find_package(argparse REQUIRED)
 find_package(pugixml REQUIRED)
+
+if(XEUS_CPP_XPLUGIN)
+    message(STATUS "xplugin integration is enabled.")
+
+    # Find the xplugin library
+    find_package(xplugin REQUIRED)
+else()
+    message(STATUS "xplugin integration is disabled.")
+endif()
 
 # Configuration
 # =============
@@ -349,6 +361,17 @@ macro(xeus_cpp_create_target target_name linkage output_name)
         target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse)
     endif()
     
+    if(XEUS_CPP_XPLUGIN)
+        # Add xplugin include directories
+        target_include_directories(${target_name} PRIVATE ${xplugin_INCLUDE_DIRS})
+
+        # Link the xplugin library
+        target_link_libraries(${target_name} PRIVATE xplugin)
+
+        # Define a macro to enable plugin-related code
+        target_compile_definitions(${target_name} PRIVATE XEUS_CPP_XPLUGIN)
+    endif()
+
     if (WIN32 OR CYGWIN)
         #
     elseif (APPLE)
