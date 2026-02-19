@@ -56,7 +56,6 @@ option(XEUS_CPP_BUILD_EXECUTABLE "Build the xcpp executable" ON)
 
 option(XEUS_CPP_USE_SHARED_XEUS "Link xcpp with the xeus shared library (instead of the static library)" ON)
 option(XEUS_CPP_USE_SHARED_XEUS_CPP "Link xcpp with the xeus-cpp shared library (instead of the static library)" ON)
-option(XEUS_CPP_EMSCRIPTEN_WASM_BUILD "Build for wasm with emscripten" OFF)
 
 # Test options
 option(XEUS_CPP_BUILD_TESTS "xeus-cpp test suite" ON)
@@ -75,7 +74,6 @@ if(XEUS_CPP_ENABLE_CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 if(EMSCRIPTEN)
-    add_compile_definitions(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
     message("Build with emscripten")
     set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
     set(XEUS_CPP_BUILD_SHARED OFF)
