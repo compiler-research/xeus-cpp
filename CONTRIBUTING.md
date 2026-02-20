@@ -88,7 +88,6 @@ export SYSROOT_PATH=$BUILD_PREFIX/opt/emsdk/upstream/emscripten/cache/sysroot
 emcmake cmake \
         -DCMAKE_BUILD_TYPE=Release                        \
         -DCMAKE_INSTALL_PREFIX=$PREFIX                    \
-        -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
         -DCMAKE_FIND_ROOT_PATH=$PREFIX                    \
         -DSYSROOT_PATH=$SYSROOT_PATH                      \
         ..

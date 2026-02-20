@@ -27,7 +27,7 @@
 #include <iostream>
 #include <pugixml.hpp>
 #include <fstream>
-#if defined(__GNUC__) && !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+#if defined(__GNUC__) && !defined(__EMSCRIPTEN__)
     #include <sys/wait.h>
     #include <unistd.h>
 #endif
@@ -102,7 +102,7 @@ TEST_SUITE("execute_request")
         REQUIRE(result["status"] == "ok");
     }
 
-#if defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+#if defined(__EMSCRIPTEN__)
     TEST_CASE("headers found in sysroot/include/compat")
     {
         std::vector<const char*> Args = {
@@ -139,7 +139,7 @@ TEST_SUITE("execute_request")
     }
 #endif
 
-#if defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+#if defined(__EMSCRIPTEN__)
     TEST_CASE("Emscripten Exception Handling")
     {
         std::vector<const char*> Args = {
@@ -286,7 +286,7 @@ TEST_SUITE("execute_request")
 
 TEST_SUITE("inspect_request")
 {
-#if defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+#if defined(__EMSCRIPTEN__)
     TEST_CASE("good_status"
             * doctest::should_fail(true)
             * doctest::description("TODO: Currently fails for the Emscripten build"))
@@ -719,7 +719,7 @@ TEST_SUITE("xsystem_clone")
     }
 }
 
-#if !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+#if !defined(__EMSCRIPTEN__)
 TEST_SUITE("xsystem_apply")
 {
     TEST_CASE("apply_xsystem")
@@ -829,7 +829,7 @@ TEST_SUITE("xmagics_apply"){
     }
 }
 
-#if defined(__GNUC__) && !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+#if defined(__GNUC__) && !defined(__EMSCRIPTEN__)
 TEST_SUITE("xutils_handler"){
     TEST_CASE("handler") {
         pid_t pid = fork();
@@ -963,7 +963,7 @@ TEST_SUITE("xinspect"){
 
 }
 
-#if !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+#if !defined(__EMSCRIPTEN__)
 TEST_SUITE("xassist"){
 
     TEST_CASE("model_not_found"){
