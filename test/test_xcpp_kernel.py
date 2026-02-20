@@ -63,7 +63,7 @@ class BaseXCppCompleteTests(jupyter_kernel_test.KernelTests):
         self.assertEqual(str(reply["content"]["indent"]), "")
         self.assertEqual(reply["content"]["status"], "complete")
 
-kernel_names = ['xcpp17', 'xcpp20', 'xcpp23']
+kernel_names = ['xcpp17', 'xcpp20', 'xcpp23','xcpp17-omp', 'xcpp20-omp', 'xcpp23-omp']
 
 for name in kernel_names:
     class_name = f"XCppCompleteTests_{name}"
@@ -224,6 +224,59 @@ for name in kernel_names:
             '__test__': True
         }
     )
+
+if platform.system() != 'Windows':
+    class BaseXCppOpenMPTests(jupyter_kernel_test.KernelTests):
+        __test__ = False
+
+        # language_info.name in a kernel_info_reply should match this
+        language_name = 'C++'
+
+        # OpenMP test that creates 2 threads, and gets them to output their thread
+        # number in descending order
+        code_omp="""
+        #include <omp.h>
+        #include <iostream>
+        """
+
+        code_omp_2="""
+        int main() {
+        omp_set_num_threads(2);
+        #pragma omp parallel
+        {
+           if (omp_get_thread_num() == 1) {
+             printf("1");
+             #pragma omp barrier
+           }
+           else if (omp_get_thread_num() == 0) {
+             #pragma omp barrier
+             printf("0");
+           }
+        }
+        }
+        main();
+        """
+    
+        def test_xcpp_omp(self):
+                self.flush_channels()
+                reply, output_msgs = self.execute_helper(code=self.code_omp,timeout=20)
+                reply, output_msgs = self.execute_helper(code=self.code_omp_2,timeout=20)
+                self.assertEqual(output_msgs[0]['msg_type'], 'stream')
+                self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
+                self.assertEqual(output_msgs[0]['content']['text'], '10')
+
+    kernel_names = ['xcpp17-omp', 'xcpp20-omp', 'xcpp23-omp']
+
+    for name in kernel_names:
+        class_name = f"XCppOpenMPTests_{name}"
+        globals()[class_name] = type(
+            class_name,
+            (BaseXCppOpenMPTests,),
+            {
+                'kernel_name': name,
+                '__test__': True
+            }
+        )
 
 if __name__ == '__main__':
     unittest.main()
