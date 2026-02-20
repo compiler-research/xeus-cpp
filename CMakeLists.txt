@@ -178,11 +178,9 @@ set(XEUS_CPP_HEADERS
     include/xeus-cpp/xholder.hpp
     include/xeus-cpp/xoptions.hpp
     include/xeus-cpp/xeus_cpp_config.hpp
-    include/xeus-cpp/xholder.hpp
     include/xeus-cpp/xinterpreter.hpp
     include/xeus-cpp/xmanager.hpp
     include/xeus-cpp/xmagics.hpp
-    include/xeus-cpp/xoptions.hpp
     include/xeus-cpp/xpreamble.hpp
     #src/xinspect.hpp
     #src/xsystem.hpp
