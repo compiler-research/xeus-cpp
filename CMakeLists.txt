@@ -107,6 +107,7 @@ endif()
 
 find_package(argparse REQUIRED)
 find_package(pugixml REQUIRED)
+find_package(OpenMP)
 
 # Configuration
 # =============
@@ -128,14 +129,13 @@ function(configure_kernel kernel)
         string(APPEND XEUS_CPP_WASM_KERNEL_EXTRA_ARGS_JSON "\"${arg}\", ")
     endforeach()
   else()
-    set(XEUS_CPP_PATH "$ENV{PATH}")
-    set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
     set(XEUS_CPP_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include)
+    if(${kernel} MATCHES "omp/$")
+      set(XEUS_CPP_OMP "${OpenMP_CXX_FLAGS}")
+    endif()
   endif()
   if (WIN32)
     string(REPLACE "\\" "/" kernel "${kernel}")
-    string(REPLACE "\\" "/" XEUS_CPP_PATH "${XEUS_CPP_PATH}")
-    string(REPLACE "\\" "/" XEUS_CPP_LD_LIBRARY_PATH "${XEUS_CPP_LD_LIBRARY_PATH}")
     string(REPLACE "\\" "/" XEUS_CPP_RESOURCE_DIR "${XEUS_CPP_RESOURCE_DIR}")
     string(REPLACE "\\" "/" XEUS_CPP_INCLUDE_DIR "${XEUS_CPP_INCLUDE_DIR}")
   endif()
@@ -167,6 +167,14 @@ configure_kernel("/share/jupyter/kernels/xcpp23/")
 configure_kernel("/share/jupyter/kernels/xc11/")
 configure_kernel("/share/jupyter/kernels/xc17/")
 configure_kernel("/share/jupyter/kernels/xc23/")
+if(NOT EMSCRIPTEN)
+  configure_kernel("/share/jupyter/kernels/xcpp17-omp/")
+  configure_kernel("/share/jupyter/kernels/xcpp20-omp/")
+  configure_kernel("/share/jupyter/kernels/xcpp23-omp/")
+  configure_kernel("/share/jupyter/kernels/xc11-omp/")
+  configure_kernel("/share/jupyter/kernels/xc17-omp/")
+  configure_kernel("/share/jupyter/kernels/xc23-omp/")
+endif()
 
 # Source files
 # ============
@@ -339,8 +347,21 @@ macro(xeus_cpp_create_target target_name linkage output_name)
             target_compile_options(${target_name} PRIVATE "/MD$<$<CONFIG:Debug>:d>")
         endif()
     elseif (NOT EMSCRIPTEN)
+        find_package(CURL REQUIRED)
+
+        # Add CURL_STATICLIB definition if linking statically
+        if (CURL_STATICLIB)
+            target_compile_definitions(${target_name} PUBLIC CURL_STATICLIB)
+        endif()
+
+        # Link against the correct libcurl target
+        if (CURL_FOUND)
+            target_include_directories(${target_name} PRIVATE ${CURL_INCLUDE_DIRS})
+            target_link_libraries(${target_name} PRIVATE ${CURL_LIBRARIES})
+        endif()
+
         # Curl initialised specifically for xassist
-        target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse curl)
+        target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse CURL::libcurl)
     else ()
         target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse)
     endif()

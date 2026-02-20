@@ -18,6 +18,8 @@
 #include "xinput.hpp"
 #include "xinspect.hpp"
 #include "xmagics/os.hpp"
+#include <algorithm>
+#include <cstdlib>
 #include <iostream>
 #ifndef __EMSCRIPTEN__
 #include "xmagics/xassist.hpp"
@@ -29,15 +31,19 @@ using Args = std::vector<const char*>;
 
 void* createInterpreter(const Args &ExtraArgs = {}) {
   Args ClangArgs = {/*"-xc++"*/"-v"};
+  std::string resource_dir;
   if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
     return s == "-resource-dir";}) == ExtraArgs.end()) {
-    std::string resource_dir = Cpp::DetectResourceDir();
-    if (!resource_dir.empty()) {
-        ClangArgs.push_back("-resource-dir");
-        ClangArgs.push_back(resource_dir.c_str());
-    } else {
-        std::cerr << "Failed to detect the resource-dir\n";
-    }
+      resource_dir = Cpp::DetectResourceDir();
+      if (!resource_dir.empty())
+      {
+          ClangArgs.push_back("-resource-dir");
+          ClangArgs.push_back(resource_dir.c_str());
+      }
+      else
+      {
+          std::cerr << "Failed to detect the resource-dir\n";
+      }
   }
   std::vector<std::string> CxxSystemIncludes;
   Cpp::DetectSystemCompilerIncludePaths(CxxSystemIncludes);
@@ -48,7 +54,27 @@ void* createInterpreter(const Args &ExtraArgs = {}) {
   ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
   // FIXME: We should process the kernel input options and conditionally pass
   // the gpu args here.
-  return Cpp::CreateInterpreter(ClangArgs/*, {"-cuda"}*/);
+  Cpp::TInterp_t res = Cpp::CreateInterpreter(ClangArgs /*, {"-cuda"}*/);
+  if (!res)
+  {
+      return res;
+  }
+
+  // clang-repl does not load libomp.so when -fopenmp flag is used
+  // we need to explicitly load it
+  if (std::find_if(
+          ClangArgs.begin(),
+          ClangArgs.end(),
+          [](const std::string& s)
+          {
+              return s.find("-fopenmp") == 0;
+          }
+      )
+      != ClangArgs.end())
+  {
+      Cpp::LoadLibrary("libomp");
+  }
+  return res;
 }
 
 using namespace std::placeholders;
