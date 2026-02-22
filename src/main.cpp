@@ -19,16 +19,19 @@
 #include <unistd.h>
 #endif
 
+#include "nlohmann/json.hpp"
 #include "xeus/xhelper.hpp"
 #include <xeus/xkernel.hpp>
 #include <xeus/xkernel_configuration.hpp>
 
 #include "xeus-zmq/xzmq_context.hpp"
 #include <xeus-zmq/xserver_zmq.hpp>
+#include "xeus-zmq/xserver_zmq_split.hpp"
 
 #include "xeus-cpp/xeus_cpp_config.hpp"
 #include "xeus-cpp/xinterpreter.hpp"
 #include "xeus-cpp/xutils.hpp"
+#include "xeus-cpp/xdebugger.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -62,6 +65,12 @@ int main(int argc, char* argv[])
     auto interpreter = std::make_unique<xcpp::interpreter>(argc, argv);
     std::unique_ptr<xeus::xcontext> context = xeus::make_zmq_context();
 
+    nl::json debugger_config;
+    debugger_config["lldb"]["initCommands"] = {
+        "settings set plugin.jit-loader.gdb.enable on"
+    };
+    debugger_config["interpreter_ptr"] = reinterpret_cast<std::uintptr_t>(interpreter.get());
+
     if (!file_name.empty())
     {
         xeus::xconfiguration config = xeus::load_configuration(file_name);
@@ -72,12 +81,14 @@ int main(int argc, char* argv[])
             xeus::get_user_name(),
             std::move(context),
             std::move(interpreter),
-            xeus::make_xserver_default,
+            xeus::make_xserver_shell_main,
             xeus::make_in_memory_history_manager(),
             xeus::make_console_logger(
                 xeus::xlogger::msg_type,
                 xeus::make_file_logger(xeus::xlogger::content, "xeus.log")
-            )
+            ),
+            xcpp::make_cpp_debugger,
+            debugger_config
         );
 
         std::clog << "Starting xcpp kernel...\n\n"
@@ -94,12 +105,14 @@ int main(int argc, char* argv[])
             xeus::get_user_name(),
             std::move(context),
             std::move(interpreter),
-            xeus::make_xserver_default,
+            xeus::make_xserver_shell_main,
             xeus::make_in_memory_history_manager(),
             xeus::make_console_logger(
                 xeus::xlogger::msg_type,
                 xeus::make_file_logger(xeus::xlogger::content, "xeus.log")
-            )
+            ),
+            xcpp::make_cpp_debugger,
+            debugger_config
         );
 
         std::cout << "Getting config" << std::endl;

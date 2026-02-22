@@ -114,7 +114,7 @@ else()
         INSTALL_RPATH_USE_LINK_PATH TRUE
     )
 
-    target_link_libraries(test_xeus_cpp xeus-cpp doctest::doctest ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(test_xeus_cpp xeus-cpp xeus-zmq doctest::doctest ${CMAKE_THREAD_LIBS_INIT})
     target_include_directories(test_xeus_cpp PRIVATE ${XEUS_CPP_INCLUDE_DIR})
 
     add_custom_target(check-xeus-cpp COMMAND test_xeus_cpp DEPENDS test_xeus_cpp)

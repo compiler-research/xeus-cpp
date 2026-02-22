@@ -48,3 +48,5 @@ bld
 
 # MacOS specific files
 *.DS_Store
+
+.cache/
