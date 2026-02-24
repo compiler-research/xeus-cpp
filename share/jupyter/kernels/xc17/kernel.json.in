@@ -1,9 +1,5 @@
 {
   "display_name": "C17",
-  "env": {
-      "PATH":"@XEUS_CPP_PATH@",
-      "LD_LIBRARY_PATH":"@XEUS_CPP_LD_LIBRARY_PATH@"
-  },
   "argv": [
       "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
       "-f",
