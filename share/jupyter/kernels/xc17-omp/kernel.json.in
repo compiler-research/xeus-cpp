@@ -1,15 +1,14 @@
 {
-  "display_name": "C11",
+  "display_name": "C17 + OpenMP",
   "argv": [
       "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
       "-f",
       "{connection_file}",
       "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@","-xc",
       "-I", "@XEUS_CPP_INCLUDE_DIR@",
-      "-std=c11"@XEUS_CPP_OMP@
+      "-std=c17","@XEUS_CPP_OMP@"
   ],
   "language": "c",
-  "kernel_protocol_version": "5.6.0", 
   "metadata": {"debugger": false
   }
 }
