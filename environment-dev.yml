@@ -5,7 +5,8 @@ dependencies:
   # Build dependencies
   - make
   - cmake
-  - cxx-compiler
+  - clangxx # [not win]
+  - cxx-compiler # [win]
   # Host dependencies
   - xeus>=5.0.0
   - xeus-zmq<4.0
@@ -14,6 +15,10 @@ dependencies:
   - CppInterOp>=1.8
   - pugixml
   - cpp-argparse
+  - llvm-openmp
+  - curl
+  - libcurl
+  - libcurl-static
   # Test dependencies
   - pytest
   - jupyter_kernel_test<0.8
