@@ -325,9 +325,9 @@ __get_cxx_version ()
         return result;
     }
 
-    nl::json interpreter::shutdown_request_impl(bool restart)
+    nl::json interpreter::shutdown_request_impl(bool /*restart*/)
     {
-        return xeus::create_shutdown_reply(!restart);
+        return xeus::create_shutdown_reply(false);
     }
 
     nl::json interpreter::interrupt_request_impl()
