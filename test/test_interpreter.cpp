@@ -359,7 +359,7 @@ TEST_SUITE("shutdown_request")
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
 
-        REQUIRE_NOTHROW(interpreter.shutdown_request());
+        REQUIRE_NOTHROW(interpreter.shutdown_request(true));
     }
 
 }
