@@ -9,6 +9,7 @@
       "-std=c++20","@XEUS_CPP_OMP@","-D_LIBCPP_DISABLE_AVAILABILITY"
   ],
   "language": "cpp",
+  "kernel_protocol_version": "5.6.0",
   "metadata": {"debugger": false
   }
 }
