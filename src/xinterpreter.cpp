@@ -325,9 +325,14 @@ __get_cxx_version ()
         return result;
     }
 
-    void interpreter::shutdown_request_impl()
+    nl::json interpreter::shutdown_request_impl(bool /*restart*/)
     {
-        restore_output();
+        return xeus::create_shutdown_reply(false);
+    }
+
+    nl::json interpreter::interrupt_request_impl()
+    {
+        return xeus::create_interrupt_reply();
     }
 
     void interpreter::redirect_output()

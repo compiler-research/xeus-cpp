@@ -7,8 +7,8 @@ dependencies:
   - cmake
   - cxx-compiler
   # Host dependencies
-  - xeus>=5.0.0
-  - xeus-zmq<4.0
+  - xeus>=6.0.0
+  - xeus-zmq
   - nlohmann_json
   - nlohmann_json-abi
   - CppInterOp>=1.8
