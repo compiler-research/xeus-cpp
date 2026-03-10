@@ -12,6 +12,8 @@
 #include <string>
 #include <utility>
 
+#include "xeus/xhelper.hpp"
+
 #include "xinspect.hpp"
 
 #include <CppInterOp/CppInterOp.h>
@@ -203,11 +205,7 @@ namespace xcpp
         {
             std::cerr << "No documentation found for " << code << "\n";
             std::cout << std::flush;
-            kernel_res["found"] = false;
-            kernel_res["status"] = "error";
-            kernel_res["ename"] = "No documentation found";
-            kernel_res["evalue"] = "";
-            kernel_res["traceback"] = nl::json::array();
+            kernel_res = xeus::create_inspect_reply(false);
         }
         else
         {
@@ -233,17 +231,15 @@ namespace xcpp
             // Note: Adding "?action=purge" suffix to force cppreference's
             // Mediawiki to purge the HTTP cache.
 
-            kernel_res["payload"] = nl::json::array();
-            kernel_res["payload"][0] = nl::json::object(
-                {{"data", {{"text/plain", inspect_result}, {"text/html", html_content}}},
-                 {"source", "page"},
-                 {"start", 0}}
+            auto data = nl::json::object(
+                {{"text/plain", inspect_result}, {"text/html", html_content}}
             );
-            kernel_res["user_expressions"] = nl::json::object();
+            auto metadata = nl::json::object(
+                {{"source", "page"}, {"start", 0}}
+            );
+            kernel_res = xeus::create_inspect_reply(true, data, metadata);
 
             std::cout << std::flush;
-            kernel_res["found"] = true;
-            kernel_res["status"] = "ok";
         }
     }
 

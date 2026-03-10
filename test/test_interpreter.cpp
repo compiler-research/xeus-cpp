@@ -208,8 +208,7 @@ TEST_SUITE("execute_request")
             user_expressions
         );
         nl::json result = future.get();
-        REQUIRE(result["payload"][0]["data"]["text/plain"] == inspect_result);
-        REQUIRE(result["user_expressions"] == nl::json::object());
+        REQUIRE(result["data"]["text/plain"] == inspect_result);
         REQUIRE(result["found"] == true);
         REQUIRE(result["status"] == "ok");
     }
@@ -244,8 +243,7 @@ TEST_SUITE("execute_request")
             user_expressions
         );
         nl::json result = future.get();
-        REQUIRE(result["payload"][0]["data"]["text/plain"] == inspect_result);
-        REQUIRE(result["user_expressions"] == nl::json::object());
+        REQUIRE(result["data"]["text/plain"] == inspect_result);
         REQUIRE(result["found"] == true);
         REQUIRE(result["status"] == "ok");
     }
@@ -306,7 +304,6 @@ TEST_SUITE("inspect_request")
             /*detail_level=*/0
         );
 
-        REQUIRE(result["user_expressions"] == nl::json::object());
         REQUIRE(result["found"] == true);
         REQUIRE(result["status"] == "ok");
     }
@@ -326,7 +323,7 @@ TEST_SUITE("inspect_request")
         );
 
         REQUIRE(result["found"] == false);
-        REQUIRE(result["status"] == "error");
+        REQUIRE(result["status"] == "ok");
     }
 }
 
