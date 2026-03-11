@@ -210,7 +210,6 @@ TEST_SUITE("execute_request")
         nl::json result = future.get();
         REQUIRE(result["payload"][0]["data"]["text/plain"] == inspect_result);
         REQUIRE(result["user_expressions"] == nl::json::object());
-        REQUIRE(result["found"] == true);
         REQUIRE(result["status"] == "ok");
     }
 
@@ -246,7 +245,6 @@ TEST_SUITE("execute_request")
         nl::json result = future.get();
         REQUIRE(result["payload"][0]["data"]["text/plain"] == inspect_result);
         REQUIRE(result["user_expressions"] == nl::json::object());
-        REQUIRE(result["found"] == true);
         REQUIRE(result["status"] == "ok");
     }
 
@@ -286,13 +284,7 @@ TEST_SUITE("execute_request")
 
 TEST_SUITE("inspect_request")
 {
-#if defined(__EMSCRIPTEN__)
-    TEST_CASE("good_status"
-            * doctest::should_fail(true)
-            * doctest::description("TODO: Currently fails for the Emscripten build"))
-#else
-    TEST_CASE("good_status")
-#endif
+    TEST_CASE("found_status")
     {
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
@@ -306,12 +298,11 @@ TEST_SUITE("inspect_request")
             /*detail_level=*/0
         );
 
-        REQUIRE(result["user_expressions"] == nl::json::object());
         REQUIRE(result["found"] == true);
         REQUIRE(result["status"] == "ok");
     }
 
-    TEST_CASE("bad_status")
+    TEST_CASE("not_found_status")
     {
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
@@ -326,7 +317,7 @@ TEST_SUITE("inspect_request")
         );
 
         REQUIRE(result["found"] == false);
-        REQUIRE(result["status"] == "error");
+        REQUIRE(result["status"] == "ok");
     }
 }
 
@@ -953,14 +944,6 @@ TEST_SUITE("xinspect"){
         cmp.child_value = "nonexistentMethod";
         REQUIRE(cmp(node) == false);
     }
-
-    TEST_CASE("is_inspect_request"){ 
-        std::string code = "vector";
-        std::regex re_expression(R"(non_matching_pattern)");
-        std::pair<bool, std::smatch> result = xcpp::is_inspect_request(code, re_expression);
-        REQUIRE(result.first == false);
-    }
-
 }
 
 #if !defined(__EMSCRIPTEN__)

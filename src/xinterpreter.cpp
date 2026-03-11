@@ -267,12 +267,22 @@ __get_cxx_version ()
         nl::json kernel_res;
         std::string exp = R"(\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)";
         std::regex re(R"((\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)(\.?)*$)");
-        auto inspect_request = is_inspect_request(code.substr(0, cursor_pos), re);
-        if (inspect_request.first)
+
+        std::smatch inspect_request;
+        std::string sub_code = code.substr(0, cursor_pos);
+        if (std::regex_search(sub_code, inspect_request, re))
         {
-            inspect(inspect_request.second[0], kernel_res);
+            std::string result = inspect(inspect_request[0]);
+            if (result.empty())
+            {
+                return xeus::create_inspect_reply(false);
+            }
+            else
+            {
+                return xeus::create_inspect_reply(true, build_inspect_data(result));
+            }
         }
-        return kernel_res;
+        return xeus::create_inspect_reply(false);
     }
 
     nl::json interpreter::is_complete_request_impl(const std::string& code)

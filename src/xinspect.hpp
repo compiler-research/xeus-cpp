@@ -39,13 +39,8 @@ namespace xcpp
         bool operator()(pugi::xml_node node) const;
     };
 
-    XEUS_CPP_API std::string find_type_slow(const std::string& expression);
-
-    nl::json read_tagconfs(const char* path);
-
-    XEUS_CPP_API std::pair<bool, std::smatch> is_inspect_request(const std::string& code, const std::regex& re);
-
-    XEUS_CPP_API void inspect(const std::string& code, nl::json& kernel_res);
+    std::string inspect(const std::string& code);
+    nl::json build_inspect_data(const std::string& inspect_result);
 
     class XEUS_CPP_API xintrospection : public xpreamble
     {
