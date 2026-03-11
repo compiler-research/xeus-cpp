@@ -8,9 +8,11 @@
 
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <regex>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "xeus/xhelper.hpp"
 

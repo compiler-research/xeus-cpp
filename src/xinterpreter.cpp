@@ -7,6 +7,8 @@
  * The full license is in the file LICENSE, distributed with this software.         *
  ************************************************************************************/
 
+#include <regex>
+
 #include "xeus/xhelper.hpp"
 #include "xeus/xsystem.hpp"
 
@@ -264,8 +266,6 @@ __get_cxx_version ()
 
     nl::json interpreter::inspect_request_impl(const std::string& code, int cursor_pos, int /*detail_level*/)
     {
-        nl::json kernel_res;
-        std::string exp = R"(\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)";
         std::regex re(R"((\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)(\.?)*$)");
 
         std::smatch inspect_request;
@@ -277,10 +277,7 @@ __get_cxx_version ()
             {
                 return xeus::create_inspect_reply(false);
             }
-            else
-            {
-                return xeus::create_inspect_reply(true, build_inspect_data(result));
-            }
+            return xeus::create_inspect_reply(true, build_inspect_data(result));
         }
         return xeus::create_inspect_reply(false);
     }

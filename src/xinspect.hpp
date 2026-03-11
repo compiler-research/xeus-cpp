@@ -14,6 +14,8 @@
 
 #include <pugixml.hpp>
 
+#include <nlohmann/json_fwd.hpp>
+
 #include "xeus-cpp/xpreamble.hpp"
 #include "xeus-cpp/xutils.hpp"
 
