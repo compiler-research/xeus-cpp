@@ -222,10 +222,7 @@ __get_cxx_version ()
             }
 
             // Compose execute_reply message.
-            kernel_res["status"] = "error";
-            kernel_res["ename"] = ename;
-            kernel_res["evalue"] = evalue;
-            kernel_res["traceback"] = traceback;
+            kernel_res = xeus::create_error_reply(ename, evalue, traceback);
         }
         else
         {
@@ -239,9 +236,7 @@ __get_cxx_version ()
                 }
                 */
             // Compose execute_reply message.
-            kernel_res["status"] = "ok";
-            kernel_res["payload"] = nl::json::array();
-            kernel_res["user_expressions"] = nl::json::object();
+            kernel_res = xeus::create_successful_reply();
         }
         cb(kernel_res);
     }
@@ -298,10 +293,6 @@ __get_cxx_version ()
 
     nl::json interpreter::kernel_info_request_impl()
     {
-        nl::json result;
-        result["implementation"] = "xeus-cpp";
-        result["implementation_version"] = XEUS_CPP_VERSION;
-
         /* The jupyter-console banner for xeus-cpp is the following:
           __  _____ _   _ ___
           \ \/ / _ \ | | / __|
@@ -318,18 +309,21 @@ __get_cxx_version ()
                              "  /_/\\_\\___|\\__,_|___/\n"
                              "\n"
                              "  xeus-cpp: a C++ Jupyter kernel - based on Clang-repl\n";
-        result["banner"] = banner;
-        result["language_info"]["name"] = "C++";
-        result["language_info"]["version"] = m_version;
-        result["language_info"]["mimetype"] = "text/x-c++src";
-        result["language_info"]["codemirror_mode"] = "text/x-c++src";
-        result["language_info"]["file_extension"] = ".cpp";
-        result["help_links"] = nl::json::array();
-        result["help_links"][0] = nl::json::object(
-            {{"text", "Xeus-cpp Reference"}, {"url", "https://xeus-cpp.readthedocs.io"}}
+        nl::json help_links = nl::json::array();
+        help_links.push_back({{"text", "Xeus-cpp Reference"}, {"url", "https://xeus-cpp.readthedocs.io"}});
+        return xeus::create_info_reply(
+            "xeus-cpp",
+            XEUS_CPP_VERSION,
+            "C++",
+            m_version,
+            "text/x-c++src",
+            ".cpp",
+            "",
+            std::string("text/x-c++src"),
+            "",
+            banner,
+            help_links
         );
-        result["status"] = "ok";
-        return result;
     }
 
     nl::json interpreter::shutdown_request_impl(bool /*restart*/)

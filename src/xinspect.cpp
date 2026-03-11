@@ -233,6 +233,7 @@ namespace xcpp
         std::string result = inspect(to_inspect[1]);
         if (result.empty())
         {
+            std::cerr << "No documentation found for " << code << std::endl;
             kernel_res = xeus::create_error_reply("No documentation found");
         }
         else
