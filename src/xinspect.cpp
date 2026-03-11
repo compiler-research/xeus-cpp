@@ -8,9 +8,13 @@
 
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <regex>
 #include <string>
 #include <utility>
+#include <vector>
+
+#include "xeus/xhelper.hpp"
 
 #include "xinspect.hpp"
 
@@ -60,71 +64,59 @@ namespace xcpp
         return false;
     }
 
-    std::string find_type_slow(const std::string& expression)
+    namespace
     {
-        static unsigned long long var_count = 0;
-
-        if (auto* type = Cpp::GetType(expression))
+        std::string find_type_slow(const std::string& expression)
         {
-            return Cpp::GetQualifiedName(type);
-        }
+            static unsigned long long var_count = 0;
 
-        std::string id = "__Xeus_GetType_" + std::to_string(var_count++);
-        std::string using_clause = "using " + id + " = __typeof__(" + expression + ");\n";
-
-        if (!Cpp::Declare(using_clause.c_str(), false))
-        {
-            Cpp::TCppScope_t lookup = Cpp::GetNamed(id, nullptr);
-            Cpp::TCppType_t lookup_ty = Cpp::GetTypeFromScope(lookup);
-            return Cpp::GetQualifiedCompleteName(Cpp::GetCanonicalType(lookup_ty));
-        }
-        return "";
-    }
-
-    nl::json read_tagconfs(const char* path)
-    {
-        nl::json result = nl::json::array();
-        for (const auto& entry : std::filesystem::directory_iterator(path))
-        {
-            if (entry.path().extension() != ".json")
+            if (auto* type = Cpp::GetType(expression))
             {
-                continue;
+                return Cpp::GetQualifiedName(type);
             }
-            std::ifstream i(entry.path());
-            nl::json json_entry;
-            i >> json_entry;
-            result.emplace_back(std::move(json_entry));
-        }
-        return result;
-    }
 
-    std::pair<bool, std::smatch> is_inspect_request(const std::string& code, const std::regex& re)
-    {
-        std::smatch inspect;
-        if (std::regex_search(code, inspect, re))
+            std::string id = "__Xeus_GetType_" + std::to_string(var_count++);
+            std::string using_clause = "using " + id + " = __typeof__(" + expression + ");\n";
+
+            if (!Cpp::Declare(using_clause.c_str(), false))
+            {
+                Cpp::TCppScope_t lookup = Cpp::GetNamed(id, nullptr);
+                Cpp::TCppType_t lookup_ty = Cpp::GetTypeFromScope(lookup);
+                return Cpp::GetQualifiedCompleteName(Cpp::GetCanonicalType(lookup_ty));
+            }
+            return "";
+        }
+
+        nl::json read_tagconfs(const char* path)
         {
-            return std::make_pair(true, inspect);
+            nl::json result = nl::json::array();
+            for (const auto& entry : std::filesystem::directory_iterator(path))
+            {
+                if (entry.path().extension() != ".json")
+                {
+                    continue;
+                }
+                std::ifstream i(entry.path());
+                nl::json json_entry;
+                i >> json_entry;
+                result.emplace_back(std::move(json_entry));
+            }
+            return result;
         }
-        return std::make_pair(false, inspect);
     }
 
-    void inspect(const std::string& code, nl::json& kernel_res)
+    std::string inspect(const std::string& code)
     {
         std::string tagconf_dir = retrieve_tagconf_dir();
         std::string tagfiles_dir = retrieve_tagfile_dir();
-
         nl::json tagconfs = read_tagconfs(tagconf_dir.c_str());
-
-        std::vector<std::string> check{"class", "struct", "function"};
-
-        std::string url, tagfile;
 
         std::regex re_expression(R"((((?:\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)\.?)*))");
 
-        std::smatch inspect = is_inspect_request(code, re_expression).second;
+        std::smatch inspect;
+        std::regex_search(code, inspect, re_expression);
 
         std::string inspect_result;
-
         std::smatch method;
         std::string to_inspect = inspect[1];
 
@@ -138,8 +130,8 @@ namespace xcpp
             {
                 for (nl::json::const_iterator it = tagconfs.cbegin(); it != tagconfs.cend(); ++it)
                 {
-                    url = it->at("url");
-                    tagfile = it->at("tagfile");
+                    std::string url = it->at("url");
+                    std::string tagfile = it->at("tagfile");
                     std::string filename = tagfiles_dir + "/" + tagfile;
                     pugi::xml_document doc;
                     pugi::xml_parse_result result = doc.load_file(filename.c_str());
@@ -170,10 +162,11 @@ namespace xcpp
                 find_string = (type_name.empty()) ? to_inspect : type_name;
             }
 
+            const std::vector<std::string> check{"class", "struct", "function"};
             for (nl::json::const_iterator it = tagconfs.cbegin(); it != tagconfs.cend(); ++it)
             {
-                url = it->at("url");
-                tagfile = it->at("tagfile");
+                std::string url = it->at("url");
+                std::string tagfile = it->at("tagfile");
                 std::string filename = tagfiles_dir + "/" + tagfile;
                 pugi::xml_document doc;
                 pugi::xml_parse_result result = doc.load_file(filename.c_str());
@@ -198,53 +191,33 @@ namespace xcpp
                 }
             }
         }
+        std::cout << std::flush;
+        return inspect_result;
+    }
 
-        if (inspect_result.empty())
-        {
-            std::cerr << "No documentation found for " << code << "\n";
-            std::cout << std::flush;
-            kernel_res["found"] = false;
-            kernel_res["status"] = "error";
-            kernel_res["ename"] = "No documentation found";
-            kernel_res["evalue"] = "";
-            kernel_res["traceback"] = nl::json::array();
+    nl::json build_inspect_data(const std::string& inspect_result)
+    {
+        // Format html content.
+        std::string html_content = R"(<style>
+        #pager-container {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
         }
-        else
-        {
-            // Format html content.
-            std::string html_content = R"(<style>
-            #pager-container {
-                padding: 0;
-                margin: 0;
-                width: 100%;
-                height: 100%;
-            }
-            .xcpp-iframe-pager {
-                padding: 0;
-                margin: 0;
-                width: 100%;
-                height: 100%;
-                border: none;
-            }
-            </style>
-            <iframe class="xcpp-iframe-pager" src=")"
-                                       + inspect_result + R"(?action=purge"></iframe>)";
-
-            // Note: Adding "?action=purge" suffix to force cppreference's
-            // Mediawiki to purge the HTTP cache.
-
-            kernel_res["payload"] = nl::json::array();
-            kernel_res["payload"][0] = nl::json::object(
-                {{"data", {{"text/plain", inspect_result}, {"text/html", html_content}}},
-                 {"source", "page"},
-                 {"start", 0}}
-            );
-            kernel_res["user_expressions"] = nl::json::object();
-
-            std::cout << std::flush;
-            kernel_res["found"] = true;
-            kernel_res["status"] = "ok";
+        .xcpp-iframe-pager {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
         }
+        </style>
+        <iframe class="xcpp-iframe-pager" src=")"
+                                   + inspect_result + R"(?action=purge"></iframe>)";
+
+        auto data = nl::json::object({{"text/plain", inspect_result}, {"text/html", html_content}});
+        return data;
     }
 
     xintrospection::xintrospection()
@@ -257,7 +230,19 @@ namespace xcpp
         std::regex re(spattern + R"((.*))");
         std::smatch to_inspect;
         std::regex_search(code, to_inspect, re);
-        inspect(to_inspect[1], kernel_res);
+        std::string result = inspect(to_inspect[1]);
+        if (result.empty())
+        {
+            kernel_res = xeus::create_error_reply("No documentation found");
+        }
+        else
+        {
+            auto payload = nl::json::array();
+            payload[0] = nl::json::object(
+                {{"data", build_inspect_data(result)}, {"source", "page"}, {"start", 0}}
+            );
+            kernel_res = xeus::create_successful_reply(payload);
+        }
     }
 
     std::unique_ptr<xpreamble> xintrospection::clone() const
