@@ -1,12 +1,12 @@
 {
-  "display_name": "C++17 + OpenMP",
+  "display_name": "C++23 + OpenMP",
   "argv": [
       "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
       "-f",
       "{connection_file}",
       "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
       "-I", "@XEUS_CPP_INCLUDE_DIR@",
-      "-std=c++17","@XEUS_CPP_OMP@"
+      "-std=c++23","@XEUS_CPP_OMP@"
   ],
   "language": "cpp",
   "metadata": {"debugger": false
