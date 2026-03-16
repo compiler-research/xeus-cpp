@@ -111,7 +111,7 @@ namespace xcpp
         std::string tagfiles_dir = retrieve_tagfile_dir();
         nl::json tagconfs = read_tagconfs(tagconf_dir.c_str());
 
-        std::regex re_expression(R"((((?:\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)\.?)*))");
+        std::regex re_expression(R"(([^\s]+(?:\s*\([^)]+\))?))");
 
         std::smatch inspect;
         std::regex_search(code, inspect, re_expression);
