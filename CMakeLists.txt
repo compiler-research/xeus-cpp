@@ -107,6 +107,13 @@ endif()
 
 find_package(argparse REQUIRED)
 find_package(pugixml REQUIRED)
+find_package(OpenMP)
+
+# Used to configure OpenMP kernels such that Cpp::loadlibrary knows where OpenMP library is
+if (NOT WIN32)
+  list(GET OpenMP_CXX_LIBRARIES 0 FirstOpenMPLibrary)
+  get_filename_component(OpenMPLibraryDir "${FirstOpenMPLibrary}" DIRECTORY)
+endif()
 
 # Configuration
 # =============
@@ -131,6 +138,9 @@ function(configure_kernel kernel)
     set(XEUS_CPP_PATH "$ENV{PATH}")
     set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
     set(XEUS_CPP_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include)
+    if(${kernel} MATCHES "omp/$")
+      set(XEUS_CPP_OMP "${OpenMP_CXX_FLAGS}")
+    endif()
   endif()
   if (WIN32)
     string(REPLACE "\\" "/" kernel "${kernel}")
@@ -167,6 +177,14 @@ configure_kernel("/share/jupyter/kernels/xcpp23/")
 configure_kernel("/share/jupyter/kernels/xc11/")
 configure_kernel("/share/jupyter/kernels/xc17/")
 configure_kernel("/share/jupyter/kernels/xc23/")
+if(NOT EMSCRIPTEN)
+  configure_kernel("/share/jupyter/kernels/xcpp17-omp/")
+  configure_kernel("/share/jupyter/kernels/xcpp20-omp/")
+  configure_kernel("/share/jupyter/kernels/xcpp23-omp/")
+  configure_kernel("/share/jupyter/kernels/xc11-omp/")
+  configure_kernel("/share/jupyter/kernels/xc17-omp/")
+  configure_kernel("/share/jupyter/kernels/xc23-omp/")
+endif()
 
 # Source files
 # ============
