@@ -112,6 +112,7 @@ __get_cxx_version ()
         //NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-pointer-arithmetic)
         createInterpreter(Args(argv ? argv + 1 : argv, argv + argc));
         m_version = get_stdopt();
+	    m_language = Cpp::GetLanguage(nullptr);
         redirect_output();
         init_preamble();
         init_magic();
@@ -314,7 +315,7 @@ __get_cxx_version ()
         return xeus::create_info_reply(
             "xeus-cpp",
             XEUS_CPP_VERSION,
-            "C++",
+            m_language,
             m_version,
             "text/x-c++src",
             ".cpp",
