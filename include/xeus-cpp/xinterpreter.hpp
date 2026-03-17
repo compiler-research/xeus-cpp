@@ -79,6 +79,8 @@ namespace xcpp
 
         std::string m_version;
 
+        std::string m_language;
+
         xmagics_manager xmagics;
         xpreamble_manager preamble_manager;
 
