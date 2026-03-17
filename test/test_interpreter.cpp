@@ -407,7 +407,7 @@ TEST_SUITE("kernel_info_request")
         REQUIRE(result["language_info"]["mimetype"] == "text/x-c++src");
         REQUIRE(result["language_info"]["codemirror_mode"] == "text/x-c++src");
         REQUIRE(result["language_info"]["file_extension"] == ".cpp");
-        REQUIRE(result["language_info"]["version"] == "23");
+        REQUIRE(result["language_info"]["version"] == "cxx23");
         REQUIRE(result["status"] == "ok");
     }
 
