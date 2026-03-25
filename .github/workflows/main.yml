@@ -109,8 +109,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
 
       - name: Backup in case setup-micromamba fails to cleanup when ci job fails on self hosted runner
         if: ${{ runner.environment == 'self-hosted' }}
@@ -266,8 +264,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
 
       - name: install mamba
         uses: mamba-org/setup-micromamba@v2
