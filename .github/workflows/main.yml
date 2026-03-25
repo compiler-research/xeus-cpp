@@ -16,14 +16,60 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  prepare-dell:
+    name: Activate self-host infrastructure
+    runs-on: [self-hosted, spotter]
+    steps:
+      - name: Send Magic Packet
+        env:
+          TARGET_IP: 192.168.100.30
+          MAC_ADDR: a4:bb:6d:51:d5:d2
+          # The container has no ping, emulate it.
+        run: |
+          # Mask the IP and potential broadcast to keep logs clean
+          echo "::add-mask::$MAC_ADDR"
+          echo "::add-mask::$BROADCAST"
+          echo "::add-mask::$TARGET_IP"
+          BROADCAST=$(echo $TARGET_IP | sed 's/\.[0-9]*$/ .255/' | tr -d ' ')
+          PING="timeout 1 bash -c 'cat < /dev/null > /dev/tcp/$TARGET_IP/22' 2>/dev/null"
+
+          # Install tool silently
+          sudo apt-get update -qq && sudo apt-get install -y -qq wakeonlan > /dev/null
+
+          # Check if already awake (using the Bash TCP PING variable)
+          if eval "$PING"; then
+            echo "Target machine is already awake. Exiting."
+            exit 0
+          fi
+
+          # If offline, send WoL
+          echo "Machine is offline. Sending WoL..."
+          wakeonlan -i $BROADCAST $MAC_ADDR > /dev/null
+
+          # Wait & Verify Loop (checks every 10s for 4 minutes)
+          echo "Waiting for response (checking Port 22)..."
+          for i in {1..24}; do
+            if eval "$PING"; then
+              echo "Machine is online and SSH is ready."
+              exit 0
+            fi
+            sleep 10
+          done
+
+          echo "Error: Target hardware did not respond within the timeout period."
+          exit 1
+
   build:
-    
+    needs: prepare-dell  
     runs-on: ${{ matrix.os }}
      
     strategy:
       fail-fast: false
       matrix:
         include:
+          - name: selfh-ubu22-x86
+            os: [self-hosted, cuda, heavy]
+            micromamba_shell_init: bash
           - name: ubu24
             os: ubuntu-24.04
             micromamba_shell_init: bash
