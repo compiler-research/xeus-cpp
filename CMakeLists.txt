@@ -90,7 +90,7 @@ endif()
 
 set(xeus_REQUIRED_VERSION 6.0.0)
 set(xeus_zmq_REQUIRED_VERSION 4.0.0)
-set(CppInterOp_REQUIRED_VERSION 1.8.0)
+set(CppInterOp_REQUIRED_VERSION 1.9.0)
 set(xeus_lite_REQUIRED_VERSION 5.0.0)
 
 if (NOT TARGET xeus AND NOT TARGET xeus-static)
