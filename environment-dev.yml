@@ -5,7 +5,9 @@ dependencies:
   # Build dependencies
   - make
   - cmake
-  - cxx-compiler
+  - sel(unix): clangxx=21
+  - sel(win): cxx-compiler
+  - sel(linux): cxx-compiler
   # Host dependencies
   - xeus>=6.0.0
   - xeus-zmq
@@ -14,6 +16,10 @@ dependencies:
   - CppInterOp>=1.9
   - pugixml
   - cpp-argparse
+  - sel(unix): llvm-openmp=21
+  - curl
+  - libcurl
+  - libcurl-static
   # Test dependencies
   - pytest
   - jupyter_kernel_test<0.8
