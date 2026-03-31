@@ -27,8 +27,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
 
       - name: install mamba
         uses: mamba-org/setup-micromamba@v2
