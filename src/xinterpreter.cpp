@@ -197,6 +197,44 @@ namespace xcpp
 
         return "unknown";
     }
+
+    // FIXME: This function should be upstreamed to CppInterOp. See
+    // https://github.com/compiler-research/CppInterOp/issues/879
+    static std::string get_language()
+    {
+        switch (Cpp::GetLanguage(nullptr))
+        {
+            case Cpp::InterpreterLanguage::Unknown:
+                return "Unknown";
+            case Cpp::InterpreterLanguage::Asm:
+                return "Asm";
+            case Cpp::InterpreterLanguage::CIR:
+                return "CIR";
+            case Cpp::InterpreterLanguage::LLVM_IR:
+                return "LLVM_IR";
+            case Cpp::InterpreterLanguage::C:
+                return "C";
+            case Cpp::InterpreterLanguage::CPlusPlus:
+                return "C++";
+            case Cpp::InterpreterLanguage::ObjC:
+                return "ObjC";
+            case Cpp::InterpreterLanguage::ObjCPlusPlus:
+                return "ObjC++";
+            case Cpp::InterpreterLanguage::OpenCL:
+                return "OpenCL";
+            case Cpp::InterpreterLanguage::OpenCLCXX:
+                return "OpenCLCXX";
+            case Cpp::InterpreterLanguage::CUDA:
+                return "CUDA";
+            case Cpp::InterpreterLanguage::HIP:
+                return "HIP";
+            case Cpp::InterpreterLanguage::HLSL:
+                return "HLSL";
+        }
+
+        return "unknown";
+    }
+
     interpreter::interpreter(int argc, const char* const* argv) :
         xmagics()
         , p_cout_strbuf(nullptr)
@@ -207,6 +245,7 @@ namespace xcpp
         //NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-pointer-arithmetic)
         createInterpreter(Args(argv ? argv + 1 : argv, argv + argc));
         m_version = get_stdopt();
+        m_language = get_language();
         redirect_output();
         init_preamble();
         init_magic();
@@ -409,7 +448,7 @@ namespace xcpp
         return xeus::create_info_reply(
             "xeus-cpp",
             XEUS_CPP_VERSION,
-            "C++",
+            m_language,
             m_version,
             "text/x-c++src",
             ".cpp",
