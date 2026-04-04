@@ -26,6 +26,7 @@
 #ifndef __EMSCRIPTEN__
 #include "xmagics/xassist.hpp"
 #endif
+#include "xmagics/pythonexec.hpp"
 #include "xparser.hpp"
 #include "xsystem.hpp"
 
@@ -510,7 +511,7 @@ namespace xcpp
         // executable(m_interpreter));
         // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("timeit",
         // timeit(&m_interpreter));
-        // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("python", pythonexec());
+        preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("python", pythonexec());
         preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("file", writefile());
 #ifndef __EMSCRIPTEN__
         preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("xassist", xassist());
