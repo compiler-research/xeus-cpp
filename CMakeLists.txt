@@ -184,20 +184,24 @@ set(XEUS_CPP_HEADERS
     include/xeus-cpp/xmanager.hpp
     include/xeus-cpp/xmagics.hpp
     include/xeus-cpp/xpreamble.hpp
-    #src/xinspect.hpp
-    #src/xsystem.hpp
-    #src/xparser.hpp
 )
 
 set(XEUS_CPP_SRC
     src/xholder.cpp
     src/xinput.cpp
+    src/xinput.hpp
+    src/xinput_validator.cpp
+    src/xinput_validator.hpp
     src/xinspect.cpp
+    src/xinspect.hpp
     src/xinterpreter.cpp
     src/xoptions.cpp
     src/xparser.cpp
+    src/xparser.hpp
+    src/xsystem.hpp
     src/xutils.cpp
     src/xmagics/os.cpp
+    src/xmagics/os.hpp
 )
 
 if(NOT EMSCRIPTEN)
