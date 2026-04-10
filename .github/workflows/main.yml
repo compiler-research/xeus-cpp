@@ -113,8 +113,8 @@ jobs:
       - name: Backup in case setup-micromamba fails to cleanup when ci job fails on self hosted runner
         if: ${{ runner.environment == 'self-hosted' }}
         run: |
-          [ -d /root/micromamba/envs/xeus-cpp ] && rm -rf /root/micromamba/envs/xeus-cpp
-          [ -e /root/micromamba-bin/micromamba ] && rm -rf /root/micromamba-bin/micromamba
+          rm -rf /root/micromamba/envs/xeus-cpp || true
+          rm -rf /root/micromamba-bin/micromamba || true
 
       - name: install mamba
         uses: mamba-org/setup-micromamba@v2
