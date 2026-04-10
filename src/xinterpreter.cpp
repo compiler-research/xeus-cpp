@@ -18,6 +18,7 @@
 #include "xeus-cpp/xmagics.hpp"
 
 #include "xinput.hpp"
+#include "xinput_validator.hpp"
 #include "xinspect.hpp"
 #include "xmagics/os.hpp"
 #include <algorithm>
@@ -413,16 +414,9 @@ namespace xcpp
 
     nl::json interpreter::is_complete_request_impl(const std::string& code)
     {
-        if (!code.empty() && code[code.size() - 1] == '\\') {
-            auto found = code.rfind('\n');
-            if (found == std::string::npos)
-                found = -1;
-            auto found1 = found++;
-            while (isspace(code[++found1])) ;
-            return xeus::create_is_complete_reply("incomplete", code.substr(found, found1-found));
-        }
-
-        return xeus::create_is_complete_reply("complete");
+        xinput_validator v;
+        std::string res = to_string(v.validate(code));
+        return xeus::create_is_complete_reply(res, v.get_expected_indent());
     }
 
     nl::json interpreter::kernel_info_request_impl()
