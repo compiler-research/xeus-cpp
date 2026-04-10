@@ -39,9 +39,12 @@ class BaseXCppCompleteTests(jupyter_kernel_test.KernelTests):
 
     # Continuation
     code_continuation_incomplete = '  int foo = 12; \\\n  float bar = 1.5f;\\'
-    code_continuation_complete =   '  int foo = 12; \\\n  float bar = 1.5f;'
-    
-    code_incomplete = ['void foo(int c) \\\n { \\\n', 'void foo(\\\n', '#ifdef\\\n']
+    code_continuation_complete =   ['  int foo = 12; \\\n  float bar = 1.5f;',
+                                    '  // This is a comment\\\n']
+
+    code_incomplete = ['void foo(int c) \\\n { \\\n', 'void foo(\\\n', '#ifdef\\\n',
+                       'int res = my_array[\\\n', '/* coincoin\\\n',
+                       'func("ab", \\\n']
 
     def test_continuation(self) -> None:
         if not self.code_continuation_incomplete or not self.code_continuation_complete:
@@ -57,13 +60,14 @@ class BaseXCppCompleteTests(jupyter_kernel_test.KernelTests):
         self.assertEqual(reply["content"]["status"], "incomplete")
 
         # Complete
-        self.flush_channels()
-        msg_id = self.kc.is_complete(self.code_continuation_complete)
-        reply = self.get_non_kernel_info_reply(timeout=1)
-        assert reply is not None
-        self.assertEqual(reply["msg_type"], "is_complete_reply")
-        self.assertEqual(str(reply["content"]["indent"]), "  ")
-        self.assertEqual(reply["content"]["status"], "complete")
+        for c in self.code_continuation_complete:
+            self.flush_channels()
+            msg_id = self.kc.is_complete(c)
+            reply = self.get_non_kernel_info_reply(timeout=1)
+            assert reply is not None
+            self.assertEqual(reply["msg_type"], "is_complete_reply")
+            self.assertEqual(str(reply["content"]["indent"]), "  ")
+            self.assertEqual(reply["content"]["status"], "complete")
 
         # Code incomplete
         for c in self.code_incomplete:
