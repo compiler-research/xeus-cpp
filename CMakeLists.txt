@@ -107,7 +107,6 @@ endif()
 
 find_package(argparse REQUIRED)
 find_package(pugixml REQUIRED)
-find_package(OpenMP)
 
 # Configuration
 # =============
@@ -131,7 +130,7 @@ function(configure_kernel kernel)
   else()
     set(XEUS_CPP_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include)
     if(${kernel} MATCHES "omp/$")
-      set(XEUS_CPP_OMP "${OpenMP_CXX_FLAGS}")
+      set(XEUS_CPP_OMP "-fopenmp")
     endif()
   endif()
   if (WIN32)
