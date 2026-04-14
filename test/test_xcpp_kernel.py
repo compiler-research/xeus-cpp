@@ -243,44 +243,266 @@ for name in kernel_names:
     )
 
 if platform.system() != 'Windows':
+
     class BaseXCppOpenMPTests(jupyter_kernel_test.KernelTests):
         __test__ = False
-
-        # language_info.name in a kernel_info_reply should match this
         language_name = 'C++'
 
-        # OpenMP test that creates 2 threads, and gets them to output their thread
-        # number in descending order
-        code_omp="""
+        # Common include block
+        code_omp = """
         #include <omp.h>
         #include <iostream>
+        #include <stdio.h>
         """
 
-        code_omp_2="""
-        int main() {
-        omp_set_num_threads(2);
-        #pragma omp parallel
-        {
-           if (omp_get_thread_num() == 1) {
-             printf("1");
-             #pragma omp barrier
-           }
-           else if (omp_get_thread_num() == 0) {
-             #pragma omp barrier
-             printf("0");
-           }
-        }
-        }
-        main();
-        """
-    
-        def test_xcpp_omp(self):
-                self.flush_channels()
-                reply, output_msgs = self.execute_helper(code=self.code_omp,timeout=20)
-                reply, output_msgs = self.execute_helper(code=self.code_omp_2,timeout=20)
-                self.assertEqual(output_msgs[0]['msg_type'], 'stream')
-                self.assertEqual(output_msgs[0]['content']['text'], '10')
-                self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
+        # ------------------------
+        # Barrier ordering
+        # ------------------------
+        def test_barrier_order(self):
+            code_omp_2 = """
+            void main_barrier_order() {
+                omp_set_num_threads(2);
+                #pragma omp parallel
+                {
+                    if (omp_get_thread_num() == 1) {
+                        printf("1");
+                        #pragma omp barrier
+                    } else {
+                        #pragma omp barrier
+                        printf("0");
+                    }
+                }
+            }
+            main_barrier_order();
+            """
+            self.flush_channels()
+            self.execute_helper(code=self.code_omp, timeout=20)
+            reply, output_msgs = self.execute_helper(code=code_omp_2, timeout=20)
+
+            self.assertEqual(output_msgs[0]['msg_type'], 'stream')
+            self.assertEqual(output_msgs[0]['content']['text'], '10')
+            self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
+        
+        # ------------------------
+        # Parallel for reduction
+        # ------------------------
+        def test_parallel_for_reduction(self):
+            code_omp_2 = """
+            void main_parallel_for_reduction() {
+                int sum = 0;
+
+                #pragma omp parallel for reduction(+:sum)
+                for (int i = 1; i <= 4; i++) {
+                    sum += i;
+                }
+
+                std::cout << sum;
+            }
+            main_parallel_for_reduction();
+            """
+            self.flush_channels()
+            self.execute_helper(code=self.code_omp, timeout=20)
+            reply, output_msgs = self.execute_helper(code=code_omp_2, timeout=20)
+
+            self.assertEqual(output_msgs[0]['msg_type'], 'stream')
+            self.assertEqual(output_msgs[0]['content']['text'], '10')
+            self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
+        
+        # ------------------------
+        # Critical
+        # ------------------------
+        def test_critical(self):
+            code_omp_2 = """
+            void main_critical() {
+                int counter = 0;
+
+                #pragma omp parallel num_threads(4)
+                {
+                    #pragma omp critical
+                    {
+                        counter++;
+                    }
+                }
+
+                std::cout << counter;
+            }
+            main_critical();
+            """
+            self.flush_channels()
+            self.execute_helper(code=self.code_omp, timeout=20)
+            reply, output_msgs = self.execute_helper(code=code_omp_2, timeout=20)
+
+            self.assertEqual(output_msgs[0]['msg_type'], 'stream')
+            self.assertEqual(output_msgs[0]['content']['text'], '4')
+            self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
+        
+        # ------------------------
+        # Atomic
+        # ------------------------
+        def test_atomic(self):
+            code_omp_2 = """
+            void main_atomic() {
+                int counter = 0;
+
+                #pragma omp parallel num_threads(4)
+                {
+                    #pragma omp atomic
+                    counter++;
+                }
+
+                std::cout << counter;
+            }
+            main_atomic();
+            """
+            self.flush_channels()
+            self.execute_helper(code=self.code_omp, timeout=20)
+            reply, output_msgs = self.execute_helper(code=code_omp_2, timeout=20)
+
+            self.assertEqual(output_msgs[0]['msg_type'], 'stream')
+            self.assertEqual(output_msgs[0]['content']['text'], '4')
+            self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
+        
+        # ------------------------
+        # Single
+        # ------------------------
+        def test_single(self):
+            code_omp_2 = """
+            void main_single() {
+                int x = 0;
+
+                #pragma omp parallel num_threads(4)
+                {
+                    #pragma omp single
+                    {
+                        x += 42;
+                    }
+                }
+
+                std::cout << x;
+            }
+            main_single();
+            """
+            self.flush_channels()
+            self.execute_helper(code=self.code_omp, timeout=20)
+            reply, output_msgs = self.execute_helper(code=code_omp_2, timeout=20)
+
+            self.assertEqual(output_msgs[0]['msg_type'], 'stream')
+            self.assertEqual(output_msgs[0]['content']['text'], '42')
+            self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
+        
+        # ------------------------
+        # Master
+        # ------------------------
+        def test_master(self):
+            code_omp_2 = """
+            void main_master() {
+                int x = -1;
+
+                #pragma omp parallel num_threads(4)
+                {
+                    #pragma omp master
+                    {
+                        x = omp_get_thread_num();
+                    }
+                }
+
+                std::cout << x;
+            }
+            main_master();
+            """
+            self.flush_channels()
+            self.execute_helper(code=self.code_omp, timeout=20)
+            reply, output_msgs = self.execute_helper(code=code_omp_2, timeout=20)
+
+            self.assertEqual(output_msgs[0]['msg_type'], 'stream')
+            self.assertEqual(output_msgs[0]['content']['text'], '0')
+            self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
+
+        # ------------------------
+        # Task
+        # ------------------------
+        def test_task(self):
+            code_omp_2 = """
+            void main_task() {
+                int x = 0;
+
+                #pragma omp parallel num_threads(2)
+                {
+                    #pragma omp single
+                    {
+                        #pragma omp task
+                        {
+                            x = 5;
+                        }
+
+                        #pragma omp taskwait
+                    }
+                }
+
+                std::cout << x;
+            }
+            main_task();
+            """
+            self.flush_channels()
+            self.execute_helper(code=self.code_omp, timeout=20)
+            reply, output_msgs = self.execute_helper(code=code_omp_2, timeout=20)
+
+            self.assertEqual(output_msgs[0]['msg_type'], 'stream')
+            self.assertEqual(output_msgs[0]['content']['text'], '5')
+            self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
+
+        # ------------------------
+        # Ordered
+        # ------------------------
+        def test_ordered(self):
+            code_omp_2 = """
+            void main_ordered() {
+                #pragma omp parallel for ordered num_threads(2)
+                for (int i = 0; i < 4; i++) {
+                    #pragma omp ordered
+                    {
+                        printf("%d", i);
+                    }
+                }
+            }
+            main_ordered();
+            """
+            self.flush_channels()
+            self.execute_helper(code=self.code_omp, timeout=20)
+            reply, output_msgs = self.execute_helper(code=code_omp_2, timeout=20)
+
+            self.assertEqual(output_msgs[0]['msg_type'], 'stream')
+            self.assertEqual(output_msgs[0]['content']['text'], '0123')
+            self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
+
+        # ------------------------
+        # Static schedule
+        # ------------------------
+        def test_schedule_static(self):
+            code_omp_2 = """
+            void main_schedule_static() {
+                omp_set_num_threads(2);
+
+                int result[4];
+
+                #pragma omp parallel for schedule(static,1)
+                for (int i = 0; i < 4; i++) {
+                    result[i] = omp_get_thread_num();
+                }
+
+                for (int i = 0; i < 4; i++) {
+                    printf("%d", result[i]);
+                }
+            }
+            main_schedule_static();
+            """
+            self.flush_channels()
+            self.execute_helper(code=self.code_omp, timeout=20)
+            reply, output_msgs = self.execute_helper(code=code_omp_2, timeout=20)
+
+            self.assertEqual(output_msgs[0]['msg_type'], 'stream')
+            self.assertEqual(output_msgs[0]['content']['text'], '0101')
+            self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
 
     kernel_names = ['xcpp23-omp']
 
