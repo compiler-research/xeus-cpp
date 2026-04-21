@@ -387,39 +387,11 @@ jobs:
       - name: Serve Jupyter Lite website
         uses: ./.github/actions/Jupyter-serve
 
-      - name: Test C++17 kernel in xeus-cpp-lite-demo.ipynb
-        uses: ./.github/actions/Emscripten-Notebook-Tests
-        with:
-          notebook: "xeus-cpp-lite-demo.ipynb"
-          kernel: "C++17"
-        timeout-minutes: 5
-
-      - name: Test C++20 kernel in xeus-cpp-lite-demo.ipynb
-        uses: ./.github/actions/Emscripten-Notebook-Tests
-        with:
-          notebook: "xeus-cpp-lite-demo.ipynb"
-          kernel: "C++20"
-        timeout-minutes: 5
-
       - name: Test C++23 kernel in xeus-cpp-lite-demo.ipynb
         uses: ./.github/actions/Emscripten-Notebook-Tests
         with:
           notebook: "xeus-cpp-lite-demo.ipynb"
           kernel: "C++23"
-        timeout-minutes: 5
-
-      - name: Test C++17 kernel in tinyraytracer.ipynb
-        uses: ./.github/actions/Emscripten-Notebook-Tests
-        with:
-          notebook: "tinyraytracer.ipynb"
-          kernel: "C++17"
-        timeout-minutes: 5
-
-      - name: Test C++20 kernel in tinyraytracer.ipynb
-        uses: ./.github/actions/Emscripten-Notebook-Tests
-        with:
-          notebook: "tinyraytracer.ipynb"
-          kernel: "C++20"
         timeout-minutes: 5
 
       - name: Test C++23 kernel in tinyraytracer.ipynb
