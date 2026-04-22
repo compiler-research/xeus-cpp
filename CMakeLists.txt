@@ -101,6 +101,13 @@ if (NOT TARGET xeus AND NOT TARGET xeus-static)
 endif ()
 
 find_package(CppInterOp ${CppInterOp_REQUIRED_VERSION} REQUIRED)
+
+# Extract filename without extension
+get_filename_component(_name "${CPPINTEROP_LIBRARIES}" NAME_WE)
+
+# Remove "lib" prefix
+string(REGEX REPLACE "^lib" "" CPPINTEROP_TARGET "${_name}")
+
 if(CppInterOp_FOUND)
   message(STATUS "Found CppInterOp: config=${CPPINTEROP_CMAKE_DIR} dir=${CPPINTEROP_INSTALL_PREFIX} (found version=${CPPINTEROP_VERSION} compatible with Clang ${CPPINTEROP_LLVM_VERSION_MAJOR}.x)")
 endif()
@@ -339,7 +346,7 @@ macro(xeus_cpp_create_target target_name linkage output_name)
         endif()
 
         # Existing target_link_libraries call, adjusted for clarity
-        target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse)
+        target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} ${CPPINTEROP_TARGET}  pugixml argparse::argparse)
 
         # Ensure all linked libraries use the same runtime library
         if (MSVC)
@@ -360,9 +367,9 @@ macro(xeus_cpp_create_target target_name linkage output_name)
         endif()
 
         # Curl initialised specifically for xassist
-        target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse CURL::libcurl)
+        target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} ${CPPINTEROP_TARGET}  pugixml argparse::argparse CURL::libcurl)
     else ()
-        target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse)
+        target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} ${CPPINTEROP_TARGET} pugixml argparse::argparse)
     endif()
     
     if (WIN32 OR CYGWIN)

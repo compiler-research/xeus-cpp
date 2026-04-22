@@ -14,7 +14,7 @@
     "debugger": false,
     "shared": {
       "libxeus.so": "lib/libxeus.so",
-      "libclangCppInterOp.so": "lib/libclangCppInterOp.so"
+      "lib@CPPINTEROP_TARGET@.so": "lib/lib@CPPINTEROP_TARGET@.so"
     }
   }
 }
