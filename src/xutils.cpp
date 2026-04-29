@@ -15,7 +15,7 @@
 
 #ifdef __GNUC__
 #include <stdio.h>
-#ifndef XEUS_CPP_EMSCRIPTEN_WASM_BUILD
+#ifndef __EMSCRIPTEN__
 #include <execinfo.h>
 #endif
 #include <stdlib.h>
@@ -30,7 +30,7 @@
 namespace xcpp
 {
 
-#if defined(__GNUC__) && !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+#if defined(__GNUC__) && !defined(__EMSCRIPTEN__)
     void handler(int sig)
     {
         void* array[10];

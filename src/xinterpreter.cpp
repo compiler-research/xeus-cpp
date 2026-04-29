@@ -7,6 +7,8 @@
  * The full license is in the file LICENSE, distributed with this software.         *
  ************************************************************************************/
 
+#include <regex>
+
 #include "xeus/xhelper.hpp"
 #include "xeus/xsystem.hpp"
 
@@ -16,10 +18,13 @@
 #include "xeus-cpp/xmagics.hpp"
 
 #include "xinput.hpp"
+#include "xinput_validator.hpp"
 #include "xinspect.hpp"
 #include "xmagics/os.hpp"
+#include <algorithm>
+#include <cstdlib>
 #include <iostream>
-#ifndef EMSCRIPTEN
+#ifndef __EMSCRIPTEN__
 #include "xmagics/xassist.hpp"
 #endif
 #include "xparser.hpp"
@@ -29,15 +34,19 @@ using Args = std::vector<const char*>;
 
 void* createInterpreter(const Args &ExtraArgs = {}) {
   Args ClangArgs = {/*"-xc++"*/"-v"};
+  std::string resource_dir;
   if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
     return s == "-resource-dir";}) == ExtraArgs.end()) {
-    std::string resource_dir = Cpp::DetectResourceDir();
-    if (!resource_dir.empty()) {
-        ClangArgs.push_back("-resource-dir");
-        ClangArgs.push_back(resource_dir.c_str());
-    } else {
-        std::cerr << "Failed to detect the resource-dir\n";
-    }
+      resource_dir = Cpp::DetectResourceDir();
+      if (!resource_dir.empty())
+      {
+          ClangArgs.push_back("-resource-dir");
+          ClangArgs.push_back(resource_dir.c_str());
+      }
+      else
+      {
+          std::cerr << "Failed to detect the resource-dir\n";
+      }
   }
   std::vector<std::string> CxxSystemIncludes;
   Cpp::DetectSystemCompilerIncludePaths(CxxSystemIncludes);
@@ -48,7 +57,27 @@ void* createInterpreter(const Args &ExtraArgs = {}) {
   ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
   // FIXME: We should process the kernel input options and conditionally pass
   // the gpu args here.
-  return Cpp::CreateInterpreter(ClangArgs/*, {"-cuda"}*/);
+  Cpp::TInterp_t res = Cpp::CreateInterpreter(ClangArgs /*, {"-cuda"}*/);
+  if (!res)
+  {
+      return res;
+  }
+
+  // clang-repl does not load libomp.so when -fopenmp flag is used
+  // we need to explicitly load it
+  if (std::find_if(
+          ClangArgs.begin(),
+          ClangArgs.end(),
+          [](const std::string& s)
+          {
+              return s.find("-fopenmp") == 0;
+          }
+      )
+      != ClangArgs.end())
+  {
+      Cpp::LoadLibrary("libomp");
+  }
+  return res;
 }
 
 using namespace std::placeholders;
@@ -56,22 +85,16 @@ using namespace std::placeholders;
 namespace xcpp
 {
     struct StreamRedirectRAII {
-        std::string& out;
-        std::string& err;
-
-        StreamRedirectRAII(std::string& o, std::string& e)
-            : out(o)
-            , err(e)
-        {
-            Cpp::BeginStdStreamCapture(Cpp::kStdOut);
-            Cpp::BeginStdStreamCapture(Cpp::kStdErr);
-        }
-
-        ~StreamRedirectRAII()
-        {
-            err = Cpp::EndStdStreamCapture();
-            out = Cpp::EndStdStreamCapture();
-        }
+      std::string &err;
+      StreamRedirectRAII(std::string &e) : err(e) {
+        Cpp::BeginStdStreamCapture(Cpp::kStdErr);
+        Cpp::BeginStdStreamCapture(Cpp::kStdOut);
+      }
+      ~StreamRedirectRAII() {
+        std::string out = Cpp::EndStdStreamCapture();
+        err = Cpp::EndStdStreamCapture();
+        std::cout << out;
+      }
     };
 
     void interpreter::configure_impl()
@@ -79,31 +102,138 @@ namespace xcpp
         xeus::register_interpreter(this);
     }
 
+    // FIXME: This function should be upstreamed to CppInterOp. See
+    // https://github.com/compiler-research/CppInterOp/issues/879
     static std::string get_stdopt()
     {
-        // We need to find what's the C++ version the interpreter runs with.
-        const char* code = R"(
-int __get_cxx_version () {
-#if __cplusplus > 202302L
-    return 26;
-#elif __cplusplus > 202002L
-    return 23;
-#elif __cplusplus >  201703L
-    return 20;
-#elif __cplusplus > 201402L
-    return 17;
-#elif __cplusplus > 201103L || (defined(_WIN32) && _MSC_VER >= 1900)
-    return 14;
-#elif __cplusplus >= 201103L
-   return 11;
-#else
-  return 0;
-#endif
-  }
-__get_cxx_version ()
-      )";
-        auto cxx_version = Cpp::Evaluate(code);
-        return std::to_string(cxx_version);
+        switch (Cpp::GetLanguageStandard(nullptr))
+        {
+            case Cpp::InterpreterLanguageStandard::c89:
+                return "c89";
+            case Cpp::InterpreterLanguageStandard::c94:
+                return "c94";
+            case Cpp::InterpreterLanguageStandard::gnu89:
+                return "gnu89";
+            case Cpp::InterpreterLanguageStandard::c99:
+                return "c99";
+            case Cpp::InterpreterLanguageStandard::gnu99:
+                return "gnu99";
+            case Cpp::InterpreterLanguageStandard::c11:
+                return "c11";
+            case Cpp::InterpreterLanguageStandard::gnu11:
+                return "gnu11";
+            case Cpp::InterpreterLanguageStandard::c17:
+                return "c17";
+            case Cpp::InterpreterLanguageStandard::gnu17:
+                return "gnu17";
+            case Cpp::InterpreterLanguageStandard::c23:
+                return "c23";
+            case Cpp::InterpreterLanguageStandard::gnu23:
+                return "gnu23";
+            case Cpp::InterpreterLanguageStandard::c2y:
+                return "c2y";
+            case Cpp::InterpreterLanguageStandard::gnu2y:
+                return "gnu2y";
+            case Cpp::InterpreterLanguageStandard::cxx98:
+                return "cxx98";
+            case Cpp::InterpreterLanguageStandard::gnucxx98:
+                return "gnucxx98";
+            case Cpp::InterpreterLanguageStandard::cxx11:
+                return "cxx11";
+            case Cpp::InterpreterLanguageStandard::gnucxx11:
+                return "gnucxx11";
+            case Cpp::InterpreterLanguageStandard::cxx14:
+                return "cxx14";
+            case Cpp::InterpreterLanguageStandard::gnucxx14:
+                return "gnucxx14";
+            case Cpp::InterpreterLanguageStandard::cxx17:
+                return "cxx17";
+            case Cpp::InterpreterLanguageStandard::gnucxx17:
+                return "gnucxx17";
+            case Cpp::InterpreterLanguageStandard::cxx20:
+                return "cxx20";
+            case Cpp::InterpreterLanguageStandard::gnucxx20:
+                return "gnucxx20";
+            case Cpp::InterpreterLanguageStandard::cxx23:
+                return "cxx23";
+            case Cpp::InterpreterLanguageStandard::gnucxx23:
+                return "gnucxx23";
+            case Cpp::InterpreterLanguageStandard::cxx26:
+                return "cxx26";
+            case Cpp::InterpreterLanguageStandard::gnucxx26:
+                return "gnucxx26";
+            case Cpp::InterpreterLanguageStandard::opencl10:
+                return "opencl10";
+            case Cpp::InterpreterLanguageStandard::opencl11:
+                return "opencl11";
+            case Cpp::InterpreterLanguageStandard::opencl12:
+                return "opencl12";
+            case Cpp::InterpreterLanguageStandard::opencl20:
+                return "opencl20";
+            case Cpp::InterpreterLanguageStandard::opencl30:
+                return "opencl30";
+            case Cpp::InterpreterLanguageStandard::openclcpp10:
+                return "openclcpp10";
+            case Cpp::InterpreterLanguageStandard::openclcpp2021:
+                return "openclcpp2021";
+            case Cpp::InterpreterLanguageStandard::hlsl:
+                return "hlsl";
+            case Cpp::InterpreterLanguageStandard::hlsl2015:
+                return "hlsl2015";
+            case Cpp::InterpreterLanguageStandard::hlsl2016:
+                return "hlsl2016";
+            case Cpp::InterpreterLanguageStandard::hlsl2017:
+                return "hlsl2017";
+            case Cpp::InterpreterLanguageStandard::hlsl2018:
+                return "hlsl2018";
+            case Cpp::InterpreterLanguageStandard::hlsl2021:
+                return "hlsl2021";
+            case Cpp::InterpreterLanguageStandard::hlsl202x:
+                return "hlsl202x";
+            case Cpp::InterpreterLanguageStandard::hlsl202y:
+                return "hlsl202y";
+            case Cpp::InterpreterLanguageStandard::lang_unspecified:
+                return "lang_unspecified";
+        }
+
+        return "unknown";
+    }
+
+    // FIXME: This function should be upstreamed to CppInterOp. See
+    // https://github.com/compiler-research/CppInterOp/issues/879
+    static std::string get_language()
+    {
+        switch (Cpp::GetLanguage(nullptr))
+        {
+            case Cpp::InterpreterLanguage::Unknown:
+                return "Unknown";
+            case Cpp::InterpreterLanguage::Asm:
+                return "Asm";
+            case Cpp::InterpreterLanguage::CIR:
+                return "CIR";
+            case Cpp::InterpreterLanguage::LLVM_IR:
+                return "LLVM_IR";
+            case Cpp::InterpreterLanguage::C:
+                return "C";
+            case Cpp::InterpreterLanguage::CPlusPlus:
+                return "C++";
+            case Cpp::InterpreterLanguage::ObjC:
+                return "ObjC";
+            case Cpp::InterpreterLanguage::ObjCPlusPlus:
+                return "ObjC++";
+            case Cpp::InterpreterLanguage::OpenCL:
+                return "OpenCL";
+            case Cpp::InterpreterLanguage::OpenCLCXX:
+                return "OpenCLCXX";
+            case Cpp::InterpreterLanguage::CUDA:
+                return "CUDA";
+            case Cpp::InterpreterLanguage::HIP:
+                return "HIP";
+            case Cpp::InterpreterLanguage::HLSL:
+                return "HLSL";
+        }
+
+        return "unknown";
     }
 
     interpreter::interpreter(int argc, const char* const* argv) :
@@ -116,6 +246,7 @@ __get_cxx_version ()
         //NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-pointer-arithmetic)
         createInterpreter(Args(argv ? argv + 1 : argv, argv + argc));
         m_version = get_stdopt();
+        m_language = get_language();
         redirect_output();
         init_preamble();
         init_magic();
@@ -170,12 +301,11 @@ __get_cxx_version ()
         }
 
         std::string err;
-        std::string out;
 
         // Attempt normal evaluation
         try
         {
-            StreamRedirectRAII R(out, err);
+            StreamRedirectRAII R(err);
             compilation_result = Cpp::Process(code.c_str());
         }
         catch (std::exception& e)
@@ -190,12 +320,11 @@ __get_cxx_version ()
             ename = "Error: ";
         }
 
-        if (!out.empty())
+        if (compilation_result)
         {
-            std::cout << out;
-        }
-        if (!err.empty())
-        {
+            errorlevel = 1;
+            ename = "Error: ";
+            evalue = "Compilation error! " + err;
             std::cerr << err;
         }
 
@@ -208,13 +337,6 @@ __get_cxx_version ()
         {
             std::cout.rdbuf(cout_strbuf);
             std::cerr.rdbuf(cerr_strbuf);
-        }
-
-        if (compilation_result)
-        {
-            errorlevel = 1;
-            ename = "Error: ";
-            evalue = "Compilation error! " + err;
         }
 
         // Depending of error level, publish execution result or execution
@@ -236,10 +358,7 @@ __get_cxx_version ()
             }
 
             // Compose execute_reply message.
-            kernel_res["status"] = "error";
-            kernel_res["ename"] = ename;
-            kernel_res["evalue"] = evalue;
-            kernel_res["traceback"] = traceback;
+            kernel_res = xeus::create_error_reply(ename, evalue, traceback);
         }
         else
         {
@@ -253,9 +372,7 @@ __get_cxx_version ()
                 }
                 */
             // Compose execute_reply message.
-            kernel_res["status"] = "ok";
-            kernel_res["payload"] = nl::json::array();
-            kernel_res["user_expressions"] = nl::json::object();
+            kernel_res = xeus::create_successful_reply();
         }
         cb(kernel_res);
     }
@@ -280,37 +397,31 @@ __get_cxx_version ()
 
     nl::json interpreter::inspect_request_impl(const std::string& code, int cursor_pos, int /*detail_level*/)
     {
-        nl::json kernel_res;
-        std::string exp = R"(\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)";
         std::regex re(R"((\w*(?:\:{2}|\<.*\>|\(.*\)|\[.*\])?)(\.?)*$)");
-        auto inspect_request = is_inspect_request(code.substr(0, cursor_pos), re);
-        if (inspect_request.first)
+
+        std::smatch inspect_request;
+        std::string sub_code = code.substr(0, cursor_pos);
+        if (std::regex_search(sub_code, inspect_request, re))
         {
-            inspect(inspect_request.second[0], kernel_res);
+            std::string result = inspect(inspect_request[0]);
+            if (result.empty())
+            {
+                return xeus::create_inspect_reply(false);
+            }
+            return xeus::create_inspect_reply(true, build_inspect_data(result));
         }
-        return kernel_res;
+        return xeus::create_inspect_reply(false);
     }
 
     nl::json interpreter::is_complete_request_impl(const std::string& code)
     {
-        if (!code.empty() && code[code.size() - 1] == '\\') {
-            auto found = code.rfind('\n');
-            if (found == std::string::npos)
-                found = -1;
-            auto found1 = found++;
-            while (isspace(code[++found1])) ;
-            return xeus::create_is_complete_reply("incomplete", code.substr(found, found1-found));
-        }
-
-        return xeus::create_is_complete_reply("complete");
+        xinput_validator v;
+        std::string res = to_string(v.validate(code));
+        return xeus::create_is_complete_reply(res, v.get_expected_indent());
     }
 
     nl::json interpreter::kernel_info_request_impl()
     {
-        nl::json result;
-        result["implementation"] = "xeus-cpp";
-        result["implementation_version"] = XEUS_CPP_VERSION;
-
         /* The jupyter-console banner for xeus-cpp is the following:
           __  _____ _   _ ___
           \ \/ / _ \ | | / __|
@@ -327,23 +438,31 @@ __get_cxx_version ()
                              "  /_/\\_\\___|\\__,_|___/\n"
                              "\n"
                              "  xeus-cpp: a C++ Jupyter kernel - based on Clang-repl\n";
-        result["banner"] = banner;
-        result["language_info"]["name"] = "C++";
-        result["language_info"]["version"] = m_version;
-        result["language_info"]["mimetype"] = "text/x-c++src";
-        result["language_info"]["codemirror_mode"] = "text/x-c++src";
-        result["language_info"]["file_extension"] = ".cpp";
-        result["help_links"] = nl::json::array();
-        result["help_links"][0] = nl::json::object(
-            {{"text", "Xeus-cpp Reference"}, {"url", "https://xeus-cpp.readthedocs.io"}}
+        nl::json help_links = nl::json::array();
+        help_links.push_back({{"text", "Xeus-cpp Reference"}, {"url", "https://xeus-cpp.readthedocs.io"}});
+        return xeus::create_info_reply(
+            "xeus-cpp",
+            XEUS_CPP_VERSION,
+            m_language,
+            m_version,
+            "text/x-c++src",
+            ".cpp",
+            "",
+            std::string("text/x-c++src"),
+            "",
+            banner,
+            help_links
         );
-        result["status"] = "ok";
-        return result;
     }
 
-    void interpreter::shutdown_request_impl()
+    nl::json interpreter::shutdown_request_impl(bool /*restart*/)
     {
-        restore_output();
+        return xeus::create_shutdown_reply(false);
+    }
+
+    nl::json interpreter::interrupt_request_impl()
+    {
+        return xeus::create_interrupt_reply();
     }
 
     void interpreter::redirect_output()
@@ -388,7 +507,7 @@ __get_cxx_version ()
         // timeit(&m_interpreter));
         // preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("python", pythonexec());
         preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("file", writefile());
-#ifndef EMSCRIPTEN
+#ifndef __EMSCRIPTEN__
         preamble_manager["magics"].get_cast<xmagics_manager>().register_magic("xassist", xassist());
 #endif
     }

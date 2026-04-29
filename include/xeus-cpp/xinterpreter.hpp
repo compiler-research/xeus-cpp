@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-#include "clang/Interpreter/CppInterOp.h" // from CppInterOp package
+#include <CppInterOp/CppInterOp.h>
 
 #include <nlohmann/json.hpp>
 
@@ -60,7 +60,9 @@ namespace xcpp
 
         nl::json kernel_info_request_impl() override;
 
-        void shutdown_request_impl() override;
+        nl::json shutdown_request_impl(bool restart) override;
+
+        nl::json interrupt_request_impl() override;
 
         nl::json get_error_reply(
             const std::string& ename,
@@ -76,6 +78,8 @@ namespace xcpp
         void init_magic();
 
         std::string m_version;
+
+        std::string m_language;
 
         xmagics_manager xmagics;
         xpreamble_manager preamble_manager;

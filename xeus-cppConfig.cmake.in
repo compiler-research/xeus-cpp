@@ -21,7 +21,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
 @XEUS_CPP_CONFIG_CODE@
 
 include(CMakeFindDependencyMacro)
-if (NOT @XEUS_CPP_EMSCRIPTEN_WASM_BUILD@)
+if (NOT EMSCRIPTEN)
     find_dependency(xeus-zmq @xeus-zmq_REQUIRED_VERSION@)
 endif ()
 

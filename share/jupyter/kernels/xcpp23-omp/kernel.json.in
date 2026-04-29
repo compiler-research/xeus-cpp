@@ -1,18 +1,15 @@
 {
-  "display_name": "C++17 (xcpp+OpenMP)",
-  "env": {
-      "PATH":"@XEUS_CPP_PATH@",
-      "LD_LIBRARY_PATH":"@XEUS_CPP_LD_LIBRARY_PATH@"
-  },
+  "display_name": "C++23 + OpenMP",
   "argv": [
       "@XEUS_CPP_KERNELSPEC_PATH@xcpp",
       "-f",
       "{connection_file}",
       "-resource-dir", "@XEUS_CPP_RESOURCE_DIR@",
       "-I", "@XEUS_CPP_INCLUDE_DIR@",
-      "-std=c++17"@XEUS_CPP_OMP@
+      "-std=c++23","@XEUS_CPP_OMP@","-D_LIBCPP_DISABLE_AVAILABILITY"
   ],
   "language": "cpp",
+  "kernel_protocol_version": "5.6.0",
   "metadata": {"debugger": false
   }
 }

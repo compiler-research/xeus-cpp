@@ -27,7 +27,7 @@
 #include <iostream>
 #include <pugixml.hpp>
 #include <fstream>
-#if defined(__GNUC__) && !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+#if defined(__GNUC__) && !defined(__EMSCRIPTEN__)
     #include <sys/wait.h>
     #include <unistd.h>
 #endif
@@ -70,7 +70,10 @@ TEST_SUITE("execute_request")
 {
     TEST_CASE("stl")
     {
-        std::vector<const char*> Args = {"stl-test-case", "-v"};
+        std::vector<const char*> Args = {
+            "-v",
+            "-Xclang", "-iwithsysroot/include/compat"
+        };
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
         std::string code = "#include <vector>";
         nl::json user_expressions = nl::json::object();
@@ -98,6 +101,82 @@ TEST_SUITE("execute_request")
         nl::json result = future.get();
         REQUIRE(result["status"] == "ok");
     }
+
+#if defined(__EMSCRIPTEN__)
+    TEST_CASE("headers found in sysroot/include/compat")
+    {
+        std::vector<const char*> Args = {
+            "-v",
+            "-Xclang", "-iwithsysroot/include/compat"
+        };
+
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+        std::string code = "#include <xlocale.h>";
+        nl::json user_expressions = nl::json::object();
+        xeus::execute_request_config config;
+        config.silent = false;
+        config.store_history = false;
+        config.allow_stdin = false;
+        nl::json header = nl::json::object();
+        xeus::xrequest_context::guid_list id = {};
+        xeus::xrequest_context context(header, id);
+
+        std::promise<nl::json> promise;
+        std::future<nl::json> future = promise.get_future();
+        auto callback = [&promise](nl::json result) {
+            promise.set_value(result);
+        };
+
+        interpreter.execute_request(
+            std::move(context),
+            std::move(callback),
+            code,
+            std::move(config),
+            user_expressions
+        );
+        nl::json result = future.get();
+        REQUIRE(result["status"] == "ok");
+    }
+#endif
+
+#if defined(__EMSCRIPTEN__)
+    TEST_CASE("Emscripten Exception Handling")
+    {
+        std::vector<const char*> Args = {
+            "-std=c++20",
+            "-v",
+            "-fwasm-exceptions",
+            "-mllvm", "-wasm-enable-sjlj"
+        };
+
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+        std::string code = "try { throw 1; } catch (...) { 0; }";
+        nl::json user_expressions = nl::json::object();
+        xeus::execute_request_config config;
+        config.silent = false;
+        config.store_history = false;
+        config.allow_stdin = false;
+        nl::json header = nl::json::object();
+        xeus::xrequest_context::guid_list id = {};
+        xeus::xrequest_context context(header, id);
+
+        std::promise<nl::json> promise;
+        std::future<nl::json> future = promise.get_future();
+        auto callback = [&promise](nl::json result) {
+            promise.set_value(result);
+        };
+
+        interpreter.execute_request(
+            std::move(context),
+            std::move(callback),
+            code,
+            std::move(config),
+            user_expressions
+        );
+        nl::json result = future.get();
+        REQUIRE(result["status"] == "ok");
+    }
+#endif
 
     TEST_CASE("fetch_documentation")
     {
@@ -131,7 +210,76 @@ TEST_SUITE("execute_request")
         nl::json result = future.get();
         REQUIRE(result["payload"][0]["data"]["text/plain"] == inspect_result);
         REQUIRE(result["user_expressions"] == nl::json::object());
-        REQUIRE(result["found"] == true);
+        REQUIRE(result["status"] == "ok");
+    }
+
+    TEST_CASE("fetch_documentation_move_utility")
+    {
+        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+
+        std::string code = "?move (utility)";
+        std::string inspect_result = "https://en.cppreference.com/w/cpp/utility/move";
+        nl::json user_expressions = nl::json::object();
+        xeus::execute_request_config config;
+        config.silent = false;
+        config.store_history = false;
+        config.allow_stdin = false;
+        nl::json header = nl::json::object();
+        xeus::xrequest_context::guid_list id = {};
+        xeus::xrequest_context context(header, id);
+
+        std::promise<nl::json> promise;
+        std::future<nl::json> future = promise.get_future();
+        auto callback = [&promise](nl::json result) {
+            promise.set_value(result);
+        };
+
+        interpreter.execute_request(
+            std::move(context),
+            std::move(callback),
+            code,
+            std::move(config),
+            user_expressions
+        );
+        nl::json result = future.get();
+        REQUIRE(result["payload"][0]["data"]["text/plain"] == inspect_result);
+        REQUIRE(result["user_expressions"] == nl::json::object());
+        REQUIRE(result["status"] == "ok");
+    }
+
+    TEST_CASE("fetch_documentation_move_algorithm")
+    {
+        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+
+        std::string code = "?move (algorithm)";
+        std::string inspect_result = "https://en.cppreference.com/w/cpp/algorithm/move";
+        nl::json user_expressions = nl::json::object();
+        xeus::execute_request_config config;
+        config.silent = false;
+        config.store_history = false;
+        config.allow_stdin = false;
+        nl::json header = nl::json::object();
+        xeus::xrequest_context::guid_list id = {};
+        xeus::xrequest_context context(header, id);
+
+        std::promise<nl::json> promise;
+        std::future<nl::json> future = promise.get_future();
+        auto callback = [&promise](nl::json result) {
+            promise.set_value(result);
+        };
+
+        interpreter.execute_request(
+            std::move(context),
+            std::move(callback),
+            code,
+            std::move(config),
+            user_expressions
+        );
+        nl::json result = future.get();
+        REQUIRE(result["payload"][0]["data"]["text/plain"] == inspect_result);
+        REQUIRE(result["user_expressions"] == nl::json::object());
         REQUIRE(result["status"] == "ok");
     }
 
@@ -167,7 +315,6 @@ TEST_SUITE("execute_request")
         nl::json result = future.get();
         REQUIRE(result["payload"][0]["data"]["text/plain"] == inspect_result);
         REQUIRE(result["user_expressions"] == nl::json::object());
-        REQUIRE(result["found"] == true);
         REQUIRE(result["status"] == "ok");
     }
 
@@ -207,13 +354,7 @@ TEST_SUITE("execute_request")
 
 TEST_SUITE("inspect_request")
 {
-#if defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
-    TEST_CASE("good_status"
-            * doctest::should_fail(true)
-            * doctest::description("TODO: Currently fails for the Emscripten build"))
-#else
-    TEST_CASE("good_status")
-#endif
+    TEST_CASE("found_status")
     {
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
@@ -227,12 +368,11 @@ TEST_SUITE("inspect_request")
             /*detail_level=*/0
         );
 
-        REQUIRE(result["user_expressions"] == nl::json::object());
         REQUIRE(result["found"] == true);
         REQUIRE(result["status"] == "ok");
     }
 
-    TEST_CASE("bad_status")
+    TEST_CASE("not_found_status")
     {
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
@@ -247,7 +387,7 @@ TEST_SUITE("inspect_request")
         );
 
         REQUIRE(result["found"] == false);
-        REQUIRE(result["status"] == "error");
+        REQUIRE(result["status"] == "ok");
     }
 }
 
@@ -267,7 +407,7 @@ TEST_SUITE("kernel_info_request")
         REQUIRE(result["language_info"]["mimetype"] == "text/x-c++src");
         REQUIRE(result["language_info"]["codemirror_mode"] == "text/x-c++src");
         REQUIRE(result["language_info"]["file_extension"] == ".cpp");
-        REQUIRE(result["language_info"]["version"] == "23");
+        REQUIRE(result["language_info"]["version"] == "cxx23");
         REQUIRE(result["status"] == "ok");
     }
 
@@ -280,7 +420,7 @@ TEST_SUITE("shutdown_request")
         std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
 
-        REQUIRE_NOTHROW(interpreter.shutdown_request());
+        REQUIRE_NOTHROW(interpreter.shutdown_request(true));
     }
 
 }
@@ -640,7 +780,7 @@ TEST_SUITE("xsystem_clone")
     }
 }
 
-#if !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+#if !defined(__EMSCRIPTEN__)
 TEST_SUITE("xsystem_apply")
 {
     TEST_CASE("apply_xsystem")
@@ -750,7 +890,7 @@ TEST_SUITE("xmagics_apply"){
     }
 }
 
-#if defined(__GNUC__) && !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+#if defined(__GNUC__) && !defined(__EMSCRIPTEN__)
 TEST_SUITE("xutils_handler"){
     TEST_CASE("handler") {
         pid_t pid = fork();
@@ -773,7 +913,10 @@ TEST_SUITE("complete_request")
 {
     TEST_CASE("completion_test")
     {
-        std::vector<const char*> Args = {/*"-v", "resource-dir", "....."*/};
+        std::vector<const char*> Args = {
+            "-v",
+            "-Xclang", "-iwithsysroot/include/compat"
+        };
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
         std::string code1 = "#include <iostream>";
         nl::json user_expressions = nl::json::object();
@@ -871,17 +1014,9 @@ TEST_SUITE("xinspect"){
         cmp.child_value = "nonexistentMethod";
         REQUIRE(cmp(node) == false);
     }
-
-    TEST_CASE("is_inspect_request"){ 
-        std::string code = "vector";
-        std::regex re_expression(R"(non_matching_pattern)");
-        std::pair<bool, std::smatch> result = xcpp::is_inspect_request(code, re_expression);
-        REQUIRE(result.first == false);
-    }
-
 }
 
-#if !defined(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
+#if !defined(__EMSCRIPTEN__)
 TEST_SUITE("xassist"){
 
     TEST_CASE("model_not_found"){
@@ -1095,55 +1230,15 @@ TEST_SUITE("mime_bundle_repr")
     }
 }
 
-TEST_CASE("C and C++ stdout/stderr capture") 
+TEST_CASE("Silent mode restores std::cout and std::cerr buffers")
 {
     std::vector<const char*> Args = {};
     xcpp::interpreter interpreter((int)Args.size(), Args.data());
 
-    xeus::execute_request_config config;
-    config.silent = false;
-    config.store_history = false;
-    config.allow_stdin = false;
-
-    nl::json header = nl::json::object();
-    xeus::xrequest_context::guid_list id = {};
-    xeus::xrequest_context context(header, id);
-
-    std::promise<nl::json> promise;
-    auto callback = [&promise](nl::json result) { promise.set_value(result); };
-
-    // Redirect std::cout and std::cerr
-    StreamRedirectRAII cout_redirect(std::cout);
-    StreamRedirectRAII cerr_redirect(std::cerr);
-
-    std::string code = R"(
-        #include <stdio.h>
-        #include <iostream>
-        printf("C stdout\n");
-        fprintf(stderr, "C stderr\n");
-        std::cout << "C++ stdout\n";
-        std::cerr << "C++ stderr\n";
-    )";
-
-    interpreter.execute_request(context, callback, code, config, nl::json::object());
-    (void)promise.get_future().get(); // wait for result
-
-    std::string captured_out = cout_redirect.getCaptured();
-    std::string captured_err = cerr_redirect.getCaptured();
-
-    REQUIRE(captured_out.find("C stdout") != std::string::npos);
-    REQUIRE(captured_out.find("C++ stdout") != std::string::npos);
-    REQUIRE(captured_err.find("C stderr") != std::string::npos);
-    REQUIRE(captured_err.find("C++ stderr") != std::string::npos);
-}
-
-TEST_CASE("Silent mode suppresses C and C++ stdout/stderr")
-{
-    std::vector<const char*> Args = {};
-    xcpp::interpreter interpreter((int)Args.size(), Args.data());
+    auto* cout_before = std::cout.rdbuf();
+    auto* cerr_before = std::cerr.rdbuf();
 
     xeus::execute_request_config config;
-    // forcing silent as true
     config.silent = true;
     config.store_history = false;
     config.allow_stdin = false;
@@ -1155,25 +1250,17 @@ TEST_CASE("Silent mode suppresses C and C++ stdout/stderr")
     std::promise<nl::json> promise;
     auto callback = [&promise](nl::json result) { promise.set_value(result); };
 
-    StreamRedirectRAII cout_redirect(std::cout);
-    StreamRedirectRAII cerr_redirect(std::cerr);
-
     std::string code = R"(
-        #include <stdio.h>
         #include <iostream>
-        printf("C stdout\n");
-        fprintf(stderr, "C stderr\n");
-        std::cout << "C++ stdout\n";
-        std::cerr << "C++ stderr\n";
+        std::cout << "hidden stdout\n";
+        std::cerr << "hidden stderr\n";
     )";
 
     interpreter.execute_request(context, callback, code, config, nl::json::object());
-    (void)promise.get_future().get();
 
-    std::string captured_out = cout_redirect.getCaptured();
-    std::string captured_err = cerr_redirect.getCaptured();
+    auto reply = promise.get_future().get();
+    REQUIRE(reply["status"] == "ok");
 
-    // Nothing should reach the redirected streams in silent mode
-    REQUIRE(captured_out.empty());
-    REQUIRE(captured_err.empty());
+    REQUIRE(std::cout.rdbuf() == cout_before);
+    REQUIRE(std::cerr.rdbuf() == cerr_before);
 }

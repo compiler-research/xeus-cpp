@@ -39,7 +39,12 @@ class BaseXCppCompleteTests(jupyter_kernel_test.KernelTests):
 
     # Continuation
     code_continuation_incomplete = '  int foo = 12; \\\n  float bar = 1.5f;\\'
-    code_continuation_complete =   '  int foo = 12; \\\n  float bar = 1.5f;'
+    code_continuation_complete =   ['  int foo = 12; \\\n  float bar = 1.5f;',
+                                    '  // This is a comment\\\n']
+
+    code_incomplete = ['void foo(int c) \\\n { \\\n', 'void foo(\\\n', '#ifdef\\\n',
+                       'int res = my_array[\\\n', '/* coincoin\\\n',
+                       'func("ab", \\\n']
 
     def test_continuation(self) -> None:
         if not self.code_continuation_incomplete or not self.code_continuation_complete:
@@ -55,15 +60,27 @@ class BaseXCppCompleteTests(jupyter_kernel_test.KernelTests):
         self.assertEqual(reply["content"]["status"], "incomplete")
 
         # Complete
-        self.flush_channels()
-        msg_id = self.kc.is_complete(self.code_continuation_complete)
-        reply = self.get_non_kernel_info_reply(timeout=1)
-        assert reply is not None
-        self.assertEqual(reply["msg_type"], "is_complete_reply")
-        self.assertEqual(str(reply["content"]["indent"]), "")
-        self.assertEqual(reply["content"]["status"], "complete")
+        for c in self.code_continuation_complete:
+            self.flush_channels()
+            msg_id = self.kc.is_complete(c)
+            reply = self.get_non_kernel_info_reply(timeout=1)
+            assert reply is not None
+            self.assertEqual(reply["msg_type"], "is_complete_reply")
+            self.assertEqual(str(reply["content"]["indent"]), "  ")
+            self.assertEqual(reply["content"]["status"], "complete")
 
-kernel_names = ['xcpp17', 'xcpp20', 'xcpp23']
+        # Code incomplete
+        for c in self.code_incomplete:
+            self.flush_channels()
+            msg_id = self.kc.is_complete(c)
+            reply = self.get_non_kernel_info_reply(timeout=1)
+            assert reply is not None
+            self.assertEqual(reply["msg_type"], "is_complete_reply")
+            self.assertEqual(str(reply["content"]["indent"]), "    ")
+            self.assertEqual(reply["content"]["status"], "incomplete")
+
+
+kernel_names = ['xcpp17', 'xcpp20', 'xcpp23', 'xcpp23-omp']
 
 for name in kernel_names:
     class_name = f"XCppCompleteTests_{name}"
@@ -224,6 +241,59 @@ for name in kernel_names:
             '__test__': True
         }
     )
+
+if platform.system() != 'Windows':
+    class BaseXCppOpenMPTests(jupyter_kernel_test.KernelTests):
+        __test__ = False
+
+        # language_info.name in a kernel_info_reply should match this
+        language_name = 'C++'
+
+        # OpenMP test that creates 2 threads, and gets them to output their thread
+        # number in descending order
+        code_omp="""
+        #include <omp.h>
+        #include <iostream>
+        """
+
+        code_omp_2="""
+        int main() {
+        omp_set_num_threads(2);
+        #pragma omp parallel
+        {
+           if (omp_get_thread_num() == 1) {
+             printf("1");
+             #pragma omp barrier
+           }
+           else if (omp_get_thread_num() == 0) {
+             #pragma omp barrier
+             printf("0");
+           }
+        }
+        }
+        main();
+        """
+    
+        def test_xcpp_omp(self):
+                self.flush_channels()
+                reply, output_msgs = self.execute_helper(code=self.code_omp,timeout=20)
+                reply, output_msgs = self.execute_helper(code=self.code_omp_2,timeout=20)
+                self.assertEqual(output_msgs[0]['msg_type'], 'stream')
+                self.assertEqual(output_msgs[0]['content']['text'], '10')
+                self.assertEqual(output_msgs[0]['content']['name'], 'stdout')
+
+    kernel_names = ['xcpp23-omp']
+
+    for name in kernel_names:
+        class_name = f"XCppOpenMPTests_{name}"
+        globals()[class_name] = type(
+            class_name,
+            (BaseXCppOpenMPTests,),
+            {
+                'kernel_name': name,
+                '__test__': True
+            }
+        )
 
 if __name__ == '__main__':
     unittest.main()

@@ -56,7 +56,6 @@ option(XEUS_CPP_BUILD_EXECUTABLE "Build the xcpp executable" ON)
 
 option(XEUS_CPP_USE_SHARED_XEUS "Link xcpp with the xeus shared library (instead of the static library)" ON)
 option(XEUS_CPP_USE_SHARED_XEUS_CPP "Link xcpp with the xeus-cpp shared library (instead of the static library)" ON)
-option(XEUS_CPP_EMSCRIPTEN_WASM_BUILD "Build for wasm with emscripten" OFF)
 
 # Test options
 option(XEUS_CPP_BUILD_TESTS "xeus-cpp test suite" ON)
@@ -75,7 +74,6 @@ if(XEUS_CPP_ENABLE_CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 if(EMSCRIPTEN)
-    add_compile_definitions(XEUS_CPP_EMSCRIPTEN_WASM_BUILD)
     message("Build with emscripten")
     set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
     set(XEUS_CPP_BUILD_SHARED OFF)
@@ -83,15 +81,17 @@ if(EMSCRIPTEN)
     set(XEUS_CPP_USE_SHARED_XEUS_CPP OFF)
     # ENV (https://github.com/emscripten-core/emscripten/commit/6d9681ad04f60b41ef6345ab06c29bbc9eeb84e0)
     set(EMSCRIPTEN_FEATURES "${EMSCRIPTEN_FEATURES} -s \"EXPORTED_RUNTIME_METHODS=[ENV']\"")
+    set(XEUS_CPP_WASM_KERNEL_EXTRA_FLAGS "-fwasm-exceptions" CACHE STRING "Extra compiler/linker flags for wasm builds")
+    set(XEUS_CPP_WASM_KERNEL_EXTRA_ARGS "-fwasm-exceptions;-mllvm;-wasm-enable-sjlj" CACHE STRING "Extra argv entries for wasm kernel.json")
 endif()
 
 # Dependencies
 # ============
 
-set(xeus_REQUIRED_VERSION 5.0.0)
-set(xeus_zmq_REQUIRED_VERSION 3.0.0)
-set(CppInterOp_REQUIRED_VERSION 1.7.0)
-set(xeus_lite_REQUIRED_VERSION 3.2.1)
+set(xeus_REQUIRED_VERSION 6.0.0)
+set(xeus_zmq_REQUIRED_VERSION 4.0.0)
+set(CppInterOp_REQUIRED_VERSION 1.9.0)
+set(xeus_lite_REQUIRED_VERSION 5.0.0)
 
 if (NOT TARGET xeus AND NOT TARGET xeus-static)
     find_package(xeus ${xeus_REQUIRED_VERSION} REQUIRED)
@@ -123,15 +123,18 @@ endif ()
 function(configure_kernel kernel)
   if(EMSCRIPTEN)
     set(prefix "wasm_")
+    set(XEUS_CPP_WASM_KERNEL_EXTRA_ARGS_JSON "")
+    foreach(arg IN LISTS XEUS_CPP_WASM_KERNEL_EXTRA_ARGS)
+        string(APPEND XEUS_CPP_WASM_KERNEL_EXTRA_ARGS_JSON "\"${arg}\", ")
+    endforeach()
   else()
-    set(XEUS_CPP_PATH "$ENV{PATH}")
-    set(XEUS_CPP_LD_LIBRARY_PATH "$ENV{LD_LIBRARY_PATH}")
     set(XEUS_CPP_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/include)
+    if(${kernel} MATCHES "omp/$")
+      set(XEUS_CPP_OMP "-fopenmp")
+    endif()
   endif()
   if (WIN32)
     string(REPLACE "\\" "/" kernel "${kernel}")
-    string(REPLACE "\\" "/" XEUS_CPP_PATH "${XEUS_CPP_PATH}")
-    string(REPLACE "\\" "/" XEUS_CPP_LD_LIBRARY_PATH "${XEUS_CPP_LD_LIBRARY_PATH}")
     string(REPLACE "\\" "/" XEUS_CPP_RESOURCE_DIR "${XEUS_CPP_RESOURCE_DIR}")
     string(REPLACE "\\" "/" XEUS_CPP_INCLUDE_DIR "${XEUS_CPP_INCLUDE_DIR}")
   endif()
@@ -163,6 +166,10 @@ configure_kernel("/share/jupyter/kernels/xcpp23/")
 configure_kernel("/share/jupyter/kernels/xc11/")
 configure_kernel("/share/jupyter/kernels/xc17/")
 configure_kernel("/share/jupyter/kernels/xc23/")
+if(NOT EMSCRIPTEN)
+  configure_kernel("/share/jupyter/kernels/xcpp23-omp/")
+  configure_kernel("/share/jupyter/kernels/xc23-omp/")
+endif()
 
 # Source files
 # ============
@@ -172,26 +179,28 @@ set(XEUS_CPP_HEADERS
     include/xeus-cpp/xholder.hpp
     include/xeus-cpp/xoptions.hpp
     include/xeus-cpp/xeus_cpp_config.hpp
-    include/xeus-cpp/xholder.hpp
     include/xeus-cpp/xinterpreter.hpp
     include/xeus-cpp/xmanager.hpp
     include/xeus-cpp/xmagics.hpp
-    include/xeus-cpp/xoptions.hpp
     include/xeus-cpp/xpreamble.hpp
-    #src/xinspect.hpp
-    #src/xsystem.hpp
-    #src/xparser.hpp
 )
 
 set(XEUS_CPP_SRC
     src/xholder.cpp
     src/xinput.cpp
+    src/xinput.hpp
+    src/xinput_validator.cpp
+    src/xinput_validator.hpp
     src/xinspect.cpp
+    src/xinspect.hpp
     src/xinterpreter.cpp
     src/xoptions.cpp
     src/xparser.cpp
+    src/xparser.hpp
+    src/xsystem.hpp
     src/xutils.cpp
     src/xmagics/os.cpp
+    src/xmagics/os.hpp
 )
 
 if(NOT EMSCRIPTEN)
@@ -219,6 +228,8 @@ macro(xeus_cpp_set_common_options target_name)
         target_compile_options(${target_name} PUBLIC /wd4251 /wd4141)
         target_compile_options(${target_name} PUBLIC /wd4018 /wd4267 /wd4715 /wd4146 /wd4129)
         target_compile_options(${target_name} PUBLIC /EHsc)
+    elseif (EMSCRIPTEN)
+        target_compile_options(${target_name} PUBLIC ${XEUS_CPP_WASM_KERNEL_EXTRA_FLAGS})
     else ()
         target_compile_options(${target_name} PUBLIC -fexceptions)
     endif ()
@@ -335,8 +346,21 @@ macro(xeus_cpp_create_target target_name linkage output_name)
             target_compile_options(${target_name} PRIVATE "/MD$<$<CONFIG:Debug>:d>")
         endif()
     elseif (NOT EMSCRIPTEN)
+        find_package(CURL REQUIRED)
+
+        # Add CURL_STATICLIB definition if linking statically
+        if (CURL_STATICLIB)
+            target_compile_definitions(${target_name} PUBLIC CURL_STATICLIB)
+        endif()
+
+        # Link against the correct libcurl target
+        if (CURL_FOUND)
+            target_include_directories(${target_name} PRIVATE ${CURL_INCLUDE_DIRS})
+            target_link_libraries(${target_name} PRIVATE ${CURL_LIBRARIES})
+        endif()
+
         # Curl initialised specifically for xassist
-        target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse curl)
+        target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse CURL::libcurl)
     else ()
         target_link_libraries(${target_name} PUBLIC ${XEUS_CPP_XEUS_TARGET} clangCppInterOp pugixml argparse::argparse)
     endif()
@@ -409,14 +433,6 @@ if (XEUS_CPP_BUILD_EXECUTABLE)
 endif()
 
 if(EMSCRIPTEN)
-    # Ensure required SDL2 ports (e.g. SDL2) are built before header preloading
-    execute_process(
-        COMMAND embuilder${EMCC_SUFFIX} build sdl2
-        RESULT_VARIABLE SDL2_RESULT
-    )
-    if(NOT SDL2_RESULT EQUAL 0)
-        message(FATAL_ERROR "Failed to run 'embuilder build sdl2'")
-    endif()
     include(WasmBuildOptions)
     find_package(xeus-lite ${xeus_lite_REQUIRED_VERSION} REQUIRED)
     add_executable(xcpp src/main_emscripten_kernel.cpp )
@@ -429,7 +445,6 @@ if(EMSCRIPTEN)
     string(REPLACE "\\" "/" ESCAPED_XEUS_CPP_RESOURCE_DIR "${ESCAPED_XEUS_CPP_RESOURCE_DIR}")
     string(REPLACE "\\" "/" ESCAPED_SYSROOT_PATH "${ESCAPED_SYSROOT_PATH}")
     target_link_options(xcpp
-        PUBLIC "SHELL: -s USE_SDL=2"
         PUBLIC "SHELL: --preload-file ${ESCAPED_SYSROOT_PATH}/include@/include"
         PUBLIC "SHELL: --preload-file ${ESCAPED_XEUS_CPP_RESOURCE_DIR}@/${CMAKE_INSTALL_LIBDIR}/clang/${CPPINTEROP_LLVM_VERSION_MAJOR}"
         PUBLIC "SHELL: --post-js ${CMAKE_CURRENT_SOURCE_DIR}/wasm_patches/post.js"

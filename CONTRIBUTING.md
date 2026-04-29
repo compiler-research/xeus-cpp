@@ -42,20 +42,17 @@ mkdir build
 cd build
 cmake .. -D CMAKE_PREFIX_PATH=$CONDA_PREFIX -D CMAKE_INSTALL_PREFIX=$CONDA_PREFIX -D CMAKE_INSTALL_LIBDIR=lib
 make check-xeus-cpp
+make install
 ```
 
 and
 
 ```bash
-cd ../../test
+cd ../test
 pytest -sv test_xcpp_kernel.py
 ```
 
-to perform the python tests. After you have checked that the kernel passes all the tests, you can install it by executing
-
-```bash
-make install
-```
+to perform the python tests. 
 
 ## Setting up a development environment (wasm instructions)
 
@@ -74,23 +71,23 @@ micromamba create -f environment-wasm-build.yml -y
 micromamba activate xeus-cpp-wasm-build
 ```
 
-You are now in a position to build the xeus-cpp kernel. You build and test it in node by executing the following. Prefer using node 22 and above as prior versions lead to flaky test runs. Once the test pass, run the install command.
+You are now in a position to build the xeus-cpp kernel. You build and test it in node by executing the following. Once the test pass, run the install command.
 
 ```bash
-micromamba create -f environment-wasm-host.yml --platform=emscripten-wasm32
+micromamba create -f environment-wasm-host.yml \
+--platform=emscripten-wasm32 \
+-c https://prefix.dev/emscripten-forge-4x \
+-c https://prefix.dev/conda-forge
+
 mkdir build
 cd build
 export BUILD_PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-build
 export PREFIX=$MAMBA_ROOT_PREFIX/envs/xeus-cpp-wasm-host
 export SYSROOT_PATH=$BUILD_PREFIX/opt/emsdk/upstream/emscripten/cache/sysroot
 
-micromamba create -n node-env -c conda-forge nodejs=22
-export PATH="$MAMBA_ROOT_PREFIX/envs/node-env/bin:$PATH"
-
 emcmake cmake \
         -DCMAKE_BUILD_TYPE=Release                        \
         -DCMAKE_INSTALL_PREFIX=$PREFIX                    \
-        -DXEUS_CPP_EMSCRIPTEN_WASM_BUILD=ON               \
         -DCMAKE_FIND_ROOT_PATH=$PREFIX                    \
         -DSYSROOT_PATH=$SYSROOT_PATH                      \
         ..
@@ -99,9 +96,10 @@ emmake make check-xeus-cpp
 emmake make install
 ```
 
-It is possible to run the Emscripten tests in a headless browser. We will run our tests in a fresh installed browser. Installing the browsers, and running the tests within the installed browsers will be platform dependent. To do this for Chrome and Firefox on MacOS execute the following
+It is possible to run the Emscripten tests in a headless browser. We will run our tests in a fresh installed browser. Installing the browsers, and running the tests within the installed browsers will be platform dependent. To do this for Chrome and Firefox on MacOS execute the following from the build folder
 
 ```bash
+cd test
 wget "https://download.mozilla.org/?product=firefox-latest&os=osx&lang=en-US" -O Firefox-latest.dmg
 hdiutil attach Firefox-latest.dmg
 cp -r /Volumes/Firefox/Firefox.app $PWD
@@ -132,9 +130,10 @@ python $BUILD_PREFIX/bin/emrun.py --no_browser --kill_exit --timeout 60 --browse
 python ../../scripts/browser_tests_safari.py test_xeus_cpp.html
 ```
 
-To do this on Ubuntu x86 execute the following
+To run the browser tests on Ubuntu x86 execute the following from the build folder
 
 ```bash
+cd test
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 dpkg-deb -x google-chrome-stable_current_amd64.deb $PWD/chrome
 cd ./chrome/opt/google/chrome/
@@ -155,14 +154,14 @@ python $BUILD_PREFIX/bin/emrun.py --browser="google-chrome" --kill_exit --timeou
 
 To build and test Jupyter Lite with this kernel locally you can execute the following
 ```bash
-micromamba create -n xeus-lite-host jupyterlite-core=0.6 jupyter_server jupyterlite-xeus -c conda-forge
+micromamba create -n xeus-lite-host jupyter_server jupyterlite-xeus -c conda-forge
 micromamba activate xeus-lite-host
 jupyter lite serve --XeusAddon.prefix=$PREFIX \
                    --XeusAddon.mounts="$PREFIX/share/xeus-cpp/tagfiles:/share/xeus-cpp/tagfiles" \
                    --XeusAddon.mounts="$PREFIX/etc/xeus-cpp/tags.d:/etc/xeus-cpp/tags.d" \
                    --contents README.md \
                    --contents notebooks/xeus-cpp-lite-demo.ipynb \
-                   --contents notebooks/smallpt.ipynb \
+                   --contents notebooks/tinyraytracer.ipynb \
                    --contents notebooks/images/marie.png \
                    --contents notebooks/audio/audio.wav
 ```
