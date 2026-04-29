@@ -261,6 +261,11 @@ namespace xcpp
             }
         }
 
+        SilentStreamRedirectRAII(const SilentStreamRedirectRAII&) = delete;
+        SilentStreamRedirectRAII& operator=(const SilentStreamRedirectRAII&) = delete;
+        SilentStreamRedirectRAII(SilentStreamRedirectRAII&&) = delete;
+        SilentStreamRedirectRAII& operator=(SilentStreamRedirectRAII&&) = delete;
+
     private:
 
         bool m_silent;
