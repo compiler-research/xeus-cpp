@@ -239,10 +239,11 @@ namespace xcpp
     class SilentStreamRedirectRAII
     {
     public:
+
         explicit SilentStreamRedirectRAII(bool silent)
-            : m_silent(silent),
-            m_old_cout(silent ? std::cout.rdbuf() : nullptr),
-            m_old_cerr(silent ? std::cerr.rdbuf() : nullptr)
+            : m_silent(silent)
+            , m_old_cout(silent ? std::cout.rdbuf() : nullptr)
+            , m_old_cerr(silent ? std::cerr.rdbuf() : nullptr)
         {
             if (m_silent)
             {
@@ -261,6 +262,7 @@ namespace xcpp
         }
 
     private:
+
         bool m_silent;
         xnull m_null;
 
