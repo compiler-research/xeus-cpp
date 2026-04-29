@@ -236,6 +236,38 @@ namespace xcpp
         return "unknown";
     }
 
+    class SilentStreamRedirectRAII
+    {
+    public:
+        explicit SilentStreamRedirectRAII(bool silent)
+            : m_silent(silent),
+            m_old_cout(silent ? std::cout.rdbuf() : nullptr),
+            m_old_cerr(silent ? std::cerr.rdbuf() : nullptr)
+        {
+            if (m_silent)
+            {
+                std::cout.rdbuf(&m_null);
+                std::cerr.rdbuf(&m_null);
+            }
+        }
+
+        ~SilentStreamRedirectRAII() noexcept
+        {
+            if (m_silent)
+            {
+                std::cout.rdbuf(m_old_cout);
+                std::cerr.rdbuf(m_old_cerr);
+            }
+        }
+
+    private:
+        bool m_silent;
+        xnull m_null;
+
+        std::streambuf* m_old_cout;
+        std::streambuf* m_old_cerr;
+    };
+
     interpreter::interpreter(int argc, const char* const* argv) :
         xmagics()
         , p_cout_strbuf(nullptr)
@@ -288,17 +320,7 @@ namespace xcpp
 
         // If silent is set to true, temporarily dismiss all std::cerr and
         // std::cout outputs resulting from `process_code`.
-
-        auto cout_strbuf = std::cout.rdbuf();
-        auto cerr_strbuf = std::cerr.rdbuf();
-
-        std::unique_ptr<xnull> nullbuf;
-        if (config.silent)
-        {
-            nullbuf = std::make_unique<xnull>();
-            std::cout.rdbuf(nullbuf.get());
-            std::cerr.rdbuf(nullbuf.get());
-        }
+        SilentStreamRedirectRAII silent_guard(config.silent);
 
         std::string err;
 
@@ -331,13 +353,6 @@ namespace xcpp
         // Flush streams
         std::cout << std::flush;
         std::cerr << std::flush;
-
-        // Reset non-silent output buffers
-        if (config.silent)
-        {
-            std::cout.rdbuf(cout_strbuf);
-            std::cerr.rdbuf(cerr_strbuf);
-        }
 
         // Depending of error level, publish execution result or execution
         // error, and compose execute_reply message.
