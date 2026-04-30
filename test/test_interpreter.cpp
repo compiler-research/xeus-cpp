@@ -1229,3 +1229,41 @@ TEST_SUITE("mime_bundle_repr")
         REQUIRE(res == expected);
     }
 }
+
+#if !defined(__EMSCRIPTEN__)
+// TODO: Currently any test added to this file will fail for the wasm build saying memory access out of bounds.
+TEST_CASE("Silent mode restores std::cout and std::cerr buffers")
+{
+    std::vector<const char*> Args = {};
+    xcpp::interpreter interpreter((int)Args.size(), Args.data());
+
+    auto* cout_before = std::cout.rdbuf();
+    auto* cerr_before = std::cerr.rdbuf();
+
+    xeus::execute_request_config config;
+    config.silent = true;
+    config.store_history = false;
+    config.allow_stdin = false;
+
+    nl::json header = nl::json::object();
+    xeus::xrequest_context::guid_list id = {};
+    xeus::xrequest_context context(header, id);
+
+    std::promise<nl::json> promise;
+    auto callback = [&promise](nl::json result) { promise.set_value(result); };
+
+    std::string code = R"(
+        #include <iostream>
+        std::cout << "hidden stdout\n";
+        std::cerr << "hidden stderr\n";
+    )";
+
+    interpreter.execute_request(context, callback, code, config, nl::json::object());
+
+    auto reply = promise.get_future().get();
+    REQUIRE(reply["status"] == "ok");
+
+    REQUIRE(std::cout.rdbuf() == cout_before);
+    REQUIRE(std::cerr.rdbuf() == cerr_before);
+}
+#endif
