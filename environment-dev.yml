@@ -13,7 +13,7 @@ dependencies:
   - xeus-zmq
   - nlohmann_json
   - nlohmann_json-abi
-  - CppInterOp>=1.9
+  - cppinterop>=1.9
   - pugixml
   - cpp-argparse
   - sel(unix): llvm-openmp=21

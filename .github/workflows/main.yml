@@ -357,6 +357,7 @@ jobs:
             echo "Running test_xeus_cpp in Google Chrome"
             python ${{ env.BUILD_PREFIX }}/bin/emrun.py --browser="Google Chrome" --kill_exit --timeout 60 --browser-args="--headless  --no-sandbox"  test_xeus_cpp.html
             sudo safaridriver --enable
+            python -m ensurepip
             python -m pip install selenium
             echo "Running test_xeus_cpp in Safari"
             python ${{ env.BUILD_PREFIX }}/bin/emrun.py --no_browser --kill_exit --timeout 60 --browser-args="--headless --no-sandbox"  test_xeus_cpp.html &
