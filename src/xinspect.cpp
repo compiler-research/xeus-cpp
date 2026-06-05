@@ -70,9 +70,14 @@ namespace xcpp
         {
             static unsigned long long var_count = 0;
 
-            if (auto* type = Cpp::GetType(expression))
+            if (auto type = Cpp::GetType(expression))
             {
-                return Cpp::GetQualifiedName(type);
+                // GetQualifiedName operates on a Decl; for a builtin or
+                // function-pointer Type with no underlying scope, fall back
+                // to the type's spelling.
+                if (auto klass = Cpp::GetScopeFromType(type))
+                    return Cpp::GetQualifiedName(klass);
+                return Cpp::GetTypeAsString(type);
             }
 
             std::string id = "__Xeus_GetType_" + std::to_string(var_count++);
@@ -80,9 +85,11 @@ namespace xcpp
 
             if (!Cpp::Declare(using_clause.c_str(), false))
             {
-                Cpp::TCppScope_t lookup = Cpp::GetNamed(id, nullptr);
-                Cpp::TCppType_t lookup_ty = Cpp::GetTypeFromScope(lookup);
-                return Cpp::GetQualifiedCompleteName(Cpp::GetCanonicalType(lookup_ty));
+                Cpp::CppDecl lookup = Cpp::GetNamed(id, nullptr);
+                Cpp::CppType canonical = Cpp::GetCanonicalType(Cpp::GetTypeFromScope(lookup));
+                if (auto klass = Cpp::GetScopeFromType(canonical))
+                    return Cpp::GetQualifiedCompleteName(klass);
+                return Cpp::GetTypeAsString(canonical);
             }
             return "";
         }
