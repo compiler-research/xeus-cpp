@@ -32,7 +32,7 @@
 
 using Args = std::vector<const char*>;
 
-Cpp::CppInterp createInterpreter(const Args &ExtraArgs = {}) {
+Cpp::InterpRef createInterpreter(const Args &ExtraArgs = {}) {
   Args ClangArgs = {/*"-xc++"*/"-v"};
   std::string resource_dir;
   if (std::find_if(ExtraArgs.begin(), ExtraArgs.end(), [](const std::string& s) {
@@ -57,7 +57,7 @@ Cpp::CppInterp createInterpreter(const Args &ExtraArgs = {}) {
   ClangArgs.insert(ClangArgs.end(), ExtraArgs.begin(), ExtraArgs.end());
   // FIXME: We should process the kernel input options and conditionally pass
   // the gpu args here.
-  Cpp::CppInterp res = Cpp::CreateInterpreter(ClangArgs /*, {"-cuda"}*/);
+  Cpp::InterpRef res = Cpp::CreateInterpreter(ClangArgs /*, {"-cuda"}*/);
   if (!res)
   {
       return res;

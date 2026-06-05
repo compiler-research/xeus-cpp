@@ -85,8 +85,8 @@ namespace xcpp
 
             if (!Cpp::Declare(using_clause.c_str(), false))
             {
-                Cpp::CppDecl lookup = Cpp::GetNamed(id, nullptr);
-                Cpp::CppType canonical = Cpp::GetCanonicalType(Cpp::GetTypeFromScope(lookup));
+                Cpp::DeclRef lookup = Cpp::GetNamed(id, nullptr);
+                Cpp::TypeRef canonical = Cpp::GetCanonicalType(Cpp::GetTypeFromScope(lookup));
                 if (auto klass = Cpp::GetScopeFromType(canonical))
                     return Cpp::GetQualifiedCompleteName(klass);
                 return Cpp::GetTypeAsString(canonical);
