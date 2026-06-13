@@ -198,23 +198,12 @@ namespace xcpp
     nl::json build_inspect_data(const std::string& inspect_result)
     {
         // Format html content.
-        std::string html_content = R"(<style>
-        #pager-container {
-            padding: 0;
-            margin: 0;
-            width: 100%;
-            height: 100%;
-        }
-        .xcpp-iframe-pager {
-            padding: 0;
-            margin: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        </style>
-        <iframe class="xcpp-iframe-pager" src=")"
-                                   + inspect_result + R"(?action=purge"></iframe>)";
+        // Note: cppreference.com sets X-Frame-Options: DENY, so an <iframe> is
+        // blocked by every browser.  Use a plain link that opens in a new tab
+        // instead.
+        std::string html_content = R"(<a href=")" + inspect_result
+                                   + R"(" target="_blank" rel="noopener noreferrer">)"
+                                   + inspect_result + R"(</a>)";
 
         auto data = nl::json::object({{"text/plain", inspect_result}, {"text/html", html_content}});
         return data;
