@@ -1015,17 +1015,29 @@ TEST_SUITE("xinspect"){
         REQUIRE(cmp(node) == false);
     }
 
-    TEST_CASE("build_inspect_data_link_not_iframe"){
-        // cppreference.com sets X-Frame-Options: DENY, so the output must use
-        // an <a> link instead of an <iframe>.
+    TEST_CASE("build_inspect_data_embeds_cppreference_content"){
         std::string url = "https://en.cppreference.com/w/cpp/container/vector";
         nl::json data = xcpp::build_inspect_data(url);
 
         REQUIRE(data.contains("text/html"));
         std::string html = data["text/html"].get<std::string>();
-        REQUIRE(html.find("<iframe") == std::string::npos);
+        REQUIRE(html.find("<iframe") != std::string::npos);
+        REQUIRE(html.find("srcdoc=") != std::string::npos);
+        REQUIRE(html.find("/mwiki/api.php") != std::string::npos);
+        REQUIRE(html.find("origin") != std::string::npos);
         REQUIRE(html.find(url) != std::string::npos);
-        REQUIRE(html.find("<a href=") != std::string::npos);
+        REQUIRE(html.find("src=\"") == std::string::npos);
+    }
+
+    TEST_CASE("build_inspect_data_embeds_other_documentation_directly"){
+        std::string url = "https://docs.example.com/library/type";
+        nl::json data = xcpp::build_inspect_data(url);
+
+        REQUIRE(data.contains("text/html"));
+        std::string html = data["text/html"].get<std::string>();
+        REQUIRE(html.find("<iframe") != std::string::npos);
+        REQUIRE(html.find("src=\"" + url + "\"") != std::string::npos);
+        REQUIRE(html.find("srcdoc=") == std::string::npos);
     }
 }
 
