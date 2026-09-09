@@ -103,6 +103,109 @@ namespace xcpp
             }
             return result;
         }
+
+        std::string escape_html_attribute(const std::string& value)
+        {
+            std::string result;
+            result.reserve(value.size());
+            for (char c : value)
+            {
+                switch (c)
+                {
+                    case '&':
+                        result += "&amp;";
+                        break;
+                    case '"':
+                        result += "&quot;";
+                        break;
+                    case '\'':
+                        result += "&#39;";
+                        break;
+                    case '<':
+                        result += "&lt;";
+                        break;
+                    case '>':
+                        result += "&gt;";
+                        break;
+                    default:
+                        result += c;
+                }
+            }
+            return result;
+        }
+
+        std::string build_cppreference_srcdoc(const std::string& inspect_result)
+        {
+            return R"(<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<base href=")" + escape_html_attribute(inspect_result)
+                   + R"(" target="_blank">
+<style>
+body { margin: 0; font-family: system-ui, sans-serif; }
+.xcpp-status { padding: 1rem; }
+main { overflow: auto; }
+img { max-width: 100%; }
+pre { overflow: auto; }
+table { border-collapse: collapse; }
+th, td { border: 1px solid #aaa; padding: .25rem .5rem; }
+</style>
+</head>
+<body data-documentation-url=")"
+                   + escape_html_attribute(inspect_result) + R"(">
+<p class="xcpp-status">Loading documentation… <a href=")"
+                   + escape_html_attribute(inspect_result) + R"(">Open cppreference</a></p>
+<main></main>
+<script>
+const documentationUrl = document.body.dataset.documentationUrl;
+const status = document.querySelector('.xcpp-status');
+const content = document.querySelector('main');
+const pageUrl = new URL(documentationUrl);
+const page = pageUrl.pathname.replace(/^\/w\//, '').replace(/^\//, '');
+const apiUrl = new URL('/mwiki/api.php', pageUrl);
+apiUrl.search = new URLSearchParams({
+    action: 'parse',
+    page,
+    prop: 'text',
+    format: 'json',
+    formatversion: '2',
+    origin: '*'
+});
+
+fetch(apiUrl)
+    .then((response) => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json();
+    })
+    .then((data) => {
+        if (!data.parse || !data.parse.text) {
+            throw new Error('Documentation was not returned');
+        }
+        content.innerHTML = data.parse.text;
+        content.querySelectorAll('[href], [src]').forEach((element) => {
+            ['href', 'src'].forEach((attribute) => {
+                const value = element.getAttribute(attribute);
+                if (value && !value.startsWith('#')) {
+                    element.setAttribute(attribute, new URL(value, documentationUrl).href);
+                }
+            });
+        });
+        content.querySelectorAll('a').forEach((link) => {
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+        });
+        status.remove();
+    })
+    .catch(() => {
+        status.firstChild.textContent = 'Unable to load documentation inline. ';
+    });
+</script>
+</body>
+</html>)";
+        }
     }
 
     std::string inspect(const std::string& code)
@@ -198,23 +301,29 @@ namespace xcpp
     nl::json build_inspect_data(const std::string& inspect_result)
     {
         // Format html content.
-        std::string html_content = R"(<style>
-        #pager-container {
-            padding: 0;
-            margin: 0;
-            width: 100%;
-            height: 100%;
+        std::string iframe_content;
+        if (inspect_result.rfind("https://en.cppreference.com/w/", 0) == 0)
+        {
+            iframe_content = R"(sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" srcdoc=")"
+                             + escape_html_attribute(build_cppreference_srcdoc(inspect_result)) + R"(")";
         }
+        else
+        {
+            iframe_content = R"(src=")" + escape_html_attribute(inspect_result) + R"(")";
+        }
+
+        std::string html_content = R"(<style>
         .xcpp-iframe-pager {
             padding: 0;
             margin: 0;
             width: 100%;
             height: 100%;
+            min-height: 20rem;
             border: none;
         }
         </style>
-        <iframe class="xcpp-iframe-pager" src=")"
-                                   + inspect_result + R"(?action=purge"></iframe>)";
+        <iframe class="xcpp-iframe-pager" )"
+                                   + iframe_content + R"(></iframe>)";
 
         auto data = nl::json::object({{"text/plain", inspect_result}, {"text/html", html_content}});
         return data;
