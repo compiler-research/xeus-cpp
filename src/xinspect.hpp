@@ -41,8 +41,8 @@ namespace xcpp
         bool operator()(pugi::xml_node node) const;
     };
 
-    std::string inspect(const std::string& code);
-    nl::json build_inspect_data(const std::string& inspect_result);
+    XEUS_CPP_API std::string inspect(const std::string& code);
+    XEUS_CPP_API nl::json build_inspect_data(const std::string& inspect_result);
 
     class XEUS_CPP_API xintrospection : public xpreamble
     {
