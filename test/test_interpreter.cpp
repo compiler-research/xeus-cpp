@@ -1023,7 +1023,7 @@ TEST_SUITE("xinspect"){
         std::string html = data["text/html"].get<std::string>();
         REQUIRE(html.find("<iframe") != std::string::npos);
         REQUIRE(html.find("srcdoc=") != std::string::npos);
-        REQUIRE(html.find("/mwiki/api.php") != std::string::npos);
+        REQUIRE(html.find("/api.php") != std::string::npos);
         REQUIRE(html.find("origin") != std::string::npos);
         REQUIRE(html.find(url) != std::string::npos);
         REQUIRE(html.find("src=\"") == std::string::npos);

@@ -163,7 +163,7 @@ const status = document.querySelector('.xcpp-status');
 const content = document.querySelector('main');
 const pageUrl = new URL(documentationUrl);
 const page = pageUrl.pathname.replace(/^\/w\//, '').replace(/^\//, '');
-const apiUrl = new URL('/mwiki/api.php', pageUrl);
+const apiUrl = new URL('/api.php', pageUrl);
 apiUrl.search = new URLSearchParams({
     action: 'parse',
     page,
