@@ -68,6 +68,50 @@ class StreamRedirectRAII {
 
 TEST_SUITE("execute_request")
 {
+    TEST_CASE("publishes the last expression value")
+    {
+        std::vector<const char*> args = {};
+        xcpp::interpreter interpreter(static_cast<int>(args.size()), args.data());
+
+        std::string published_type;
+        nl::json published_content;
+        interpreter.register_publisher(
+            [&published_type, &published_content](
+                xeus::xrequest_context,
+                const std::string& message_type,
+                nl::json,
+                nl::json content,
+                xeus::buffer_sequence)
+            {
+                if (message_type == "execute_result")
+                {
+                    published_type = message_type;
+                    published_content = std::move(content);
+                }
+            }
+        );
+
+        xeus::execute_request_config config;
+        config.silent = false;
+        config.store_history = false;
+        config.allow_stdin = false;
+        xeus::xrequest_context context(nl::json::object(), {});
+
+        std::promise<nl::json> promise;
+        std::future<nl::json> future = promise.get_future();
+        interpreter.execute_request(
+            std::move(context),
+            [&promise](nl::json result) { promise.set_value(std::move(result)); },
+            "5",
+            config,
+            nl::json::object()
+        );
+
+        REQUIRE(future.get()["status"] == "ok");
+        REQUIRE(published_type == "execute_result");
+        REQUIRE(published_content["data"]["text/plain"] == "(int) 5");
+    }
+
     TEST_CASE("stl")
     {
         std::vector<const char*> Args = {
