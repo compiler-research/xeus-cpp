@@ -298,7 +298,7 @@ namespace xcpp
 
     void interpreter::execute_request_impl(
         send_reply_callback cb,
-        int /*execution_count*/,
+        int execution_count,
         const std::string& code,
         xeus::execute_request_config config,
         nl::json /*user_expressions*/
@@ -330,12 +330,13 @@ namespace xcpp
         SilentStreamRedirectRAII silent_guard(config.silent);
 
         std::string err;
+        Cpp::Box output;
 
         // Attempt normal evaluation
         try
         {
             StreamRedirectRAII R(err);
-            compilation_result = Cpp::Process(code.c_str());
+            compilation_result = Cpp::Evaluate(code.c_str(), output);
         }
         catch (std::exception& e)
         {
@@ -384,15 +385,24 @@ namespace xcpp
         }
         else
         {
-            /*
-                // Publish a mime bundle for the last return value if
-                // the semicolon was omitted.
-                if (!config.silent && output.hasValue() && trim(code).back() != ';')
-                {
-                    nl::json pub_data = mime_repr(output);
-                    publish_execution_result(execution_counter, std::move(pub_data), nl::json::object());
-                }
-                */
+            // Match an interactive C++ shell: publish the last value when the
+            // input did not suppress display with a trailing semicolon.
+            const std::size_t last = code.find_last_not_of(" \t\r\n");
+            if (!config.silent
+                && output.getKind() != Cpp::Box::K_Unspecified
+                && output.getKind() != Cpp::Box::K_Void
+                && last != std::string::npos
+                && code[last] != ';')
+            {
+                nl::json pub_data = {
+                    {"text/plain", Cpp::GetValueAsString(output)}
+                };
+                publish_execution_result(
+                    execution_count,
+                    std::move(pub_data),
+                    nl::json::object()
+                );
+            }
             // Compose execute_reply message.
             kernel_res = xeus::create_successful_reply();
         }
