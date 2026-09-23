@@ -19,38 +19,21 @@ jobs:
       - name: Checkout PR branch
         uses: actions/checkout@v7
 
-      - name: Setup Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: "3.11"
-            
-      - name: Install LLVM and Clang
-        uses: KyleMayes/install-llvm-action@v2
-        with:
-          version: "20"
-
       - name: Run clang-tidy
         uses: ZedThree/clang-tidy-review@v0.23.1
         id: review
         with:
           build_dir: build
-          apt_packages: wget,libxml2,libxml2-dev,libtinfo-dev,zlib1g-dev,libzstd-dev,curl
           exclude: "test/*,unittests/*,benchmark/*,demos/*"
           split_workflow: true
           config_file: .clang-tidy
           cmake_command: >
-            cmake . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=On || true && 
-            rm -rf build && 
-            set -x && 
-            wget https://github.com/mamba-org/micromamba-releases/releases/download/1.5.10-0/micromamba-linux-64 && 
-            mv ./micromamba-linux-64 ./micromamba && 
-            chmod a+x ./micromamba && 
-            export PATH="$PWD:$PATH" && 
-            eval "$(micromamba shell hook -s posix)" && 
-            micromamba create -n xeus-cpp -y --log-level warning -f $GITHUB_WORKSPACE/environment-dev.yml && 
-            micromamba activate xeus-cpp && 
-            git config --global --add safe.directory /github/workspace && 
-            cmake . -B build -DCMAKE_C_COMPILER="$GITHUB_WORKSPACE/llvm/bin/clang" -DCMAKE_CXX_COMPILER="$GITHUB_WORKSPACE/llvm/bin/clang++" -DCMAKE_EXPORT_COMPILE_COMMANDS=On
+            set -eu &&
+            python3 -c "import hashlib, pathlib, urllib.request; p = pathlib.Path('micromamba'); urllib.request.urlretrieve('https://github.com/mamba-org/micromamba-releases/releases/download/2.8.1-0/micromamba-linux-64', p); assert hashlib.sha256(p.read_bytes()).hexdigest() == '9689782d863c05a1bf5d2d371ba527104e7a4eb4310c1637d8653b751aed9c82'" &&
+            chmod +x ./micromamba &&
+            git config --global --add safe.directory /github/workspace &&
+            MAMBA_ROOT_PREFIX="$PWD/.micromamba" ./micromamba create -n xeus-cpp -y --log-level warning -f environment-dev.yml &&
+            MAMBA_ROOT_PREFIX="$PWD/.micromamba" ./micromamba run -n xeus-cpp cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
             
       - name: Upload artifacts
         uses: ZedThree/clang-tidy-review/upload@v0.23.1
