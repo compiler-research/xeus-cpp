@@ -938,10 +938,12 @@ TEST_SUITE("xutils_handler"){
             exit(0);  
 
         } else {
-            
-            int status;
+
+            int status = 0;
+            REQUIRE(waitpid(pid, &status, 0) == pid);
+            REQUIRE(WIFEXITED(status));
             REQUIRE(WEXITSTATUS(status) == 0);
-            
+
         }
     }
 }
