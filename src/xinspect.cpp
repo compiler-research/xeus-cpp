@@ -214,7 +214,7 @@ namespace xcpp
         }
         </style>
         <iframe class="xcpp-iframe-pager" src=")"
-                                   + inspect_result + R"(?action=purge"></iframe>)";
+                                   + inspect_result + R"("></iframe>)";
 
         auto data = nl::json::object({{"text/plain", inspect_result}, {"text/html", html_content}});
         return data;

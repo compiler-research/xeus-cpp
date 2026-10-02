@@ -222,7 +222,7 @@ TEST_SUITE("execute_request")
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
 
         std::string code = "?std::vector";
-        std::string inspect_result = "https://en.cppreference.com/w/cpp/container/vector";
+        std::string inspect_result = "https://en.cppreference.com/cpp/container/vector";
         nl::json user_expressions = nl::json::object();
         xeus::execute_request_config config;
         config.silent = false;
@@ -247,6 +247,9 @@ TEST_SUITE("execute_request")
         );
         nl::json result = future.get();
         REQUIRE(result["payload"][0]["data"]["text/plain"] == inspect_result);
+        std::string inspect_html = result["payload"][0]["data"]["text/html"];
+        REQUIRE(inspect_html.find("src=\"" + inspect_result + "\"") != std::string::npos);
+        REQUIRE(inspect_html.find("action=purge") == std::string::npos);
         REQUIRE(result["user_expressions"] == nl::json::object());
         REQUIRE(result["status"] == "ok");
     }
@@ -257,7 +260,7 @@ TEST_SUITE("execute_request")
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
 
         std::string code = "?move (utility)";
-        std::string inspect_result = "https://en.cppreference.com/w/cpp/utility/move";
+        std::string inspect_result = "https://en.cppreference.com/cpp/utility/move";
         nl::json user_expressions = nl::json::object();
         xeus::execute_request_config config;
         config.silent = false;
@@ -292,7 +295,7 @@ TEST_SUITE("execute_request")
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
 
         std::string code = "?move (algorithm)";
-        std::string inspect_result = "https://en.cppreference.com/w/cpp/algorithm/move";
+        std::string inspect_result = "https://en.cppreference.com/cpp/algorithm/move";
         nl::json user_expressions = nl::json::object();
         xeus::execute_request_config config;
         config.silent = false;
@@ -327,7 +330,7 @@ TEST_SUITE("execute_request")
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
 
         std::string code = "?std::vector.push_back";
-        std::string inspect_result = "https://en.cppreference.com/w/cpp/container/vector/push_back";
+        std::string inspect_result = "https://en.cppreference.com/cpp/container/vector/push_back";
         nl::json user_expressions = nl::json::object();
         xeus::execute_request_config config;
         config.silent = false;
