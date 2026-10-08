@@ -34,43 +34,31 @@ jobs:
         include:
           - name: selfh-ubu22-x86
             os: [self-hosted, cuda, heavy]
-            micromamba_shell_init: bash
           - name: ubu24
             os: ubuntu-24.04
-            micromamba_shell_init: bash
           - name: ubu24-arm
             os: ubuntu-24.04-arm
-            micromamba_shell_init: bash
           - name: ubu24-analyzers
             os: ubuntu-24.04
             coverage: true
             debug: on
-            micromamba_shell_init: bash
           - name: ubu24-arm-analyzers
             os: ubuntu-24.04-arm
             debug: on
-            micromamba_shell_init: bash
           - name: ubu22
             os: ubuntu-22.04
-            micromamba_shell_init: bash
           - name: ubu22-arm
             os: ubuntu-22.04-arm
-            micromamba_shell_init: bash
           - name: osx26-x86
             os: macos-26-intel
-            micromamba_shell_init: bash
           - name: osx15-arm
             os: macos-15
-            micromamba_shell_init: bash
           - name: osx26-arm
             os: macos-26
-            micromamba_shell_init: bash
           - name: Windows22
             os: windows-2022
-            micromamba_shell_init: cmd.exe
           - name: Windows25
             os: windows-2025
-            micromamba_shell_init: cmd.exe
 
     steps:
       - uses: actions/checkout@v7
@@ -86,7 +74,7 @@ jobs:
         with:
           environment-file: environment-dev.yml
           init-shell: >-
-            ${{ matrix.micromamba_shell_init }}
+            ${{ runner.os == 'Windows' && 'powershell' || 'bash' }}
           environment-name: xeus-cpp
           post-cleanup: 'all'
 
@@ -102,26 +90,18 @@ jobs:
           else
             echo "ncpus=$(nproc --all)" >> $GITHUB_ENV
           fi
-      - name: Setup default Build Type on Windows
-        if: ${{ runner.os == 'windows' }}
-        run: |
-          $env:ncpus=$([Environment]::ProcessorCount) 
-          echo "ncpus=$env:ncpus" >> $env:GITHUB_ENV
 
-      - name: micromamba shell hook
-        if: ${{ runner.os == 'windows' }}
-        shell: powershell
-        run: |
-          micromamba shell hook -s cmd.exe --root-prefix C:\Users\runneradmin\micromamba-root
+      - name: Set up MSVC developer environment
+        if: ${{ runner.os == 'Windows' }}
+        uses: ilammy/msvc-dev-cmd@v1.13.0
 
       - name: cmake configure
         if: ${{ runner.os == 'windows' }}
-        shell: cmd /C call {0}
+        shell: powershell
         run: |
-          call C:\Users\runneradmin\micromamba-root\condabin\micromamba.bat activate xeus-cpp
           mkdir -p build
           cd build
-          cmake .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DXEUS_BUILD_TESTS=ON -DDEPENDENCY_SEARCH_PREFIX="%CONDA_PREFIX%\Library" -DCMAKE_PREFIX_PATH="%CONDA_PREFIX%\Library" -DCMAKE_INSTALL_PREFIX="%CONDA_PREFIX%"
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$env:MAMBA_ROOT_PREFIX/envs/xeus-cpp" -DCMAKE_INSTALL_PREFIX="$env:MAMBA_ROOT_PREFIX/envs/xeus-cpp"
 
       - name: cmake configure
         if: ${{ runner.os != 'windows' }}
@@ -138,13 +118,25 @@ jobs:
 
       - name: build, run C++ tests & install
         if: ${{ runner.os == 'windows' }}
-        shell: cmd /C call {0}
+        shell: powershell
         run: |
-          call C:\Users\runneradmin\micromamba-root\condabin\micromamba.bat activate xeus-cpp
+          function Error-OnFailure {
+            param (
+                [Parameter(Mandatory)]
+                [ScriptBlock]$Command
+            )
+
+           & $Command
+
+           if ($LASTEXITCODE -ne 0) {
+              exit $LASTEXITCODE
+           }
+          }
           cd build
           set CL=/MP
-          nmake check-xeus-cpp
-          nmake install
+          Error-OnFailure { cmake --build . --target test_xeus_cpp  --parallel $env:ncpus --config Release }
+          Error-OnFailure { & "D:\a\xeus-cpp\xeus-cpp\build\test\test_xeus_cpp.exe" }
+          Error-OnFailure { cmake --build . --target install  --parallel $env:ncpus --config Release }
 
       - name: build, run C++ tests & install
         if: ${{ runner.os != 'windows' }}
@@ -178,9 +170,8 @@ jobs:
   
       - name: Python tests Windows Systems
         if: ${{ runner.os == 'windows' }}
-        shell: cmd /C call {0}
+        shell: powershell
         run: |
-          call C:\Users\runneradmin\micromamba-root\condabin\micromamba.bat activate xeus-cpp
           cd test
           pytest -sv test_xcpp_kernel.py 
 

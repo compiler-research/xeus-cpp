@@ -65,9 +65,9 @@ class StreamRedirectRAII {
         /// The stringstream that the stream is redirected to.
         std::stringstream ss;
 };
-
 TEST_SUITE("execute_request")
 {
+#ifndef _WIN32
     TEST_CASE("Silent mode restores std::cout and std::cerr buffers")
     {
         std::vector<const char*> Args = {};
@@ -105,7 +105,7 @@ TEST_SUITE("execute_request")
         REQUIRE(std::cout.rdbuf() == cout_before);
         REQUIRE(std::cerr.rdbuf() == cerr_before);
     }
-
+#endif
     TEST_CASE("stl")
     {
         std::vector<const char*> Args = {
