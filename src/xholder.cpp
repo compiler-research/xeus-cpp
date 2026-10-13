@@ -34,7 +34,7 @@ namespace xcpp
     }
 
     xholder_preamble::xholder_preamble(const xholder_preamble& rhs)
-        : p_holder(rhs.p_holder ? std::move(rhs.p_holder->clone()) : nullptr)
+        : p_holder(rhs.p_holder ? rhs.p_holder->clone() : nullptr)
     {
     }
 
