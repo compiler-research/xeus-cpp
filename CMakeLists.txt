@@ -100,16 +100,21 @@ if (NOT TARGET xeus AND NOT TARGET xeus-static)
     endif()
 endif ()
 
-if (NOT TARGET CppInterOp)
+if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     find_package(CppInterOp ${CppInterOp_REQUIRED_VERSION} REQUIRED)
     if(CppInterOp_FOUND)
         message(STATUS "Found CppInterOp: config=${CPPINTEROP_CMAKE_DIR} dir=${CPPINTEROP_INSTALL_PREFIX} (found version=${CPPINTEROP_VERSION} compatible with Clang ${CPPINTEROP_LLVM_VERSION_MAJOR}.x)")
     endif()
-endif ()
-if(EMSCRIPTEN)
-    set(XEUS_CPP_CPPINTEROP_SHARED FALSE)
-    set(XEUS_CPP_CPPINTEROP_SHARED_JSON "")
-
+    if(EMSCRIPTEN)
+      set(XEUS_CPP_CPPINTEROP_SHARED_JSON "")
+      if (CPPINTEROP_SHARED_LIB)
+        set(XEUS_CPP_CPPINTEROP_SHARED_JSON
+            ",\n      \"libclangCppInterOp.so\": \"lib/libclangCppInterOp.so\"")
+      endif ()
+    endif ()
+    set(XEUS_CPP_TEST_BINARY_DIRECTORY "${CMAKE_BINARY_DIR}/test/")
+else ()
+    set(XEUS_CPP_TEST_BINARY_DIRECTORY "${CMAKE_BINARY_DIR}/bin/")
     get_target_property(
         CPPINTEROP_LIBRARY_TYPE
         clangCppInterOp
@@ -117,14 +122,12 @@ if(EMSCRIPTEN)
     )
 
     if(CPPINTEROP_LIBRARY_TYPE STREQUAL "SHARED_LIBRARY")
-        set(XEUS_CPP_CPPINTEROP_SHARED TRUE)
-        set(XEUS_CPP_CPPINTEROP_SHARED_JSON
+         set(CPPINTEROP_SHARED_LIB TRUE)
+         set(CPPINTEROP_LIBRARIES "${CMAKE_BINARY_DIR}/lib/libclangCppInterOp.so.${LLVM_VERSION_MAJOR}.${LLVM_VERSION_MINOR}")
+	 set(XEUS_CPP_CPPINTEROP_SHARED_JSON
             ",\n      \"libclangCppInterOp.so\": \"lib/libclangCppInterOp.so\"")
-        if(NOT DEFINED CPPINTEROP_LIBRARIES)
-            set(CPPINTEROP_LIBRARIES "${CMAKE_BINARY_DIR}/lib/libclangCppInterOp.so")
-        endif()
-    endif()
-endif()
+     endif ()
+endif ()
 
 find_package(argparse REQUIRED)
 find_package(pugixml REQUIRED)
