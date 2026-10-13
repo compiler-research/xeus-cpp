@@ -78,22 +78,22 @@ if(EMSCRIPTEN)
     )
 
     target_include_directories(test_xeus_cpp PRIVATE ${XEUS_CPP_INCLUDE_DIR})
-
-    add_custom_command(TARGET test_xeus_cpp POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_INSTALL_PREFIX}/lib/libclangCppInterOp.so
-        ${CMAKE_CURRENT_BINARY_DIR}/libclangCppInterOp.so
-        COMMENT "Copying libclangCppInterOp.so to the test directory"
-    )
-
+    if (CPPINTEROP_SHARED_LIB)
+        add_custom_command(TARGET test_xeus_cpp POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CPPINTEROP_LIBRARIES}
+            ${XEUS_CPP_TEST_BINARY_DIRECTORY}/libclangCppInterOp.so
+            COMMENT "Copying libclangCppInterOp.so to the test directory"
+        )
+    endif ()
     add_custom_command(TARGET test_xeus_cpp POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_INSTALL_PREFIX}/lib/libxeus.so
-        ${CMAKE_CURRENT_BINARY_DIR}/libxeus.so
+        ${XEUS_CPP_TEST_BINARY_DIRECTORY}/libxeus.so
         COMMENT "Copying libxeus.so to the test directory"
     )
     add_custom_target(check-xeus-cpp
-        COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_CURRENT_BINARY_DIR} node test_xeus_cpp.js
+        COMMAND ${CMAKE_COMMAND} -E chdir ${XEUS_CPP_TEST_BINARY_DIRECTORY} node test_xeus_cpp.js
         DEPENDS test_xeus_cpp
     )
 else()

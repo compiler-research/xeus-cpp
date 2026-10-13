@@ -17,47 +17,12 @@ concurrency:
 
 jobs:
   prepare-dell:
-    name: Activate self-host infrastructure
     runs-on: [self-hosted, spotter]
     steps:
-      - name: Send Magic Packet
-        env:
-          TARGET_IP: 192.168.100.30
-          MAC_ADDR: a4:bb:6d:51:d5:d2
-          # The container has no ping, emulate it.
-        run: |
-          # Mask the IP and potential broadcast to keep logs clean
-          echo "::add-mask::$MAC_ADDR"
-          echo "::add-mask::$BROADCAST"
-          echo "::add-mask::$TARGET_IP"
-          BROADCAST=$(echo $TARGET_IP | sed 's/\.[0-9]*$/ .255/' | tr -d ' ')
-          PING="timeout 1 bash -c 'cat < /dev/null > /dev/tcp/$TARGET_IP/22' 2>/dev/null"
-
-          # Install tool silently
-          sudo apt-get update -qq && sudo apt-get install -y -qq wakeonlan > /dev/null
-
-          # Check if already awake (using the Bash TCP PING variable)
-          if eval "$PING"; then
-            echo "Target machine is already awake. Exiting."
-            exit 0
-          fi
-
-          # If offline, send WoL
-          echo "Machine is offline. Sending WoL..."
-          wakeonlan -i $BROADCAST $MAC_ADDR > /dev/null
-
-          # Wait & Verify Loop (checks every 10s for 4 minutes)
-          echo "Waiting for response (checking Port 22)..."
-          for i in {1..24}; do
-            if eval "$PING"; then
-              echo "Machine is online and SSH is ready."
-              exit 0
-            fi
-            sleep 10
-          done
-
-          echo "Error: Target hardware did not respond within the timeout period."
-          exit 1
+      - uses: compiler-research/ci-workflows/actions/wake-on-lan@main
+        with:
+          mac: a4:bb:6d:51:d5:d2
+          target-host: 192.168.100.30
 
   build:
     needs: prepare-dell  
@@ -108,7 +73,7 @@ jobs:
             micromamba_shell_init: cmd.exe
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Backup in case setup-micromamba fails to cleanup when ci job fails on self hosted runner
         if: ${{ runner.environment == 'self-hosted' }}
@@ -117,7 +82,7 @@ jobs:
           rm -rf /root/micromamba-bin/micromamba || true
 
       - name: install mamba
-        uses: mamba-org/setup-micromamba@v2
+        uses: mamba-org/setup-micromamba@v3
         with:
           environment-file: environment-dev.yml
           init-shell: >-
@@ -236,7 +201,7 @@ jobs:
 
       - name: Upload to codecov.io
         if: ${{ success() && (matrix.coverage == true) }}
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           files: ./coverage.info
           fail_ci_if_error: true
@@ -263,10 +228,10 @@ jobs:
             os: macos-15
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: install mamba
-        uses: mamba-org/setup-micromamba@v2
+        uses: mamba-org/setup-micromamba@v3
         with:
           environment-file: environment-wasm-build.yml
           init-shell: bash

@@ -68,6 +68,44 @@ class StreamRedirectRAII {
 
 TEST_SUITE("execute_request")
 {
+    TEST_CASE("Silent mode restores std::cout and std::cerr buffers")
+    {
+        std::vector<const char*> Args = {};
+#if defined(__EMSCRIPTEN__)
+        Args = {"-Xclang", "-iwithsysroot/include/compat"};
+#endif
+        xcpp::interpreter interpreter((int)Args.size(), Args.data());
+
+        auto* cout_before = std::cout.rdbuf();
+        auto* cerr_before = std::cerr.rdbuf();
+
+        xeus::execute_request_config config;
+        config.silent = true;
+        config.store_history = false;
+        config.allow_stdin = false;
+
+        nl::json header = nl::json::object();
+        xeus::xrequest_context::guid_list id = {};
+        xeus::xrequest_context context(header, id);
+
+        std::promise<nl::json> promise;
+        auto callback = [&promise](nl::json result) { promise.set_value(result); };
+
+        std::string code = R"(
+        #include <iostream>
+        std::cout << "hidden stdout\n";
+        std::cerr << "hidden stderr\n";
+    )";
+
+        interpreter.execute_request(context, callback, code, config, nl::json::object());
+
+        auto reply = promise.get_future().get();
+        REQUIRE(reply["status"] == "ok");
+
+        REQUIRE(std::cout.rdbuf() == cout_before);
+        REQUIRE(std::cerr.rdbuf() == cerr_before);
+    }
+
     TEST_CASE("stl")
     {
         std::vector<const char*> Args = {
@@ -184,7 +222,7 @@ TEST_SUITE("execute_request")
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
 
         std::string code = "?std::vector";
-        std::string inspect_result = "https://en.cppreference.com/w/cpp/container/vector";
+        std::string inspect_result = "https://en.cppreference.com/cpp/container/vector";
         nl::json user_expressions = nl::json::object();
         xeus::execute_request_config config;
         config.silent = false;
@@ -209,6 +247,9 @@ TEST_SUITE("execute_request")
         );
         nl::json result = future.get();
         REQUIRE(result["payload"][0]["data"]["text/plain"] == inspect_result);
+        std::string inspect_html = result["payload"][0]["data"]["text/html"];
+        REQUIRE(inspect_html.find("src=\"" + inspect_result + "\"") != std::string::npos);
+        REQUIRE(inspect_html.find("action=purge") == std::string::npos);
         REQUIRE(result["user_expressions"] == nl::json::object());
         REQUIRE(result["status"] == "ok");
     }
@@ -219,7 +260,7 @@ TEST_SUITE("execute_request")
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
 
         std::string code = "?move (utility)";
-        std::string inspect_result = "https://en.cppreference.com/w/cpp/utility/move";
+        std::string inspect_result = "https://en.cppreference.com/cpp/utility/move";
         nl::json user_expressions = nl::json::object();
         xeus::execute_request_config config;
         config.silent = false;
@@ -254,7 +295,7 @@ TEST_SUITE("execute_request")
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
 
         std::string code = "?move (algorithm)";
-        std::string inspect_result = "https://en.cppreference.com/w/cpp/algorithm/move";
+        std::string inspect_result = "https://en.cppreference.com/cpp/algorithm/move";
         nl::json user_expressions = nl::json::object();
         xeus::execute_request_config config;
         config.silent = false;
@@ -289,7 +330,7 @@ TEST_SUITE("execute_request")
         xcpp::interpreter interpreter((int)Args.size(), Args.data());
 
         std::string code = "?std::vector.push_back";
-        std::string inspect_result = "https://en.cppreference.com/w/cpp/container/vector/push_back";
+        std::string inspect_result = "https://en.cppreference.com/cpp/container/vector/push_back";
         nl::json user_expressions = nl::json::object();
         xeus::execute_request_config config;
         config.silent = false;
@@ -900,10 +941,12 @@ TEST_SUITE("xutils_handler"){
             exit(0);  
 
         } else {
-            
-            int status;
+
+            int status = 0;
+            REQUIRE(waitpid(pid, &status, 0) == pid);
+            REQUIRE(WIFEXITED(status));
             REQUIRE(WEXITSTATUS(status) == 0);
-            
+
         }
     }
 }
@@ -1229,41 +1272,3 @@ TEST_SUITE("mime_bundle_repr")
         REQUIRE(res == expected);
     }
 }
-
-#if !defined(__EMSCRIPTEN__)
-// TODO: Currently any test added to this file will fail for the wasm build saying memory access out of bounds.
-TEST_CASE("Silent mode restores std::cout and std::cerr buffers")
-{
-    std::vector<const char*> Args = {};
-    xcpp::interpreter interpreter((int)Args.size(), Args.data());
-
-    auto* cout_before = std::cout.rdbuf();
-    auto* cerr_before = std::cerr.rdbuf();
-
-    xeus::execute_request_config config;
-    config.silent = true;
-    config.store_history = false;
-    config.allow_stdin = false;
-
-    nl::json header = nl::json::object();
-    xeus::xrequest_context::guid_list id = {};
-    xeus::xrequest_context context(header, id);
-
-    std::promise<nl::json> promise;
-    auto callback = [&promise](nl::json result) { promise.set_value(result); };
-
-    std::string code = R"(
-        #include <iostream>
-        std::cout << "hidden stdout\n";
-        std::cerr << "hidden stderr\n";
-    )";
-
-    interpreter.execute_request(context, callback, code, config, nl::json::object());
-
-    auto reply = promise.get_future().get();
-    REQUIRE(reply["status"] == "ok");
-
-    REQUIRE(std::cout.rdbuf() == cout_before);
-    REQUIRE(std::cerr.rdbuf() == cerr_before);
-}
-#endif
