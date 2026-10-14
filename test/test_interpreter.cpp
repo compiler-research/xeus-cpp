@@ -726,7 +726,7 @@ TEST_SUITE("xoptions")
 
         bool exceptionThrown = false;
         try {
-            bool isVerbose = (parser["--verbose"] == false);
+            (void)(parser["--verbose"] == false);
         } catch (const std::exception& e) {
             exceptionThrown = true;
         }
@@ -840,7 +840,6 @@ TEST_SUITE("xsystem_apply")
 TEST_SUITE("xmagics_contains"){
     TEST_CASE("bad_status_cell") {
         xcpp::xmagics_manager manager;
-        xcpp::xmagic_type magic = xcpp::xmagic_type::cell;
         // manager.register_magic("my_magic", xcpp::xmagic_type::cell);
         
         bool result = manager.contains("my_magic", xcpp::xmagic_type::cell);
@@ -849,7 +848,6 @@ TEST_SUITE("xmagics_contains"){
 
     TEST_CASE("bad_status_line") {
         xcpp::xmagics_manager manager;
-        xcpp::xmagic_type magic = xcpp::xmagic_type::line;
         // manager.register_magic("my_magic", xcpp::xmagic_type::cell);
         
         bool result = manager.contains("my_magic", xcpp::xmagic_type::line);
