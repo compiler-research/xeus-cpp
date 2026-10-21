@@ -72,7 +72,7 @@ You are now in a position to build the xeus-cpp kernel. You build and test it in
 
     micromamba create -f environment-wasm-host.yml \
     --platform=emscripten-wasm32 \
-    -c https://prefix.dev/emscripten-forge-4x \
+    -c https://prefix.dev/emscripten-forge-bot/emscripten-forge-6x \
     -c https://prefix.dev/conda-forge
 
     mkdir build
