@@ -21,7 +21,7 @@ micromamba create -f environment-wasm-build.yml -y;
 micromamba activate xeus-cpp-wasm-build;
 micromamba create -f environment-wasm-host.yml \
 --platform=emscripten-wasm32 \
--c https://prefix.dev/emscripten-forge-4x \
+-c https://prefix.dev/emscripten-forge-bot/emscripten-forge-6x \
 -c https://prefix.dev/conda-forge
 mkdir -p build;
 cd build;
