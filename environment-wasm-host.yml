@@ -5,9 +5,9 @@ channels:
 dependencies:
   - nlohmann_json
   - nlohmann_json-abi
-  - xeus-lite
+  - xeus-lite-static
   - xeus
   - cppinterop>=1.9
   - cpp-argparse
-  - pugixml
+  - pugixml-static
   - doctest
