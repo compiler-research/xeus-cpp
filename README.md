@@ -91,7 +91,7 @@ You are now in a position to build the xeus-cpp kernel. You build and test it in
 ```bash
 micromamba create -f environment-wasm-host.yml \
 --platform=emscripten-wasm32 \
--c https://prefix.dev/emscripten-forge-4x \
+-c https://prefix.dev/emscripten-forge/6x \
 -c https://prefix.dev/conda-forge
 
 mkdir build
@@ -206,7 +206,7 @@ http://xeus-cpp.readthedocs.io
 
 | `xeus-cpp` | `xeus-zmq`      | `CppInterOp` | `pugixml` | `cpp-argparse`| `nlohmann_json` |
 |------------|-----------------|--------------|-----------|---------------|-----------------|
-|  main      |  4.0.0 | 1.9.0      | 1.15    | 3.2    | 3.12.0   |
+|  main      |  4.0.0 | 2.0.0      | 1.15    | 3.2    | 3.12.0   |
 
 ## Contributing
 
