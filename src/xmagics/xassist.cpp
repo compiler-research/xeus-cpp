@@ -310,7 +310,6 @@ namespace xcpp
                     if (c < 0x20 || c > 0x7E)
                     {
                         // Escape non-printable ASCII characters and non-ASCII characters
-                        std::array<char, 7> buffer{};
                         std::stringstream ss;
                         ss << "\\u" << std::hex << std::setw(4) << std::setfill('0') << (c & 0xFFFF);
                         escaped += ss.str();
