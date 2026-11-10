@@ -159,17 +159,29 @@ function(configure_kernel kernel)
   )
 endfunction()
 
-message("Configure kernels: ...")
-configure_kernel("/share/jupyter/kernels/xcpp17/")
-configure_kernel("/share/jupyter/kernels/xcpp20/")
-configure_kernel("/share/jupyter/kernels/xcpp23/")
-configure_kernel("/share/jupyter/kernels/xc11/")
-configure_kernel("/share/jupyter/kernels/xc17/")
-configure_kernel("/share/jupyter/kernels/xc23/")
+# Kernel selection options
+set(XEUS_CPP_DEFAULT_KERNELS
+    "xcpp17"
+    "xcpp20"
+    "xcpp23"
+    "xc11"
+    "xc17"
+    "xc23"
+)
 if(NOT EMSCRIPTEN)
-  configure_kernel("/share/jupyter/kernels/xcpp23-omp/")
-  configure_kernel("/share/jupyter/kernels/xc23-omp/")
+    list(APPEND XEUS_CPP_DEFAULT_KERNELS "xcpp23-omp" "xc23-omp")
 endif()
+
+set(XEUS_CPP_KERNELS "${XEUS_CPP_DEFAULT_KERNELS}" CACHE STRING "List of Jupyter kernels to configure and build")
+
+message("Configure kernels: ...")
+foreach(kernel_name IN LISTS XEUS_CPP_KERNELS)
+    if(EMSCRIPTEN AND kernel_name MATCHES "-omp")
+        message(FATAL_ERROR "OpenMP (-omp) kernels are not supported for Emscripten builds!")
+    endif()
+    
+    configure_kernel("/share/jupyter/kernels/${kernel_name}/")
+endforeach()
 
 # Source files
 # ============
