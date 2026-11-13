@@ -5,7 +5,7 @@ dependencies:
   # Build dependencies
   - make
   - cmake
-  - sel(unix): clangxx=21
+  - sel(unix): clangxx=23
   - sel(win): cxx-compiler
   - sel(linux): cxx-compiler
   # Host dependencies
@@ -13,10 +13,10 @@ dependencies:
   - xeus-zmq
   - nlohmann_json
   - nlohmann_json-abi
-  - cppinterop>=1.9
+  - cppinterop>=2.0
   - pugixml
   - cpp-argparse
-  - sel(unix): llvm-openmp=21
+  - sel(unix): llvm-openmp=23
   - curl
   - libcurl
   - libcurl-static

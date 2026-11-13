@@ -66,7 +66,7 @@ jobs:
       - name: Backup in case setup-micromamba fails to cleanup when ci job fails on self hosted runner
         if: ${{ runner.environment == 'self-hosted' }}
         run: |
-          rm -rf /root/micromamba/envs/xeus-cpp || true
+          rm -rf /root/micromamba || true
           rm -rf /root/micromamba-bin/micromamba || true
 
       - name: install mamba
@@ -244,7 +244,7 @@ jobs:
           set -e
           micromamba create -f environment-wasm-host.yml \
           --platform=emscripten-wasm32 \
-          -c https://prefix.dev/emscripten-forge-4x \
+          -c https://prefix.dev/emscripten-forge/6x \
           -c https://prefix.dev/conda-forge
           
           mkdir build

@@ -75,7 +75,6 @@ endif()
 
 if(EMSCRIPTEN)
     message("Build with emscripten")
-    set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
     set(XEUS_CPP_BUILD_SHARED OFF)
     set(XEUS_CPP_BUILD_EXECUTABLE OFF)
     set(XEUS_CPP_USE_SHARED_XEUS_CPP OFF)
@@ -90,7 +89,7 @@ endif()
 
 set(xeus_REQUIRED_VERSION 6.0.0)
 set(xeus_zmq_REQUIRED_VERSION 4.0.0)
-set(CppInterOp_REQUIRED_VERSION 1.9.0)
+set(CppInterOp_REQUIRED_VERSION 2.0.0)
 set(xeus_lite_REQUIRED_VERSION 5.0.0)
 
 if (NOT TARGET xeus AND NOT TARGET xeus-static)
