@@ -433,12 +433,24 @@ endif()
 
 if(EMSCRIPTEN)
     include(WasmBuildOptions)
+    include(XeusCppWasm)
     find_package(xeus-lite ${xeus_lite_REQUIRED_VERSION} REQUIRED)
     add_executable(xcpp src/main_emscripten_kernel.cpp )
     target_link_libraries(xcpp PRIVATE xeus-lite)
     xeus_cpp_set_kernel_options(xcpp)
     xeus_wasm_compile_options(xcpp)
     xeus_wasm_link_options(xcpp "web,worker")
+    # Emscripten-only WebGL flags. Native builds must not receive these.
+    message(STATUS "Enabling WebGL2/OffscreenCanvas support for xcpp")
+    set(XEUS_CPP_WASM_WEBGL_LINK_OPTIONS
+        "SHELL: -s GL_ENABLE_GET_PROC_ADDRESS=1"
+        "SHELL: -s OFFSCREENCANVAS_SUPPORT=1"
+        "SHELL: -s MAX_WEBGL_VERSION=2"
+        "SHELL: -s FULL_ES3=1"
+        "SHELL: -Wl,--undefined=emscripten_webgl2_get_proc_address"
+    )
+    target_link_options(xcpp PUBLIC ${XEUS_CPP_WASM_WEBGL_LINK_OPTIONS})
+    xeus_cpp_wasm_append_runtime_method(xcpp GL)
     string(REPLACE "@" "@@" ESCAPED_SYSROOT_PATH "${SYSROOT_PATH}")
     string(REPLACE "@" "@@" ESCAPED_XEUS_CPP_RESOURCE_DIR "${XEUS_CPP_RESOURCE_DIR}")
     string(REPLACE "\\" "/" ESCAPED_XEUS_CPP_RESOURCE_DIR "${ESCAPED_XEUS_CPP_RESOURCE_DIR}")
