@@ -111,7 +111,7 @@ emmake make check-xeus-cpp
 emmake make install
 ```
 
-It is possible to run the Emscripten tests in a headless browser. We will run our tests in a fresh installed browser. Installing the browsers, and running the tests within the installed browsers will be platform dependent. To do this for Chrome and Firefox on MacOS execute the following from the build folder
+The Emscripten tests can be run in a browser. We will run our tests in a fresh installed browser. Installing the browsers, and running the tests within the installed browsers will be platform dependent. To do this for Chrome and Firefox on MacOS execute the following from the build folder
 
 ```bash
 cd  test
@@ -130,9 +130,9 @@ export PATH="$PWD:$PATH"
 cd -
 
 echo "Running test_xeus_cpp in Firefox"
-python $BUILD_PREFIX/bin/emrun.py --browser="firefox" --kill_exit --timeout 60 --browser-args="--headless"  test_xeus_cpp.html
+python $BUILD_PREFIX/bin/emrun.py --browser="firefox" --kill_exit --timeout 60 test_xeus_cpp.html
 echo "Running test_xeus_cpp in Google Chrome"
-python python $BUILD_PREFIX/bin/emrun.py --browser="Google Chrome" --kill_exit --timeout 60 --browser-args="--headless  --no-sandbox"  test_xeus_cpp.html
+python $BUILD_PREFIX/bin/emrun.py --browser="Google Chrome" --kill_exit --timeout 60 --browser-args="--no-sandbox" test_xeus_cpp.html
 ```
 
 To run tests in Safari you can make use of safaridriver. How to enable this will depend on
@@ -141,7 +141,7 @@ python package. This only needs to be enable once, and then you can execute the 
 
 ```bash
 echo "Running test_xeus_cpp in Safari"
-python $BUILD_PREFIX/bin/emrun.py --no_browser --kill_exit --timeout 60 --browser-args="--headless --no-sandbox"  test_xeus_cpp.html &
+python $BUILD_PREFIX/bin/emrun.py --no_browser --kill_exit --timeout 60 test_xeus_cpp.html &
 python ../../scripts/browser_tests_safari.py test_xeus_cpp.html
 ```
 
@@ -162,10 +162,18 @@ export PATH="$PWD:$PATH"
 cd -
 
 echo "Running test_xeus_cpp in Firefox"
-python $BUILD_PREFIX/bin/emrun.py --browser="firefox" --kill_exit --timeout 60 --browser-args="--headless"  test_xeus_cpp.html
+python $BUILD_PREFIX/bin/emrun.py --browser="firefox" --kill_exit --timeout 60 test_xeus_cpp.html
 echo "Running test_xeus_cpp in Google Chrome"
-python $BUILD_PREFIX/bin/emrun.py --browser="google-chrome" --kill_exit --timeout 60 --browser-args="--headless --no-sandbox"  test_xeus_cpp.html
+python $BUILD_PREFIX/bin/emrun.py --browser="google-chrome" --kill_exit --timeout 60 --browser-args="--no-sandbox --ignore-gpu-blocklist --disable-gpu-compositing --disable-features=Vulkan" test_xeus_cpp.html
 ```
+
+When Chrome runs on a Linux CI display backed by Mesa llvmpipe, these flags are required:
+
+- `--ignore-gpu-blocklist`: Chrome blocks llvmpipe as a software renderer. Without this flag, WebGL2 context creation fails.
+- `--disable-gpu-compositing`: Chrome's llvmpipe compositing path fails. Disabling it keeps rendering on the working GL path.
+- `--disable-features=Vulkan`: Chrome's Vulkan path fails on this display. Disabling it forces the GL path.
+
+macOS uses the native GPU and does not need these flags.
 
 To build and test Jupyter Lite with this kernel locally you can execute the following
 ```bash

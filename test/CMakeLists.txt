@@ -44,6 +44,10 @@ set(XEUS_CPP_TESTS
     test_interpreter.cpp
 )
 
+if(EMSCRIPTEN)
+    list(APPEND XEUS_CPP_TESTS test_webgl.cpp)
+endif()
+
 add_executable(test_xeus_cpp ${XEUS_CPP_TESTS})
 
 if(EMSCRIPTEN)
@@ -77,6 +81,11 @@ if(EMSCRIPTEN)
     )
 
     target_include_directories(test_xeus_cpp PRIVATE ${XEUS_CPP_INCLUDE_DIR})
+
+    target_link_options(test_xeus_cpp PUBLIC
+        ${XEUS_CPP_WASM_WEBGL_LINK_OPTIONS}
+        "${XEUS_CPP_WASM_EXPORTED_RUNTIME_METHODS}"
+    )
 
     add_custom_command(TARGET test_xeus_cpp POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy

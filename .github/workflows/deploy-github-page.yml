@@ -69,6 +69,10 @@ jobs:
           emmake make check-xeus-cpp -j ${{ env.ncpus }}
           emmake make -j ${{ env.ncpus }} install
 
+      - name: Setup headless display
+        if: runner.os == 'Linux'
+        uses: pyvista/setup-headless-display-action@v5
+
       - name: Test Emscripten xeus-cpp in browser
         shell: bash -l {0}
         run: |
@@ -111,9 +115,9 @@ jobs:
 
             # Run tests in browsers
             echo "Running test_xeus_cpp in Firefox"
-            python ${{ env.BUILD_PREFIX }}/bin/emrun.py --browser="firefox" --kill_exit --browser-args="--headless"  test_xeus_cpp.html
+            python ${{ env.BUILD_PREFIX }}/bin/emrun.py --browser="firefox" --kill_exit  test_xeus_cpp.html
             echo "Running test_xeus_cpp in Google Chrome"
-            python ${{ env.BUILD_PREFIX }}/bin/emrun.py --browser="Google Chrome" --kill_exit --browser-args="--headless"  test_xeus_cpp.html
+            python ${{ env.BUILD_PREFIX }}/bin/emrun.py --browser="Google Chrome" --kill_exit  test_xeus_cpp.html
           else
             # Install Google Chrome
             wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
@@ -131,9 +135,13 @@ jobs:
 
             # Run tests in browsers
             echo "Running test_xeus_cpp in Firefox"
-            python ${{ env.BUILD_PREFIX }}/bin/emrun.py --browser="firefox" --kill_exit --timeout 60 --browser-args="--headless"  test_xeus_cpp.html
+            python ${{ env.BUILD_PREFIX }}/bin/emrun.py --browser="firefox" --kill_exit --timeout 60 test_xeus_cpp.html
             echo "Running test_xeus_cpp in Google Chrome"
-            python ${{ env.BUILD_PREFIX }}/bin/emrun.py --browser="google-chrome" --kill_exit --timeout 60 --browser-args="--headless  --no-sandbox"  test_xeus_cpp.html
+            # Linux CI uses Mesa llvmpipe for software rendering. Chrome
+            # blocklists that driver and its Vulkan/compositing path fails on
+            # the virtual display, so allow the blocklisted driver and disable
+            # Vulkan and GPU compositing. macOS uses the native GPU instead.
+            python ${{ env.BUILD_PREFIX }}/bin/emrun.py --browser="google-chrome" --kill_exit --timeout 60 --browser-args="--no-sandbox --ignore-gpu-blocklist --disable-gpu-compositing --disable-features=Vulkan" test_xeus_cpp.html
           fi
         timeout-minutes: 4
 
