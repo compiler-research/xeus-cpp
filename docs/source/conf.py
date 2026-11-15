@@ -13,20 +13,22 @@ cd ../../;
 curl -L https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba;
 export PATH="$PWD/bin:$PATH";
 export MAMBA_EXE="$PWD/bin/micromamba";
-export MAMBA_ROOT_PREFIX="/home/docs/checkouts/readthedocs.org/user_builds/xeus-cpp/conda/";
+export MAMBA_ROOT_PREFIX="$(cd ../.. && pwd)/conda";
 __mamba_setup="$("$MAMBA_EXE" shell hook --shell bash --root-prefix "$MAMBA_ROOT_PREFIX" 2> /dev/null)";
 eval "$__mamba_setup";
 alias micromamba="$MAMBA_EXE";
 micromamba create -f environment-wasm-build.yml -y;
 micromamba activate xeus-cpp-wasm-build;
+export BUILD_PREFIX=$CONDA_PREFIX;
 micromamba create -f environment-wasm-host.yml \
 --platform=emscripten-wasm32 \
 -c https://prefix.dev/emscripten-forge/6x \
--c https://prefix.dev/conda-forge
+-c https://prefix.dev/conda-forge -y;
+micromamba activate xeus-cpp-wasm-host;
+export PREFIX=$CONDA_PREFIX;
+micromamba activate xeus-cpp-wasm-build;
 mkdir -p build;
 cd build;
-export BUILD_PREFIX=$MAMBA_ROOT_PREFIX/xeus-cpp-wasm-build;
-export PREFIX=$MAMBA_ROOT_PREFIX/xeus-cpp-wasm-host;
 export SYSROOT_PATH=$BUILD_PREFIX/opt/emsdk/upstream/emscripten/cache/sysroot;
 emcmake cmake -DCMAKE_BUILD_TYPE=Release \\
               -DCMAKE_PREFIX_PATH=$PREFIX \\
